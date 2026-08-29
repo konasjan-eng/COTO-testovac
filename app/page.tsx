@@ -22,37 +22,62 @@ function TvlSection({ kind, code, organiser, title, period, projects, personal, 
   onInspect: (index: number) => void;
 }) {
   const labels = { voucher: "POUKÁZKA", investment: "INVESTICE", receipt: "DOKLAD" };
+  const numbers = { voucher: "1.", investment: "2.", receipt: "3." };
   return (
     <section className={`tvl-section ${kind}`} aria-label={labels[kind]}>
-      <header className="section-head">
-        <div><span className="variant">PN</span><strong>{labels[kind]}</strong></div>
-        <div className="code"><small>společný kód TVL · 17+4</small>{code}</div>
-      </header>
-      <div className="meta-grid">
-        <div><small>správce</small><b>{organiser}</b></div>
-        <div><small>živé období</small><b>{period}</b></div>
+      <div className="tvl-topline">
+        <span>Oblast voleb <i>PN</i></span>
+        <h2><em>{numbers[kind]}</em> {labels[kind]}</h2>
+        <span>Cena za účast <i>{projects[0]?.value || 1}</i></span>
+        <span>Volební období <b>{period}</b></span>
       </div>
-      <div className="survey-title"><small>otázka / název průzkumu</small><h3>{title}</h3></div>
-      <div className="project-list">
-        <div className="project-head"><span>C</span><span>Projekt nebo návrh</span><span>hodnota</span></div>
-        {projects.map((project, i) => (
-          <button key={i} className="project-row" onClick={() => onInspect(i)} title="Kliknutím otevřete celý popis">
-            <span>{i + 1}</span><strong>{project.title || `Projekt ${i + 1}`}</strong><span>{project.value} Kč</span>
-          </button>
-        ))}
-      </div>
-      {kind === "voucher" && (
-        <div className="personal-only">
-          <div><small>adresa účastníka</small><span>{personal?.address || "doplní pouze účastník"}</span></div>
-          <div><small>RČ / osobní identita</small><span>{personal?.identity || "doplní pouze účastník"}</span></div>
-          <div className="qr"><span>OSOBNÍ</span><b>QR</b></div>
+
+      <div className="tvl-columns">
+        <div className="tvl-left">
+          <div className="choice-box">
+            <div><span>Číslo varianty COTO</span><b>P</b><b>N</b></div>
+            <div><span>Pořadové číslo akce</span>{["0","0","0","0","0","1"].map((v,i)=><b key={i}>{v}</b>)}</div>
+          </div>
+          <div className="identifier-label"><span>Identifikátor tiskopisu</span><span>Kód účastníka</span></div>
+          <div className="identifier"><code>{code.slice(0,17)}</code><code>{code.slice(-4)}</code></div>
+          <div className="admin-box">
+            <div className="stamp"><span>Razítko / logo / IČO<br/>správce</span><i>{organiser.match(/\d{8}/)?.[0] || "IČO"}</i></div>
+            <div className="activation"><div>Datum a čas aktivace TVL<br/><b>doplní COTO při zveřejnění</b></div><div>Poznámky / číslo skenu</div></div>
+          </div>
         </div>
-      )}
-      {kind !== "voucher" && <p className="privacy-note">Tento díl neobsahuje adresu, rodné číslo ani osobní QR kód.</p>}
-      <footer>
-        <span>Časové razítko se doplní při odeslání.</span>
-        <span>TVL · PN</span>
-      </footer>
+
+        <div className="tvl-right">
+          <div className="survey-box">
+            <h3>Průzkum názorů nebo referendum:</h3>
+            <p>{title}</p>
+            <div className="project-list">
+              {projects.map((project, i) => (
+                <button key={i} className="project-row" onClick={() => onInspect(i)} title="Kliknutím otevřete celý popis">
+                  <span>{i + 1}</span><strong>{project.title || `Projekt ${i + 1}`}</strong><span>{project.value}</span>
+                </button>
+              ))}
+            </div>
+            <small>* Kliknutím na řádek otevřete úplný popis; účastník přidělí 1–9 bodů.</small>
+          </div>
+          {kind === "voucher" && (
+            <div className="personal-only">
+              <div className="address-lines">
+                <span>Jméno a příjmení účastníka ................................................</span>
+                <span>ulice / část obce .................................................................</span>
+                <span>obec ........................................................ PSČ ...................</span>
+                <span>národnost ............................................................................</span>
+                <b>Rodné číslo　{personal?.identity || "□ □ □ □ □ □ / □ □ □ □"}</b>
+              </div>
+              <div className="qr"><span>OSOBNÍ</span><b>QR</b><span>účastníka</span></div>
+            </div>
+          )}
+          {kind === "investment" && <div className="section-explanation"><b>Kvalita účastníka je zdrojem i cílem správce.</b><ol><li>Správce určí hodnotu názoru.</li><li>COTO zajistí elektronickou kontrolu výsledků.</li><li>Fyzický díl TVL může být součástí účetnictví účastníků.</li></ol></div>}
+          {kind === "receipt" && <div className="section-explanation receipt-copy"><b>Účastník po skončení akce vyhledá svůj identifikátor.</b><p>COTO zobrazí shodu vloženého názoru nebo důvěry s výsledkem správce.</p></div>}
+        </div>
+      </div>
+
+      {kind === "voucher" && <div className="voucher-instructions"><b>Pasivní účastník</b> může doplnit adresu pro papírové použití. <strong>Aktivní účastník</strong> používá shodný identifikátor ve všech třech dílech; jeho osobní údaje zůstávají pouze v POUKÁZCE.</div>}
+      {kind !== "investment" && <div className="invalid-warning">PŘI PŘEPISOVÁNÍ A ŠKRTÁNÍ JE TIŠTĚNÝ LIST NEPLATNÝ!</div>}
     </section>
   );
 }
@@ -133,7 +158,7 @@ export default function Home() {
           <div className="paper-label"><span>NÁHLED PŘENOSU</span><small>změny se propisují současně</small></div>
           <div className="tvl-paper compact">
             <TvlSection kind="voucher" {...{ code, organiser, title, period, projects }} onInspect={setSelected} />
-            <div className="cut">✂ <span>oddělit POUKÁZKU</span></div>
+            <div className="cut">✂ <span>oddělit POUKÁZKU a díly 2 a 3 vložit do online skeneru</span></div>
             <TvlSection kind="investment" {...{ code, organiser, title, period, projects }} onInspect={setSelected} />
             <div className="cut">✂ <span>oddělit INVESTICI</span></div>
             <TvlSection kind="receipt" {...{ code, organiser, title, period, projects }} onInspect={setSelected} />
