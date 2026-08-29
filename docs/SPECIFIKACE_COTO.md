@@ -19,3 +19,15 @@ PN – Průzkum názorů. Správce připraví až tři projekty nebo otázky, je
 ## Životní cyklus
 
 Pracovní šablona → Náhled celého TVL → POTVRDIT → uzamčení → živý projekt → po skončení týdne ukončený projekt.
+
+## První průchod účastníka
+
+1. Účastník otevře seznam správců.
+2. Kliknutím na obec, město, firmu, spolek nebo úřad otevře jeho aktivity.
+3. Vybere živou akci PN; ukončené akce budou v historii.
+4. Kurzorem otevře úplný popis každého ze tří řádků C.
+5. Každému řádku přidělí 1–9 bodů.
+6. Odesláním vznikne přesné časové razítko a osobní kontrolní kód.
+7. Po uzavření akce účastník kódem dohledá svůj řádek a dopad názoru.
+
+Zatím není rozhodnuto, zda se hodnoty 1–9 smějí opakovat. Testovací verze je proto dovoluje opakovat a tuto otázku ponechává ke schválení.

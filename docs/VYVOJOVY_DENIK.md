@@ -1,5 +1,12 @@
 # Vývojový deník COTO
 
+## 27. srpna 2026 – obnova a účastník 0.1
+
+- Ověřen veřejný repozitář: obsahuje zatím pouze PDF `volební šablona 2025-04.pdf`.
+- Nalezena a zachována rozpracovaná místní webová verze správce PN.
+- Doplněn první průchod účastníka: seznam správců, aktivita, popisy C1-C3, hodnocení 1-9, časové razítko a kontrolní kód.
+- Skutečné hlasování, databáze, ARES, bankovní identita a platby zůstávají mimo testovací verzi.
+
 ## 29. srpna 2026 – PN 0.1
 
 - Vytvořeno digitální trojdílné TVL.

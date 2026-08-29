@@ -7,3 +7,6 @@
 - **Soukromí** – adresa, RČ a osobní QR patří výhradně do POUKÁZKY.
 - **Uzamčení** – po POTVRDIT nesmí správce živou akci upravovat; je už jen účastníkem.
 - **Týden živosti** – od pondělí 00:00 do neděle 23:59:59,999.
+- **Zdroj pravdy** – schválená specifikace a vývojový deník v repozitáři; automatická paměť AI je pouze pomocná.
+- **Účastník PN** – správce → aktivita → popisy C1-C3 → 1-9 bodů → časové razítko → osobní kontrolní kód.
+- **Neuzavřené pravidlo** – zda lze stejné bodové hodnocení použít u více projektů.

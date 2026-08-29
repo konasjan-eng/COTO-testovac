@@ -58,6 +58,7 @@ function TvlSection({ kind, code, organiser, title, period, projects, personal, 
 }
 
 export default function Home() {
+  const [role, setRole] = useState<"manager" | "participant">("manager");
   const [projects, setProjects] = useState(initialProjects);
   const [title, setTitle] = useState("Co má mít v příštím týdnu přednost?");
   const [organiser, setOrganiser] = useState("Správce PN · IČO 12226491");
@@ -67,6 +68,9 @@ export default function Home() {
   const [locked, setLocked] = useState(false);
   const [code] = useState("PN20260831COTO001-A001");
   const [live, setLive] = useState<{ title: string; period: string; code: string }[]>([]);
+  const [participantOpen, setParticipantOpen] = useState(false);
+  const [scores, setScores] = useState<number[]>([0, 0, 0]);
+  const [receipt, setReceipt] = useState("");
   const period = useMemo(() => {
     const d = new Date(`${start}T00:00:00`);
     if (Number.isNaN(d.getTime())) return "doplňte pondělí";
@@ -81,13 +85,30 @@ export default function Home() {
     setPreview(false);
     setLive([{ title, period, code }]);
   };
+  const sendOpinion = () => {
+    if (scores.some((score) => score < 1 || score > 9)) {
+      window.alert("Přidělte všem třem projektům hodnocení od 1 do 9 bodů.");
+      return;
+    }
+    const stamp = new Date();
+    setReceipt(`${code}-${stamp.getTime().toString(36).toUpperCase()} · ${stamp.toLocaleString("cs-CZ", { fractionalSecondDigits: 3 })}`);
+  };
 
   return (
     <main>
       <nav className="topbar">
         <div><b>COTO</b><span>Průzkum názorů · PN</span></div>
-        <div className="status"><i className={locked ? "locked" : "draft"} />{locked ? "Uzamčeno · živý projekt" : "Pracovní šablona správce"}</div>
+        <div className="role-switch" aria-label="Volba role"><button className={role === "manager" ? "active" : ""} onClick={() => setRole("manager")}>Správce</button><button className={role === "participant" ? "active" : ""} onClick={() => setRole("participant")}>Účastník</button></div>
+        <div className="status"><i className={locked ? "locked" : "draft"} />{locked ? "Uzamčeno · živý projekt" : "Pracovní test"}</div>
       </nav>
+
+      {role === "participant" ? <>
+        <header className="intro participant-intro"><div><p className="eyebrow">ÚČASTNÍK · PRVNÍ PRŮCHOD</p><h1>Vyberte správce.<br />Otevřete jeho aktivitu.</h1></div><p>V tomto testu je dostupný jeden správce. Uzamčená akce se účastníkovi zobrazí mezi živými; po konci týdne patří do historie.</p></header>
+        <section className="participant-shell">
+          <div className="organiser-column"><p className="eyebrow">SEZNAM SPRÁVCŮ</p><button className="organiser-choice active" onClick={() => setParticipantOpen(true)}><span>01</span><div><b>{organiser}</b><small>{locked ? "1 živá aktivita" : "1 ukázková aktivita před potvrzením"}</small></div><em>→</em></button></div>
+          <div className="activity-column">{!participantOpen ? <div className="empty-state"><b>Vyberte správce vlevo</b><span>Potom se zobrazí jeho živé a ukončené aktivity.</span></div> : <><div className="activity-head"><div><span className="variant">PN</span><div><small>{locked ? "ŽIVÁ AKTIVITA" : "ZKUŠEBNÍ NÁHLED"}</small><h2>{title}</h2></div></div><code>{code}</code></div><p className="participant-period">{period}</p><div className="participant-projects">{projects.map((project, index) => <article key={index}><button className="participant-detail" onClick={() => setSelected(index)}><span>C{index + 1}</span><div><b>{project.title}</b><small>Kliknutím otevřete celý popis</small></div></button><label>Vaše hodnocení<select value={scores[index]} onChange={(event) => setScores((current) => current.map((score, i) => i === index ? Number(event.target.value) : score))}><option value="0">zvolte 1–9</option>{Array.from({ length: 9 }, (_, score) => <option key={score + 1} value={score + 1}>{score + 1} bodů</option>)}</select></label></article>)}</div>{!receipt ? <button className="send-opinion" onClick={sendOpinion}>ODESLAT NÁZOR A VYTVOŘIT ČASOVÉ RAZÍTKO</button> : <div className="participant-receipt"><p className="eyebrow">ZKUŠEBNÍ KONTROLNÍ KÓD</p><strong>{receipt}</strong><p>Uložte si jej pro pozdější dohledání svého řádku ve výsledcích.</p></div>}<p className="prototype-warning">Tato verze neodesílá skutečný hlas ani peníze. Je určena pouze ke kontrole kroků a textů.</p></>}</div>
+        </section>
+      </> : <>
 
       <header className="intro">
         <div><p className="eyebrow">DIGITÁLNÍ PRACOVNÍ LIST TVL</p><h1>Jedna informace.<br />Tři propojené díly.</h1></div>
@@ -124,6 +145,7 @@ export default function Home() {
         <div><p className="eyebrow">ŽIVÉ PROJEKTY SPRÁVCE</p><h2>{live.length ? "Akce je zveřejněna účastníkům" : "Zatím čeká na potvrzení"}</h2></div>
         {live.map((item) => <article key={item.code}><span className="live-dot" /><div><b>{item.title}</b><small>{item.period}</small></div><code>{item.code}</code></article>)}
       </section>
+      </>}
 
       {selected !== null && <div className="modal-backdrop" onMouseDown={() => setSelected(null)}><section className="modal" onMouseDown={(e) => e.stopPropagation()}>
         <button className="close" onClick={() => setSelected(null)}>×</button><p className="eyebrow">ŘÁDEK C{selected + 1}</p><h2>Projekt nebo otázka</h2>
