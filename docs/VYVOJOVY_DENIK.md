@@ -22,3 +22,11 @@
 - automatický přesun po neděli 23:59:59,999;
 - rozhraní účastníka;
 - ověření ARES.
+
+## 29. srpna 2026 – PN 0.2
+
+- Přijata čitelná fotografie původního trojdílného TVL.
+- Digitální list překreslen podle skutečného rozložení předlohy.
+- Obnoveny původní bloky: oblast voleb, čísla, identifikátor, správce, aktivace, průzkum, osobní část a střihové linky.
+- Osobní část a QR zůstávají pouze v POUKÁZCE.
+- Zachována živá editace projektů a synchronní přenos do všech tří dílů.
