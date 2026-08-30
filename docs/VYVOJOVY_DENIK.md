@@ -28,6 +28,7 @@
 ## 30. srpna 2026 – oprava priorit a okna A
 
 - Rozsah priorit správce opraven z 1–9 na 1–3.
+- Význam upřesněn: správce přiděluje každému ze tří projektů 1–3 Kč ze svého účtu na propagaci; účastník používá samostatné koncové pole 1–9 bodů.
 - Pole správce jsou přenesena do grafického členění originálního TVL, zejména dílu INVESTICE.
 - POTVRDIT nyní vytvoří časové razítko s tisícinami sekundy a zapíše je do okna A před uzamčením.
 

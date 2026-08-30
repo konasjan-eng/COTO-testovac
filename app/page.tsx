@@ -11,7 +11,7 @@ const initialProjects: Project[] = [
   { title: "", detail: "", value: 3 },
 ];
 
-function TvlSection({ kind, code, organiser, title, period, validFrom, validTo, projects, personal, activationStamp, currentDate, currentTime, showControls, onBack, onFinish, onInspect }: {
+function TvlSection({ kind, code, organiser, title, period, validFrom, validTo, projects, participantScores, personal, activationStamp, currentDate, currentTime, showControls, onBack, onFinish, onInspect }: {
   kind: SectionKind;
   code: string;
   organiser: string;
@@ -20,6 +20,7 @@ function TvlSection({ kind, code, organiser, title, period, validFrom, validTo, 
   validFrom: string;
   validTo: string;
   projects: Project[];
+  participantScores?: number[];
   personal?: { address: string; identity: string };
   activationStamp?: string;
   currentDate: string;
@@ -36,7 +37,7 @@ function TvlSection({ kind, code, organiser, title, period, validFrom, validTo, 
       <div className="tvl-topline">
         <span><b>Kód varianty<br/>průzkumu COTO</b><i>PN 1</i></span>
         <h2><em>{numbers[kind]}</em> {labels[kind]}</h2>
-        <span><b>Hodnota průzkumu<br/>z účtu správce</b><i>{projects[0]?.value || 1} Kč</i></span>
+        <span><b>Hodnota průzkumu<br/>z účtu správce</b><i>1–3 Kč</i></span>
         <span className="validity"><b>Týden platnosti tohoto<br/>průzkumu názorů</b><i>{validFrom}</i><i>{validTo}</i></span>
       </div>
 
@@ -61,13 +62,14 @@ function TvlSection({ kind, code, organiser, title, period, validFrom, validTo, 
             <h3>Průzkum návrhů a otázek</h3>
             <div className="project-list window-c">
               <span className="window-letter">C</span>
+              <div className="project-columns"><span>Návrh nebo otázka</span><b>Správce<br/>1–3 Kč</b><b>Účastník<br/>1–9 bodů</b></div>
               {projects.map((project, i) => (
                 <button key={i} className="project-row" onClick={() => onInspect(i)} title="Kliknutím otevřete celý popis">
-                  <span>{i + 1}</span><strong>{project.title || "Klikněte a zapište projekt nebo otázku"}</strong><span>{project.value}</span>
+                  <span>{i + 1}</span><strong>{project.title || "Klikněte a zapište projekt nebo otázku"}</strong><span>{project.value} Kč</span><span>{participantScores?.[i] ? `${participantScores[i]} b.` : ""}</span>
                 </button>
               ))}
             </div>
-            <small>* Správce určí pořadí svých priorit 1–3. Kliknutím na řádek otevřete úplný popis.</small>
+            <small>* Správce ocení svou prioritu 1–3 Kč. Účastník samostatně přidělí každému řádku 1–9 bodů.</small>
           </div>
           {kind === "voucher" && (
             <div className="personal-only window-d">
@@ -82,7 +84,7 @@ function TvlSection({ kind, code, organiser, title, period, validFrom, validTo, 
               <div className="qr"><span>OSOBNÍ</span><b>QR</b><span>účastníka</span></div>
             </div>
           )}
-          {kind === "investment" && <div className="section-explanation"><b>Kvalita účastníka je zdrojem i cílem správce.</b><ol><li>Správce určí pořadí svých tří priorit čísly 1–3.</li><li>Otevření náhledu zapíše časové razítko do okna A a ukončí editaci.</li><li>Potvrzená akce přejde jako PN1 mezi živé.</li></ol></div>}
+          {kind === "investment" && <div className="section-explanation"><b>Kvalita účastníka je zdrojem i cílem správce.</b><ol><li>Správce ocení každý ze svých nejvýše tří projektů částkou 1–3 Kč z účtu na propagaci.</li><li>Účastník samostatně zvýší hodnotu každého návrhu nebo otázky hodnocením 1–9 bodů.</li><li>Potvrzená akce přejde jako PN1 mezi živé.</li></ol></div>}
           {kind === "receipt" && <div className="section-explanation receipt-copy"><b>Účastník po skončení akce vyhledá svůj identifikátor.</b><p>COTO zobrazí shodu vloženého názoru nebo důvěry s výsledkem správce.</p></div>}
         </div>
       </div>
@@ -224,8 +226,8 @@ export default function Home() {
         <button className="close" onClick={() => setSelected(null)}>×</button><p className="eyebrow">ŘÁDEK C{selected + 1}</p><h2>Projekt nebo otázka</h2>
         <label>Nadpis<input autoFocus disabled={locked} value={projects[selected].title} onChange={(e) => updateProject(selected, { title: e.target.value })} /></label>
         <label>Podrobný popis<textarea disabled={locked} rows={6} value={projects[selected].detail} onChange={(e) => updateProject(selected, { detail: e.target.value })} /></label>
-        <label>Pořadí priority správce (1–3)<input disabled={locked} type="number" min="1" max="3" value={projects[selected].value} onChange={(e) => updateProject(selected, { value: Math.min(3, Math.max(1, Number(e.target.value))) })} /></label>
-        <div className="modal-note">Toto číslo vyjadřuje pouze pořadí tří priorit správce. Číslo se zapíše do řádku okna C v INVESTICI a přenese do dalších dílů TVL.</div>
+        <label>Hodnota priority správce z účtu na propagaci (1–3 Kč)<input disabled={locked} type="number" min="1" max="3" value={projects[selected].value} onChange={(e) => updateProject(selected, { value: Math.min(3, Math.max(1, Number(e.target.value))) })} /></label>
+        <div className="modal-note">Správce zde přidělí projektu 1–3 Kč podle své priority. Hodnocení účastníka je jiné pole na konci stejného řádku a má rozsah 1–9 bodů.</div>
         <button className="save" onClick={() => setSelected(null)}>{locked ? "ZAVŘÍT" : "ULOŽIT DO VŠECH TŘÍ DÍLŮ"}</button>
       </section></div>}
 
@@ -234,8 +236,7 @@ export default function Home() {
       <div className="print-batch" aria-hidden="true">
         {(role === "manager" ? Array.from({ length: Math.min(999, printCount) }, (_, i) => i) : receipt ? [0] : []).map((copyIndex) => {
           const printCode = `${code.slice(0, 17)}${String(copyIndex + 1).padStart(4, "0")}`;
-          const printProjects = role === "participant" ? projects.map((project, i) => ({ ...project, value: scores[i] })) : projects;
-          const printShared = { ...sharedTvl, code: printCode, projects: printProjects };
+          const printShared = { ...sharedTvl, code: printCode, participantScores: role === "participant" ? scores : undefined };
           return <div className="printed-sheet" key={printCode}><div className="printed-number">TVL PN1 · pořadové číslo {copyIndex + 1}</div><TvlSection kind="voucher" {...printShared} personal={{ address: "", identity: "" }} onInspect={() => {}} /><p className="cut-copy">Každý účastník si oddělí POUKÁZKU a díly 2 a 3 vloží do online skeneru s monitorem. Zapíše si pořadové číslo skenu pro urychlené vyhledání své anonymní účasti.</p><div className="cut">✂ <span>oddělit POUKÁZKU</span></div><TvlSection kind="investment" {...printShared} onInspect={() => {}} /><div className="cut">✂ <span>oddělit INVESTICI</span></div><TvlSection kind="receipt" {...printShared} onInspect={() => {}} /></div>;
         })}
       </div>

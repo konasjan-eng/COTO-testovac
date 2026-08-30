@@ -14,7 +14,7 @@ Všechny díly mají shodný kód složený ze 17+4 symbolů. Společné údaje 
 
 ## První funkční varianta
 
-PN – Průzkum názorů. Správce připraví až tři projekty nebo otázky, jejich popisy a určí pořadí svých priorit výhradně čísly 1–3.
+PN – Průzkum názorů. Správce připraví nejvýše tři projekty nebo otázky a jejich popisy. Každému ze své pozice přidělí hodnotu priority 1–3 Kč ze svého účtu na propagaci.
 
 ## Životní cyklus
 
@@ -26,13 +26,13 @@ Při otevření náhledu COTO vytvoří přesné časové razítko viditelné sp
 
 - **A** – vlevo ověřená identifikace správce z ARES; vpravo běžící čas a pod ním větším písmem časové razítko ukončení editace.
 - **B** – anonymizér 17+4 symboly. Je shodný ve třech dílech jednoho TVL; každý další tisk nebo stažení dostává nový kód.
-- **C** – tři projekty, jejich popisy a priority správce 1–3.
+- **C** – nejvýše tři projekty nebo otázky. Každý řádek končí dvěma odlišnými poli: hodnotou priority správce 1–3 Kč a hodnocením účastníka 1–9 bodů.
 - **D** – adresa a osobní údaje účastníka pouze v POUKÁZCE.
 - **E** – původní volební pole. Zatím se zachovávají názvy „Číslo volené strany“ a „Číslo voleného zástupce“ i původní okénka pro číslice. Z E se odvozuje kód průzkumu PN1 v horním řádku.
 
 Upřesnění okna E: obsahuje nadpis, dvě číslicová okénka pro číslo strany a pět číslicových okének pro číslo vybraného kandidáta. Abecední řazení kandidátů bude součástí pozdější varianty VT.
 
-Okno C má nadpis **Průzkum návrhů a otázek** a tři samostatné prázdné řádky. Kliknutí myší nebo klepnutí na dotykové obrazovce otevře editační šablonu s nadpisem, úplným popisem a prioritou správce 1–3.
+Okno C má nadpis **Průzkum návrhů a otázek** a tři samostatné prázdné řádky. Kliknutí myší nebo klepnutí na dotykové obrazovce otevře editační šablonu s nadpisem, úplným popisem a hodnotou priority správce 1–3 Kč. Účastník později přiděluje každému řádku nezávislé hodnocení 1–9 bodů; tím zvyšuje hodnotu každého návrhu nebo otázky.
 
 Otevření náhledu vytvoří časové razítko a ukončí editaci. Náhled se zobrazí před tlačítkem POTVRDIT. Potvrzení převede PN1 do sloupce živých projektů varianty PN.
 
