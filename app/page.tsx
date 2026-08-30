@@ -11,16 +11,22 @@ const initialProjects: Project[] = [
   { title: "", detail: "", value: 3 },
 ];
 
-function TvlSection({ kind, code, organiser, title, period, projects, personal, activationStamp, currentTime, onInspect }: {
+function TvlSection({ kind, code, organiser, title, period, validFrom, validTo, projects, personal, activationStamp, currentDate, currentTime, showControls, onBack, onFinish, onInspect }: {
   kind: SectionKind;
   code: string;
   organiser: string;
   title: string;
   period: string;
+  validFrom: string;
+  validTo: string;
   projects: Project[];
   personal?: { address: string; identity: string };
   activationStamp?: string;
+  currentDate: string;
   currentTime: string;
+  showControls?: boolean;
+  onBack?: () => void;
+  onFinish?: () => void;
   onInspect: (index: number) => void;
 }) {
   const labels = { voucher: "POUKÁZKA", investment: "INVESTICE", receipt: "DOKLAD" };
@@ -28,17 +34,16 @@ function TvlSection({ kind, code, organiser, title, period, projects, personal, 
   return (
     <section className={`tvl-section ${kind}`} aria-label={labels[kind]}>
       <div className="tvl-topline">
-        <span>Kód průzkumu <i>PN 1</i></span>
+        <span><b>Kód varianty<br/>průzkumu COTO</b><i>PN 1</i></span>
         <h2><em>{numbers[kind]}</em> {labels[kind]}</h2>
-        <span>Hodnota názoru <i>{projects[0]?.value || 1} Kč</i></span>
-        <span>Týden platnosti <b>{period}</b></span>
+        <span><b>Hodnota průzkumu<br/>z účtu správce</b><i>{projects[0]?.value || 1} Kč</i></span>
+        <span className="validity"><b>Týden platnosti tohoto<br/>průzkumu názorů</b><i>{validFrom}</i><i>{validTo}</i></span>
       </div>
 
       <div className="tvl-columns">
         <div className="tvl-left">
           <div className="choice-box window-e">
             <span className="window-letter">E</span>
-            <h3>Volba strany a kandidáta</h3>
             <div><span>Číslo volené strany</span>{["", ""].map((v,i)=><b key={i}>{v}</b>)}</div>
             <div><span>Číslo vybraného kandidáta</span>{["", "", "", "", ""].map((v,i)=><b key={i}>{v}</b>)}</div>
           </div>
@@ -46,7 +51,8 @@ function TvlSection({ kind, code, organiser, title, period, projects, personal, 
           <div className="identifier window-b"><code>{code.slice(0,17)}</code><code>{code.slice(-4)}</code></div>
           <div className="admin-box window-a">
             <div className="stamp"><span><mark>A</mark> Ověřená identifikace správce z ARES</span><i>{organiser.match(/\d{8}/)?.[0] || "IČO"}</i><small>{organiser}</small></div>
-            <div className="activation"><div><span>Běžící čas</span><strong>{currentTime}</strong></div><div><span>Časové razítko ukončí a zamkne editaci</span><b>{activationStamp}</b></div></div>
+            <div className="activation"><div><span>Datum</span><strong>{currentDate}</strong><span>Běžící čas</span><strong>{currentTime}</strong></div><div><span>Časové razítko ukončí a zamkne editaci</span><b>{activationStamp}</b></div></div>
+            {kind === "investment" && showControls && <div className="window-a-actions"><button onClick={onBack}>ZPĚT</button><button onClick={onFinish}>UKONČIT</button></div>}
           </div>
         </div>
 
@@ -88,6 +94,7 @@ function TvlSection({ kind, code, organiser, title, period, projects, personal, 
 }
 
 export default function Home() {
+  const [entryStage, setEntryStage] = useState<"icon" | "logo" | "roles" | "ares" | "app" | "dashboard" | "readonly">("icon");
   const [role, setRole] = useState<"manager" | "participant">("manager");
   const [projects, setProjects] = useState(initialProjects);
   const [title] = useState("PN1 · Průzkum návrhů a otázek");
@@ -104,9 +111,10 @@ export default function Home() {
   const [receipt, setReceipt] = useState("");
   const [activationStamp, setActivationStamp] = useState("");
   const [currentTime, setCurrentTime] = useState("");
+  const [currentDate, setCurrentDate] = useState("");
   const [printCount, setPrintCount] = useState(1);
   useEffect(() => {
-    const showTime = () => setCurrentTime(new Date().toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit", second: "2-digit", fractionalSecondDigits: 3 }));
+    const showTime = () => { const now = new Date(); setCurrentDate(now.toLocaleDateString("cs-CZ")); setCurrentTime(now.toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit", second: "2-digit", fractionalSecondDigits: 3 })); };
     showTime(); const timer = window.setInterval(showTime, 47); return () => window.clearInterval(timer);
   }, []);
   const period = useMemo(() => {
@@ -114,6 +122,10 @@ export default function Home() {
     if (Number.isNaN(d.getTime())) return "doplňte pondělí";
     const end = new Date(d); end.setDate(end.getDate() + 6);
     return `${d.toLocaleDateString("cs-CZ")} – ${end.toLocaleDateString("cs-CZ")}`;
+  }, [start]);
+  const validity = useMemo(() => {
+    const d = new Date(`${start}T00:00:00`); if (Number.isNaN(d.getTime())) return { from: "", to: "" };
+    const end = new Date(d); end.setDate(end.getDate() + 6); return { from: d.toLocaleDateString("cs-CZ"), to: end.toLocaleDateString("cs-CZ") };
   }, [start]);
 
   const updateProject = (index: number, patch: Partial<Project>) => setProjects((items) => items.map((item, i) => i === index ? { ...item, ...patch } : item));
@@ -134,6 +146,7 @@ export default function Home() {
     if (!window.confirm("Potvrzením se akce uzamkne. Další úpravy už nebudou možné. Pokračovat?")) return;
     setPreview(false);
     setLive([{ title, period, code }]);
+    setEntryStage("dashboard");
   };
   const sendOpinion = () => {
     if (scores.some((score) => score < 1 || score > 9)) {
@@ -143,6 +156,15 @@ export default function Home() {
     const stamp = new Date();
     setReceipt(`${code}-${stamp.getTime().toString(36).toUpperCase()} · ${stamp.toLocaleString("cs-CZ", { fractionalSecondDigits: 3 })}`);
   };
+
+  const sharedTvl = { code, organiser, title, period, validFrom: validity.from, validTo: validity.to, projects, activationStamp, currentDate, currentTime };
+
+  if (entryStage === "icon") return <main className="entry-screen"><button className="coto-entry-icon" onClick={() => setEntryStage("logo")} aria-label="Otevřít COTO"><span>☺</span><b>COTO</b></button></main>;
+  if (entryStage === "logo") return <main className="entry-screen"><button className="coto-entry-logo" onClick={() => setEntryStage("roles")}><b>COTO</b><span>Co/dáš A To/máš</span><small>pro spravedlivou výměnu informací</small></button></main>;
+  if (entryStage === "roles") return <main className="entry-screen"><div className="entry-panel"><h1>COTO</h1><p>Vyberte způsob vstupu</p><button onClick={() => setEntryStage("ares")}>SPRÁVCE</button><button onClick={() => { setRole("participant"); setEntryStage("app"); }}>ÚČASTNÍK</button><button className="muted" onClick={() => setEntryStage("logo")}>ZPĚT</button></div></main>;
+  if (entryStage === "ares") return <main className="entry-screen"><div className="entry-panel"><p className="eyebrow">KONTROLA SPRÁVCE V ARES</p><h1>Identifikace správce</h1><label>IČO<input value="12226491" readOnly /></label><p className="ares-ok">Zkušební kontrola ARES: údaje správce připraveny pro okno A.</p><button onClick={() => setEntryStage("app")}>POKRAČOVAT K PRACOVNÍ ŠABLONĚ</button><button className="muted" onClick={() => setEntryStage("roles")}>ZPĚT</button></div></main>;
+  if (entryStage === "dashboard") return <main className="dashboard-screen"><header className="dashboard-logo"><b>COTO</b><div><strong>{organiser}</strong><small>Ověřená identita správce · ARES</small></div></header><button className="new-survey" onClick={() => { setLocked(false); setActivationStamp(""); setEntryStage("app"); }}>+ NOVÝ PRŮZKUM</button><section className="manager-columns"><div><p className="eyebrow">PN · ŽIVÉ</p><h2>Živé průzkumy</h2>{live.map((item) => <article key={item.code}><span className="live-dot"/><div><b>PN1 · Průzkum návrhů a otázek</b><small>{item.period}</small><button onClick={() => setEntryStage("readonly")}>OTEVŘÍT JEN KE ČTENÍ A KOPÍROVÁNÍ</button></div><code>{item.code}</code></article>)}</div><div><p className="eyebrow">PN · UKONČENÉ</p><h2>Ukončené průzkumy</h2><p className="empty-column">Po skončení týdne se PN1 přesune sem.</p></div></section></main>;
+  if (entryStage === "readonly") return <main className="readonly-screen"><div className="readonly-toolbar"><button onClick={() => setEntryStage("dashboard")}>ZPĚT NA PŘEHLED</button><button onClick={() => navigator.clipboard?.writeText(`${title}\n${projects.map((p, i) => `${i + 1}. ${p.title}: ${p.detail}`).join("\n")}`)}>KOPÍROVAT OBSAH</button></div><div className="tvl-paper"><TvlSection kind="voucher" {...sharedTvl} onInspect={setSelected}/><div className="cut">✂</div><TvlSection kind="investment" {...sharedTvl} onInspect={setSelected}/><div className="cut">✂</div><TvlSection kind="receipt" {...sharedTvl} onInspect={setSelected}/></div></main>;
 
   return (
     <main>
@@ -181,12 +203,12 @@ export default function Home() {
         <div className="paper-wrap">
           <div className="paper-label"><span>NÁHLED PŘENOSU</span><small>změny se propisují současně</small></div>
           <div className="tvl-paper compact">
-            <TvlSection kind="voucher" {...{ code, organiser, title, period, projects, activationStamp, currentTime }} onInspect={setSelected} />
+            <TvlSection kind="voucher" {...sharedTvl} onInspect={setSelected} />
             <p className="cut-copy">Každý účastník si oddělí POUKÁZKU a díly 2 a 3 vloží do online skeneru s monitorem. Zapíše si pořadové číslo skenu pro urychlené vyhledání své anonymní účasti.</p>
             <div className="cut">✂ <span>oddělit POUKÁZKU</span></div>
-            <TvlSection kind="investment" {...{ code, organiser, title, period, projects, activationStamp, currentTime }} onInspect={setSelected} />
+            <TvlSection kind="investment" {...sharedTvl} showControls onBack={() => setEntryStage("ares")} onFinish={openStampedPreview} onInspect={setSelected} />
             <div className="cut">✂ <span>oddělit INVESTICI</span></div>
-            <TvlSection kind="receipt" {...{ code, organiser, title, period, projects, activationStamp, currentTime }} onInspect={setSelected} />
+            <TvlSection kind="receipt" {...sharedTvl} onInspect={setSelected} />
           </div>
         </div>
       </div>
@@ -207,13 +229,14 @@ export default function Home() {
         <button className="save" onClick={() => setSelected(null)}>{locked ? "ZAVŘÍT" : "ULOŽIT DO VŠECH TŘÍ DÍLŮ"}</button>
       </section></div>}
 
-      {preview && <div className="preview-overlay"><div className="preview-toolbar"><div><b>Celý TVL · časové razítko {activationStamp}</b><span>Editace je zamčená. Zpět razítko zruší a dovolí opravit chyby; Potvrdit zveřejní PN1.</span></div><div><button onClick={returnToEditing}>ZPĚT K OPRAVÁM</button><button className="confirm" onClick={confirm}>POTVRDIT PN1</button></div></div><div className="preview-scroll"><div className="tvl-paper"><TvlSection kind="voucher" {...{ code, organiser, title, period, projects, activationStamp, currentTime }} personal={{address:"", identity:""}} onInspect={setSelected} /><p className="cut-copy">Každý účastník si oddělí POUKÁZKU a díly 2 a 3 vloží do online skeneru s monitorem. Zapíše si pořadové číslo skenu pro urychlené vyhledání své anonymní účasti.</p><div className="cut">✂ <span>oddělit POUKÁZKU</span></div><TvlSection kind="investment" {...{ code, organiser, title, period, projects, activationStamp, currentTime }} onInspect={setSelected} /><div className="cut">✂ <span>oddělit INVESTICI</span></div><TvlSection kind="receipt" {...{ code, organiser, title, period, projects, activationStamp, currentTime }} onInspect={setSelected} /></div></div></div>}
+      {preview && <div className="preview-overlay"><div className="preview-toolbar"><div><b>Celý TVL · časové razítko {activationStamp}</b><span>Editace je zamčená. Zpět razítko zruší a dovolí opravit chyby; Potvrdit zveřejní PN1.</span></div><div><button onClick={returnToEditing}>ZPĚT K OPRAVÁM</button><button className="confirm" onClick={confirm}>POTVRDIT PN1</button></div></div><div className="preview-scroll"><div className="tvl-paper"><TvlSection kind="voucher" {...sharedTvl} personal={{address:"", identity:""}} onInspect={setSelected} /><p className="cut-copy">Každý účastník si oddělí POUKÁZKU a díly 2 a 3 vloží do online skeneru s monitorem. Zapíše si pořadové číslo skenu pro urychlené vyhledání své anonymní účasti.</p><div className="cut">✂ <span>oddělit POUKÁZKU</span></div><TvlSection kind="investment" {...sharedTvl} onInspect={setSelected} /><div className="cut">✂ <span>oddělit INVESTICI</span></div><TvlSection kind="receipt" {...sharedTvl} onInspect={setSelected} /></div></div></div>}
 
       <div className="print-batch" aria-hidden="true">
         {(role === "manager" ? Array.from({ length: Math.min(999, printCount) }, (_, i) => i) : receipt ? [0] : []).map((copyIndex) => {
           const printCode = `${code.slice(0, 17)}${String(copyIndex + 1).padStart(4, "0")}`;
           const printProjects = role === "participant" ? projects.map((project, i) => ({ ...project, value: scores[i] })) : projects;
-          return <div className="printed-sheet" key={printCode}><div className="printed-number">TVL PN1 · pořadové číslo {copyIndex + 1}</div><TvlSection kind="voucher" code={printCode} {...{ organiser, title, period, projects: printProjects, activationStamp, currentTime }} personal={{ address: "", identity: "" }} onInspect={() => {}} /><p className="cut-copy">Každý účastník si oddělí POUKÁZKU a díly 2 a 3 vloží do online skeneru s monitorem. Zapíše si pořadové číslo skenu pro urychlené vyhledání své anonymní účasti.</p><div className="cut">✂ <span>oddělit POUKÁZKU</span></div><TvlSection kind="investment" code={printCode} {...{ organiser, title, period, projects: printProjects, activationStamp, currentTime }} onInspect={() => {}} /><div className="cut">✂ <span>oddělit INVESTICI</span></div><TvlSection kind="receipt" code={printCode} {...{ organiser, title, period, projects: printProjects, activationStamp, currentTime }} onInspect={() => {}} /></div>;
+          const printShared = { ...sharedTvl, code: printCode, projects: printProjects };
+          return <div className="printed-sheet" key={printCode}><div className="printed-number">TVL PN1 · pořadové číslo {copyIndex + 1}</div><TvlSection kind="voucher" {...printShared} personal={{ address: "", identity: "" }} onInspect={() => {}} /><p className="cut-copy">Každý účastník si oddělí POUKÁZKU a díly 2 a 3 vloží do online skeneru s monitorem. Zapíše si pořadové číslo skenu pro urychlené vyhledání své anonymní účasti.</p><div className="cut">✂ <span>oddělit POUKÁZKU</span></div><TvlSection kind="investment" {...printShared} onInspect={() => {}} /><div className="cut">✂ <span>oddělit INVESTICI</span></div><TvlSection kind="receipt" {...printShared} onInspect={() => {}} /></div>;
         })}
       </div>
     </main>

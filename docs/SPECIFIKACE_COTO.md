@@ -40,6 +40,16 @@ V náhledu je tlačítko ZPĚT K OPRAVÁM, které zruší razítko, odemkne edit
 
 Správce může zadat počet číslovaných papírových TVL; každý výtisk dostane nový kód B. Účastník může vytisknout pouze svůj vyplněný TVL.
 
+## Úplný vstupní průchod správce
+
+Ikona COTO → logo COTO → volba Správce → kontrola IČO v ARES → pracovní šablona TVL → ZPĚT nebo UKONČIT přímo v okně A → celý náhled TVL → POTVRDIT PN1 → obrazovka s logem, identitou správce a sloupci Živé / Ukončené.
+
+Potvrzený průzkum lze z přehledu otevřít jen ke čtení a kopírování. Jeho obsah se tím nesmí změnit.
+
+Horní názvy jsou dvouřádkové: „Kód varianty průzkumu COTO“, „Hodnota průzkumu z účtu správce“ a „Týden platnosti tohoto průzkumu názorů“. Začátek a konec týdne jsou v oddělených polích podle původního TVL.
+
+Okno A zobrazuje datum nad běžícím časem a tlačítka ZPĚT / UKONČIT. Nové texty pod POUKÁZKOU a konečná logika pomocného okna C čekají na přesné znění autora.
+
 ## První průchod účastníka
 
 1. Účastník otevře seznam správců.

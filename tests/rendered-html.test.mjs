@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 async function render() {
@@ -8,28 +9,16 @@ async function render() {
   return worker.fetch(new Request("http://localhost/", { headers: { accept: "text/html" } }), { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } }, { waitUntil() {}, passThroughOnException() {} });
 }
 
-test("vykreslí pracovní šablonu správce COTO", async () => {
+test("začíná klikací ikonou COTO", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /COTO · Digitální pracovní list TVL/);
-  assert.match(html, /POUKÁZKA/);
-  assert.match(html, /INVESTICE/);
-  assert.match(html, /DOKLAD/);
-  assert.match(html, /Průzkum návrhů a otázek/);
-  assert.match(html, /Volba strany a kandidáta/);
-  assert.match(html, /UKONČIT/);
-  assert.match(html, /Živé průzkumy/);
-  assert.match(html, /Ukončené průzkumy/);
-  assert.match(html, /Kód průzkumu/);
-  assert.match(html, /Anonymizér TVL/);
-  assert.match(html, /TISK TVL/);
-  assert.match(html, /Účastník/);
+  assert.match(html, /aria-label="Otevřít COTO"/);
+  assert.match(html, /COTO/);
+  assert.doesNotMatch(html, /Your site is taking shape|codex-preview/);
 });
 
-test("neobsahuje původní startovací obrazovku", async () => {
-  const response = await render();
-  const html = await response.text();
-  assert.doesNotMatch(html, /Your site is taking shape/);
-  assert.doesNotMatch(html, /codex-preview/);
+test("obsahuje celý sjednaný průchod správce", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  for (const text of ["SPRÁVCE", "KONTROLA SPRÁVCE V ARES", "POUKÁZKA", "INVESTICE", "DOKLAD", "ZPĚT", "UKONČIT", "POTVRDIT PN1", "Živé průzkumy", "Ukončené průzkumy", "OTEVŘÍT JEN KE ČTENÍ A KOPÍROVÁNÍ"]) assert.match(page, new RegExp(text));
 });

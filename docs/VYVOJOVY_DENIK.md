@@ -1,5 +1,13 @@
 # Vývojový deník COTO
 
+## 30. srpna 2026 – úplný vstup správce
+
+- Doplněn průchod od ikony přes logo, volbu role a kontrolu ARES.
+- Horní pole změněna na dvouřádkové názvy a oddělená data platnosti.
+- Okno A doplněno datem a tlačítky ZPĚT / UKONČIT.
+- Po potvrzení se zobrazuje samostatný přehled správce s logem a identitou.
+- Potvrzené PN1 lze otevřít pouze ke čtení a kopírování.
+
 ## 30. srpna 2026 – funkční opravy 2
 
 - Okno E opraveno na 2 okénka strany a 5 okének kandidáta.
