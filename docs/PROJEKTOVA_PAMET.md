@@ -12,3 +12,5 @@
 - **Neuzavřené pravidlo** – zda lze stejné bodové hodnocení použít u více projektů.
 - **Priority správce** – pro tři projekty používá pouze rozsah 1–3 podle svého pořadí priorit; nejde o hodnocení 1–9.
 - **Okno A v INVESTICI** – po stisku POTVRDIT se do něj zapíše časové razítko správce; razítko je poté viditelné a editace se uzamkne.
+- **Opravené pořadí A** – časové razítko vzniká při otevření náhledu, tím ukončí editaci; POTVRDIT až následně převede PN1 mezi živé.
+- **Okna B–E** – B anonymizér 17+4, C projekty a priority, D adresa, E zachované původní volební názvy a číslicová pole.

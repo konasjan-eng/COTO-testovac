@@ -1,5 +1,13 @@
 # Vývojový deník COTO
 
+## 30. srpna 2026 – převod oken A–E a tisk
+
+- Horní pole změněno na Kód průzkumu PN1, Hodnotu názoru v Kč a Týden platnosti bez času.
+- Obnovena původní pole okna E pro číslo strany a zástupce.
+- Okna A, B, C, D a E dostala opravený význam podle autora.
+- Náhled nyní vytváří razítko a ukončuje editaci; POTVRDIT zveřejňuje PN1.
+- Doplněn tisk jednoho vyplněného TVL účastníka a dávky číslovaných TVL správce s různými kódy B.
+
 ## 30. srpna 2026 – oprava priorit a okna A
 
 - Rozsah priorit správce opraven z 1–9 na 1–3.

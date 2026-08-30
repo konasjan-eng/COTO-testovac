@@ -16,7 +16,10 @@ test("vykreslí pracovní šablonu správce COTO", async () => {
   assert.match(html, /POUKÁZKA/);
   assert.match(html, /INVESTICE/);
   assert.match(html, /DOKLAD/);
-  assert.match(html, /NÁHLED CELÉHO TVL/);
+  assert.match(html, /UKONČIT EDITACI A ZOBRAZIT NÁHLED/);
+  assert.match(html, /Kód průzkumu/);
+  assert.match(html, /Anonymizér TVL/);
+  assert.match(html, /TISK TVL/);
   assert.match(html, /Účastník/);
 });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Project = { title: string; detail: string; value: number };
 type SectionKind = "voucher" | "investment" | "receipt";
@@ -11,7 +11,7 @@ const initialProjects: Project[] = [
   { title: "Komunitní zahrada", detail: "Popište důvod, cíl a očekávaný přínos projektu.", value: 3 },
 ];
 
-function TvlSection({ kind, code, organiser, title, period, projects, personal, activationStamp, onInspect }: {
+function TvlSection({ kind, code, organiser, title, period, projects, personal, activationStamp, currentTime, onInspect }: {
   kind: SectionKind;
   code: string;
   organiser: string;
@@ -20,6 +20,7 @@ function TvlSection({ kind, code, organiser, title, period, projects, personal, 
   projects: Project[];
   personal?: { address: string; identity: string };
   activationStamp?: string;
+  currentTime: string;
   onInspect: (index: number) => void;
 }) {
   const labels = { voucher: "POUKÁZKA", investment: "INVESTICE", receipt: "DOKLAD" };
@@ -27,23 +28,24 @@ function TvlSection({ kind, code, organiser, title, period, projects, personal, 
   return (
     <section className={`tvl-section ${kind}`} aria-label={labels[kind]}>
       <div className="tvl-topline">
-        <span>Oblast voleb <i>PN</i></span>
+        <span>Kód průzkumu <i>PN 1</i></span>
         <h2><em>{numbers[kind]}</em> {labels[kind]}</h2>
-        <span>Cena za účast <i>{projects[0]?.value || 1}</i></span>
-        <span>Volební období <b>{period}</b></span>
+        <span>Hodnota názoru <i>{projects[0]?.value || 1} Kč</i></span>
+        <span>Týden platnosti <b>{period}</b></span>
       </div>
 
       <div className="tvl-columns">
         <div className="tvl-left">
-          <div className="choice-box">
-            <div><span>Číslo varianty COTO</span><b>P</b><b>N</b></div>
-            <div><span>Pořadové číslo akce</span>{["0","0","0","0","0","1"].map((v,i)=><b key={i}>{v}</b>)}</div>
+          <div className="choice-box window-e">
+            <span className="window-letter">E</span>
+            <div><span>Číslo volené strany</span><b>P</b><b>N</b></div>
+            <div><span>Číslo voleného zástupce</span>{["","","","","","1"].map((v,i)=><b key={i}>{v}</b>)}</div>
           </div>
-          <div className="identifier-label"><span>Identifikátor tiskopisu</span><span>Kód účastníka</span></div>
-          <div className="identifier"><code>{code.slice(0,17)}</code><code>{code.slice(-4)}</code></div>
-          <div className="admin-box">
-            <div className="stamp"><span><mark>B</mark> Razítko / logo / IČO<br/>správce</span><i>{organiser.match(/\d{8}/)?.[0] || "IČO"}</i></div>
-            <div className="activation"><div><mark>A</mark> Datum a čas aktivace TVL<br/><b>{activationStamp || "doplní COTO po stisku POTVRDIT"}</b></div><div>Poznámky / číslo skenu</div></div>
+          <div className="identifier-label"><span><mark>B</mark> Anonymizér TVL · 17 symbolů</span><span>+ 4 symboly</span></div>
+          <div className="identifier window-b"><code>{code.slice(0,17)}</code><code>{code.slice(-4)}</code></div>
+          <div className="admin-box window-a">
+            <div className="stamp"><span><mark>A</mark> Ověřená identifikace správce z ARES</span><i>{organiser.match(/\d{8}/)?.[0] || "IČO"}</i><small>{organiser}</small></div>
+            <div className="activation"><div><span>Běžící čas</span><strong>{currentTime}</strong></div><div><span>Časové razítko - ukončení editace</span><b>{activationStamp || "vznikne otevřením náhledu"}</b></div></div>
           </div>
         </div>
 
@@ -62,7 +64,8 @@ function TvlSection({ kind, code, organiser, title, period, projects, personal, 
             <small>* Správce určí pořadí svých priorit 1–3. Kliknutím na řádek otevřete úplný popis.</small>
           </div>
           {kind === "voucher" && (
-            <div className="personal-only">
+            <div className="personal-only window-d">
+              <span className="window-letter">D</span>
               <div className="address-lines">
                 <span>Jméno a příjmení účastníka ................................................</span>
                 <span>ulice / část obce .................................................................</span>
@@ -73,7 +76,7 @@ function TvlSection({ kind, code, organiser, title, period, projects, personal, 
               <div className="qr"><span>OSOBNÍ</span><b>QR</b><span>účastníka</span></div>
             </div>
           )}
-          {kind === "investment" && <div className="section-explanation"><b>Kvalita účastníka je zdrojem i cílem správce.</b><ol><li>Správce určí pořadí svých tří priorit čísly 1–3.</li><li>COTO po potvrzení zapíše časové razítko do okna A.</li><li>Potvrzená akce se uzamkne a přejde mezi živé.</li></ol></div>}
+          {kind === "investment" && <div className="section-explanation"><b>Kvalita účastníka je zdrojem i cílem správce.</b><ol><li>Správce určí pořadí svých tří priorit čísly 1–3.</li><li>Otevření náhledu zapíše časové razítko do okna A a ukončí editaci.</li><li>Potvrzená akce přejde jako PN1 mezi živé.</li></ol></div>}
           {kind === "receipt" && <div className="section-explanation receipt-copy"><b>Účastník po skončení akce vyhledá svůj identifikátor.</b><p>COTO zobrazí shodu vloženého názoru nebo důvěry s výsledkem správce.</p></div>}
         </div>
       </div>
@@ -99,19 +102,30 @@ export default function Home() {
   const [scores, setScores] = useState<number[]>([0, 0, 0]);
   const [receipt, setReceipt] = useState("");
   const [activationStamp, setActivationStamp] = useState("");
+  const [currentTime, setCurrentTime] = useState("");
+  const [printCount, setPrintCount] = useState(1);
+  useEffect(() => {
+    const showTime = () => setCurrentTime(new Date().toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
+    showTime(); const timer = window.setInterval(showTime, 1000); return () => window.clearInterval(timer);
+  }, []);
   const period = useMemo(() => {
     const d = new Date(`${start}T00:00:00`);
     if (Number.isNaN(d.getTime())) return "doplňte pondělí";
     const end = new Date(d); end.setDate(end.getDate() + 6);
-    return `${d.toLocaleDateString("cs-CZ")} 00:00 – ${end.toLocaleDateString("cs-CZ")} 23:59:59,999`;
+    return `${d.toLocaleDateString("cs-CZ")} – ${end.toLocaleDateString("cs-CZ")}`;
   }, [start]);
 
   const updateProject = (index: number, patch: Partial<Project>) => setProjects((items) => items.map((item, i) => i === index ? { ...item, ...patch } : item));
+  const openStampedPreview = () => {
+    if (!activationStamp) {
+      const now = new Date();
+      setActivationStamp(now.toLocaleString("cs-CZ", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", fractionalSecondDigits: 3 }));
+      setLocked(true);
+    }
+    setPreview(true);
+  };
   const confirm = () => {
     if (!window.confirm("Potvrzením se akce uzamkne. Další úpravy už nebudou možné. Pokračovat?")) return;
-    const now = new Date();
-    setActivationStamp(now.toLocaleString("cs-CZ", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", fractionalSecondDigits: 3 }));
-    setLocked(true);
     setPreview(false);
     setLive([{ title, period, code }]);
   };
@@ -136,7 +150,7 @@ export default function Home() {
         <header className="intro participant-intro"><div><p className="eyebrow">ÚČASTNÍK · PRVNÍ PRŮCHOD</p><h1>Vyberte správce.<br />Otevřete jeho aktivitu.</h1></div><p>V tomto testu je dostupný jeden správce. Uzamčená akce se účastníkovi zobrazí mezi živými; po konci týdne patří do historie.</p></header>
         <section className="participant-shell">
           <div className="organiser-column"><p className="eyebrow">SEZNAM SPRÁVCŮ</p><button className="organiser-choice active" onClick={() => setParticipantOpen(true)}><span>01</span><div><b>{organiser}</b><small>{locked ? "1 živá aktivita" : "1 ukázková aktivita před potvrzením"}</small></div><em>→</em></button></div>
-          <div className="activity-column">{!participantOpen ? <div className="empty-state"><b>Vyberte správce vlevo</b><span>Potom se zobrazí jeho živé a ukončené aktivity.</span></div> : <><div className="activity-head"><div><span className="variant">PN</span><div><small>{locked ? "ŽIVÁ AKTIVITA" : "ZKUŠEBNÍ NÁHLED"}</small><h2>{title}</h2></div></div><code>{code}</code></div><p className="participant-period">{period}</p><div className="participant-projects">{projects.map((project, index) => <article key={index}><button className="participant-detail" onClick={() => setSelected(index)}><span>C{index + 1}</span><div><b>{project.title}</b><small>Kliknutím otevřete celý popis</small></div></button><label>Vaše hodnocení<select value={scores[index]} onChange={(event) => setScores((current) => current.map((score, i) => i === index ? Number(event.target.value) : score))}><option value="0">zvolte 1–9</option>{Array.from({ length: 9 }, (_, score) => <option key={score + 1} value={score + 1}>{score + 1} bodů</option>)}</select></label></article>)}</div>{!receipt ? <button className="send-opinion" onClick={sendOpinion}>ODESLAT NÁZOR A VYTVOŘIT ČASOVÉ RAZÍTKO</button> : <div className="participant-receipt"><p className="eyebrow">ZKUŠEBNÍ KONTROLNÍ KÓD</p><strong>{receipt}</strong><p>Uložte si jej pro pozdější dohledání svého řádku ve výsledcích.</p></div>}<p className="prototype-warning">Tato verze neodesílá skutečný hlas ani peníze. Je určena pouze ke kontrole kroků a textů.</p></>}</div>
+          <div className="activity-column">{!participantOpen ? <div className="empty-state"><b>Vyberte správce vlevo</b><span>Potom se zobrazí jeho živé a ukončené aktivity.</span></div> : <><div className="activity-head"><div><span className="variant">PN</span><div><small>{locked ? "ŽIVÁ AKTIVITA" : "ZKUŠEBNÍ NÁHLED"}</small><h2>{title}</h2></div></div><code>{code}</code></div><p className="participant-period">{period}</p><div className="participant-projects">{projects.map((project, index) => <article key={index}><button className="participant-detail" onClick={() => setSelected(index)}><span>C{index + 1}</span><div><b>{project.title}</b><small>Kliknutím otevřete celý popis</small></div></button><label>Vaše hodnocení<select value={scores[index]} onChange={(event) => setScores((current) => current.map((score, i) => i === index ? Number(event.target.value) : score))}><option value="0">zvolte 1–9</option>{Array.from({ length: 9 }, (_, score) => <option key={score + 1} value={score + 1}>{score + 1} bodů</option>)}</select></label></article>)}</div>{!receipt ? <button className="send-opinion" onClick={sendOpinion}>ODESLAT NÁZOR A VYTVOŘIT ČASOVÉ RAZÍTKO</button> : <div className="participant-receipt"><p className="eyebrow">ZKUŠEBNÍ KONTROLNÍ KÓD</p><strong>{receipt}</strong><p>Uložte si jej pro pozdější dohledání svého řádku ve výsledcích.</p><button onClick={() => window.print()}>TISK TVL · pouze můj vyplněný list</button></div>}<p className="prototype-warning">Tato verze neodesílá skutečný hlas ani peníze. Je určena pouze ke kontrole kroků a textů.</p></>}</div>
         </section>
       </> : <>
 
@@ -156,17 +170,18 @@ export default function Home() {
             <small>Kliknutím otevřete obsah řádku C</small>
             {projects.map((p, i) => <button disabled={locked} key={i} onClick={() => setSelected(i)}><span>{i + 1}</span><b>{p.title || `Projekt ${i + 1}`}</b><em>upravit</em></button>)}
           </div>
-          <button className="preview-btn" onClick={() => setPreview(true)}>NÁHLED CELÉHO TVL <span>→</span></button>
+          <button className="preview-btn" onClick={openStampedPreview}>UKONČIT EDITACI A ZOBRAZIT NÁHLED <span>→</span></button>
         </aside>
 
         <div className="paper-wrap">
           <div className="paper-label"><span>NÁHLED PŘENOSU</span><small>změny se propisují současně</small></div>
           <div className="tvl-paper compact">
-            <TvlSection kind="voucher" {...{ code, organiser, title, period, projects, activationStamp }} onInspect={setSelected} />
-            <div className="cut">✂ <span>oddělit POUKÁZKU a díly 2 a 3 vložit do online skeneru</span></div>
-            <TvlSection kind="investment" {...{ code, organiser, title, period, projects, activationStamp }} onInspect={setSelected} />
+            <TvlSection kind="voucher" {...{ code, organiser, title, period, projects, activationStamp, currentTime }} onInspect={setSelected} />
+            <p className="cut-copy">Každý účastník si oddělí POUKÁZKU a díly 2 a 3 vloží do online skeneru s monitorem. Zapíše si pořadové číslo skenu pro urychlené vyhledání své anonymní účasti.</p>
+            <div className="cut">✂ <span>oddělit POUKÁZKU</span></div>
+            <TvlSection kind="investment" {...{ code, organiser, title, period, projects, activationStamp, currentTime }} onInspect={setSelected} />
             <div className="cut">✂ <span>oddělit INVESTICI</span></div>
-            <TvlSection kind="receipt" {...{ code, organiser, title, period, projects, activationStamp }} onInspect={setSelected} />
+            <TvlSection kind="receipt" {...{ code, organiser, title, period, projects, activationStamp, currentTime }} onInspect={setSelected} />
           </div>
         </div>
       </div>
@@ -175,6 +190,7 @@ export default function Home() {
         <div><p className="eyebrow">ŽIVÉ PROJEKTY SPRÁVCE</p><h2>{live.length ? "Akce je zveřejněna účastníkům" : "Zatím čeká na potvrzení"}</h2></div>
         {live.map((item) => <article key={item.code}><span className="live-dot" /><div><b>{item.title}</b><small>{item.period}</small></div><code>{item.code}</code></article>)}
       </section>
+      <section className="print-controls"><div><p className="eyebrow">PAPÍROVÁ VERZE PRŮZKUMU</p><h2>TISK TVL</h2><p>Každý výtisk dostane vlastní pořadové číslo a nový anonymizační kód B.</p></div><label>Počet číslovaných listů<input type="number" min="1" max="999" value={printCount} onChange={(e) => setPrintCount(Math.max(1, Number(e.target.value)))} /></label><button onClick={() => window.print()}>TISK TVL · {printCount} ks</button></section>
       </>}
 
       {selected !== null && <div className="modal-backdrop" onMouseDown={() => setSelected(null)}><section className="modal" onMouseDown={(e) => e.stopPropagation()}>
@@ -186,7 +202,15 @@ export default function Home() {
         <button className="save" onClick={() => setSelected(null)}>{locked ? "ZAVŘÍT" : "ULOŽIT DO VŠECH TŘÍ DÍLŮ"}</button>
       </section></div>}
 
-      {preview && <div className="preview-overlay"><div className="preview-toolbar"><div><b>Náhled celého TVL</b><span>Zkontrolujte obsah kurzorem. Potvrzení vytvoří časové razítko v okně A a uzamkne editaci.</span></div><div><button onClick={() => setPreview(false)}>Zpět k úpravám</button><button className="confirm" onClick={confirm}>POTVRDIT A UZAMKNOUT</button></div></div><div className="preview-scroll"><div className="tvl-paper"><TvlSection kind="voucher" {...{ code, organiser, title, period, projects, activationStamp }} personal={{address:"", identity:""}} onInspect={setSelected} /><div className="cut">✂ <span>oddělit POUKÁZKU</span></div><TvlSection kind="investment" {...{ code, organiser, title, period, projects, activationStamp }} onInspect={setSelected} /><div className="cut">✂ <span>oddělit INVESTICI</span></div><TvlSection kind="receipt" {...{ code, organiser, title, period, projects, activationStamp }} onInspect={setSelected} /></div></div></div>}
+      {preview && <div className="preview-overlay"><div className="preview-toolbar"><div><b>Náhled celého TVL · razítko {activationStamp}</b><span>Editace je ukončena. Potvrzením se PN1 převede do sloupce živých projektů.</span></div><div><button className="confirm" onClick={confirm}>POTVRDIT PN1</button></div></div><div className="preview-scroll"><div className="tvl-paper"><TvlSection kind="voucher" {...{ code, organiser, title, period, projects, activationStamp, currentTime }} personal={{address:"", identity:""}} onInspect={setSelected} /><p className="cut-copy">Každý účastník si oddělí POUKÁZKU a díly 2 a 3 vloží do online skeneru s monitorem. Zapíše si pořadové číslo skenu pro urychlené vyhledání své anonymní účasti.</p><div className="cut">✂ <span>oddělit POUKÁZKU</span></div><TvlSection kind="investment" {...{ code, organiser, title, period, projects, activationStamp, currentTime }} onInspect={setSelected} /><div className="cut">✂ <span>oddělit INVESTICI</span></div><TvlSection kind="receipt" {...{ code, organiser, title, period, projects, activationStamp, currentTime }} onInspect={setSelected} /></div></div></div>}
+
+      <div className="print-batch" aria-hidden="true">
+        {(role === "manager" ? Array.from({ length: Math.min(999, printCount) }, (_, i) => i) : receipt ? [0] : []).map((copyIndex) => {
+          const printCode = `${code.slice(0, 17)}${String(copyIndex + 1).padStart(4, "0")}`;
+          const printProjects = role === "participant" ? projects.map((project, i) => ({ ...project, value: scores[i] })) : projects;
+          return <div className="printed-sheet" key={printCode}><div className="printed-number">TVL PN1 · pořadové číslo {copyIndex + 1}</div><TvlSection kind="voucher" code={printCode} {...{ organiser, title, period, projects: printProjects, activationStamp, currentTime }} personal={{ address: "", identity: "" }} onInspect={() => {}} /><p className="cut-copy">Každý účastník si oddělí POUKÁZKU a díly 2 a 3 vloží do online skeneru s monitorem. Zapíše si pořadové číslo skenu pro urychlené vyhledání své anonymní účasti.</p><div className="cut">✂ <span>oddělit POUKÁZKU</span></div><TvlSection kind="investment" code={printCode} {...{ organiser, title, period, projects: printProjects, activationStamp, currentTime }} onInspect={() => {}} /><div className="cut">✂ <span>oddělit INVESTICI</span></div><TvlSection kind="receipt" code={printCode} {...{ organiser, title, period, projects: printProjects, activationStamp, currentTime }} onInspect={() => {}} /></div>;
+        })}
+      </div>
     </main>
   );
 }

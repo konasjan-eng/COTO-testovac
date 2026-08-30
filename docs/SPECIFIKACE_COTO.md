@@ -20,7 +20,19 @@ PN – Průzkum názorů. Správce připraví až tři projekty nebo otázky, je
 
 Pracovní šablona → Náhled celého TVL → POTVRDIT → uzamčení → živý projekt → po skončení týdne ukončený projekt.
 
-Po stisku POTVRDIT COTO vytvoří přesné časové razítko viditelné správci a zapíše je do originálního okna A v dílu INVESTICE. Teprve potom se editace uzamkne.
+Při otevření náhledu COTO vytvoří přesné časové razítko viditelné správci, zapíše je do originálního okna A v dílu INVESTICE a ukončí editaci. Následující POTVRDIT převede projekt mezi živé.
+
+## Význam oken TVL
+
+- **A** – vlevo ověřená identifikace správce z ARES; vpravo běžící čas a pod ním větším písmem časové razítko ukončení editace.
+- **B** – anonymizér 17+4 symboly. Je shodný ve třech dílech jednoho TVL; každý další tisk nebo stažení dostává nový kód.
+- **C** – tři projekty, jejich popisy a priority správce 1–3.
+- **D** – adresa a osobní údaje účastníka pouze v POUKÁZCE.
+- **E** – původní volební pole. Zatím se zachovávají názvy „Číslo volené strany“ a „Číslo voleného zástupce“ i původní okénka pro číslice. Z E se odvozuje kód průzkumu PN1 v horním řádku.
+
+Otevření náhledu vytvoří časové razítko a ukončí editaci. Náhled se zobrazí před tlačítkem POTVRDIT. Potvrzení převede PN1 do sloupce živých projektů varianty PN.
+
+Správce může zadat počet číslovaných papírových TVL; každý výtisk dostane nový kód B. Účastník může vytisknout pouze svůj vyplněný TVL.
 
 ## První průchod účastníka
 
