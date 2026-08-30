@@ -1,5 +1,14 @@
 # Vývojový deník COTO
 
+## 30. srpna 2026 – funkční opravy 2
+
+- Okno E opraveno na 2 okénka strany a 5 okének kandidáta.
+- Okno C přejmenováno a změněno na tři prázdné, klikatelné řádky.
+- Obnovena editační šablona řádku pro myš i dotykovou obrazovku.
+- Běžící čas znovu obsahuje tisíciny sekundy.
+- Odstraněna pomocná věta o vzniku náhledu z okna A.
+- Doplněn návrat k opravám před potvrzením a dva sloupce správce: živé a ukončené.
+
 ## 30. srpna 2026 – převod oken A–E a tisk
 
 - Horní pole změněno na Kód průzkumu PN1, Hodnotu názoru v Kč a Týden platnosti bez času.

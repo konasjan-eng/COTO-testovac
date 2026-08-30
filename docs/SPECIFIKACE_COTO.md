@@ -30,7 +30,13 @@ Při otevření náhledu COTO vytvoří přesné časové razítko viditelné sp
 - **D** – adresa a osobní údaje účastníka pouze v POUKÁZCE.
 - **E** – původní volební pole. Zatím se zachovávají názvy „Číslo volené strany“ a „Číslo voleného zástupce“ i původní okénka pro číslice. Z E se odvozuje kód průzkumu PN1 v horním řádku.
 
+Upřesnění okna E: obsahuje nadpis, dvě číslicová okénka pro číslo strany a pět číslicových okének pro číslo vybraného kandidáta. Abecední řazení kandidátů bude součástí pozdější varianty VT.
+
+Okno C má nadpis **Průzkum návrhů a otázek** a tři samostatné prázdné řádky. Kliknutí myší nebo klepnutí na dotykové obrazovce otevře editační šablonu s nadpisem, úplným popisem a prioritou správce 1–3.
+
 Otevření náhledu vytvoří časové razítko a ukončí editaci. Náhled se zobrazí před tlačítkem POTVRDIT. Potvrzení převede PN1 do sloupce živých projektů varianty PN.
+
+V náhledu je tlačítko ZPĚT K OPRAVÁM, které zruší razítko, odemkne editaci a umožní opravit chyby. Tlačítko POTVRDIT PN1 převede akci do sloupce živých. Druhý sloupec správce obsahuje ukončené akce; po skončení týdne se tam PN1 automaticky přesune.
 
 Správce může zadat počet číslovaných papírových TVL; každý výtisk dostane nový kód B. Účastník může vytisknout pouze svůj vyplněný TVL.
 
