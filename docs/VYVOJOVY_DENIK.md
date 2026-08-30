@@ -1,5 +1,11 @@
 # Vývojový deník COTO
 
+## 30. srpna 2026 – oprava priorit a okna A
+
+- Rozsah priorit správce opraven z 1–9 na 1–3.
+- Pole správce jsou přenesena do grafického členění originálního TVL, zejména dílu INVESTICE.
+- POTVRDIT nyní vytvoří časové razítko s tisícinami sekundy a zapíše je do okna A před uzamčením.
+
 ## 27. srpna 2026 – obnova a účastník 0.1
 
 - Ověřen veřejný repozitář: obsahuje zatím pouze PDF `volební šablona 2025-04.pdf`.

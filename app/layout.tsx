@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./participant.css";
+import "./tvl-corrections.css";
 
 export const metadata: Metadata = {
   title: "COTO · Digitální pracovní list TVL",

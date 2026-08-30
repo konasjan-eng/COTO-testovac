@@ -14,11 +14,13 @@ Všechny díly mají shodný kód složený ze 17+4 symbolů. Společné údaje 
 
 ## První funkční varianta
 
-PN – Průzkum názorů. Správce připraví až tři projekty nebo otázky, jejich popisy a hodnotu 1–9 Kč. Účastník později otevře popis a přidělí hodnocení 1–9 bodů; v tištěné podobě se body stávají korunami.
+PN – Průzkum názorů. Správce připraví až tři projekty nebo otázky, jejich popisy a určí pořadí svých priorit výhradně čísly 1–3.
 
 ## Životní cyklus
 
 Pracovní šablona → Náhled celého TVL → POTVRDIT → uzamčení → živý projekt → po skončení týdne ukončený projekt.
+
+Po stisku POTVRDIT COTO vytvoří přesné časové razítko viditelné správci a zapíše je do originálního okna A v dílu INVESTICE. Teprve potom se editace uzamkne.
 
 ## První průchod účastníka
 

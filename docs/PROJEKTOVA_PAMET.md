@@ -10,3 +10,5 @@
 - **Zdroj pravdy** – schválená specifikace a vývojový deník v repozitáři; automatická paměť AI je pouze pomocná.
 - **Účastník PN** – správce → aktivita → popisy C1-C3 → 1-9 bodů → časové razítko → osobní kontrolní kód.
 - **Neuzavřené pravidlo** – zda lze stejné bodové hodnocení použít u více projektů.
+- **Priority správce** – pro tři projekty používá pouze rozsah 1–3 podle svého pořadí priorit; nejde o hodnocení 1–9.
+- **Okno A v INVESTICI** – po stisku POTVRDIT se do něj zapíše časové razítko správce; razítko je poté viditelné a editace se uzamkne.
