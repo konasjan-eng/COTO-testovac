@@ -8,3 +8,10 @@
 - Po změně spusť příslušný build nebo test.
 - Slovo `nasaď` znamená: dokonči požadovanou změnu, ověř build a testy, commitni změny, připrav nebo vytvoř pull request do `main` a nech existující GitHub automatiku zajistit kontrolu, sloučení a nasazení.
 - Pokud test selže, nenasazuj a česky vysvětli příčinu.
+
+## Git workflow
+- Nikdy necommituj přímo do `main`. Vytvoř větev `codex/<kratky-popis>`.
+- Push: `git push -u origin HEAD`
+- PR: `gh pr create --base main --fill`
+- Stav CI: `gh pr checks --watch`
+- `gh` je v prostředí přihlášený, netřeba token nikam předávat.
