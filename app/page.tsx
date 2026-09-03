@@ -172,7 +172,7 @@ export default function Home() {
   return (
     <main>
       <nav className="topbar">
-        <div><b>COTO</b><span>Průzkum názorů · PN</span></div>
+        <div><button className="topbar-home" onClick={() => setEntryStage("icon")} aria-label="Zobrazit titulní stránku COTO"><b>COTO</b></button><span>Průzkum názorů · PN</span></div>
         <div className="role-switch" aria-label="Volba role"><button className={role === "manager" ? "active" : ""} onClick={() => setRole("manager")}>Správce</button><button className={role === "participant" ? "active" : ""} onClick={() => setRole("participant")}>Účastník</button></div>
         <div className="status"><i className={locked ? "locked" : "draft"} />{locked ? "Uzamčeno · živý projekt" : "Pracovní test"}</div>
       </nav>
