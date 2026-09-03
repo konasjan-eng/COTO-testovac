@@ -6,7 +6,7 @@ async function render() {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
-  return worker.fetch(new Request("http://localhost/", { headers: { accept: "text/html" } }), { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } }, { waitUntil() {}, passThroughOnException() {} });
+  return worker.fetch(new Request("http://localhost/COTO-testovac/", { headers: { accept: "text/html" } }), { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } }, { waitUntil() {}, passThroughOnException() {} });
 }
 
 test("začíná klikací ikonou COTO", async () => {
@@ -28,4 +28,10 @@ test("vstupní proces se nesmí při dalších úpravách ztratit", async () => 
   const order = ['entryStage === "icon"', 'entryStage === "logo"', 'entryStage === "roles"', 'entryStage === "ares"', 'entryStage === "variants"'];
   let last = -1;
   for (const marker of order) { const found = page.indexOf(marker); assert.ok(found > last, `chybí nebo je mimo pořadí: ${marker}`); last = found; }
+});
+
+test("logo COTO v horní liště vrací na titulní obrázek", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /className="topbar-home"[^>]*onClick=\{\(\) => setEntryStage\("icon"\)\}/);
+  assert.match(page, /aria-label="Zobrazit titulní stránku COTO"/);
 });
