@@ -17,4 +17,8 @@
 - Push:  `git push -u origin HEAD`
 - PR:    `gh pr create --base main --fill`
 - CI:    `gh pr checks --watch`
+- Po sloučení do `main` ověř dokončení nasazovacího workflow včetně úlohy
+  **Deploy to GitHub Pages** příkazem
+  `gh run watch "$(gh run list --workflow pages.yml --branch main --event push --limit 1 --json databaseId --jq '.[0].databaseId')" --exit-status`.
+  Nasazení považuj za dokončené až po úspěšném doběhnutí této kontroly.
 - `gh` je v prostředí přihlášené, token nikam nepředávej.
