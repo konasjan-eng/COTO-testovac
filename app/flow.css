@@ -3,3 +3,5 @@
 
 /* Obnovená, povinná vstupní cesta COTO. */
 .coto-entry-icon{display:block}.coto-entry-logo{padding:30px 52px 42px}.coto-entry-logo>span:not(.logo-people){font:30px Georgia,serif}.logo-people{display:flex!important;justify-content:center;gap:120px}.logo-people i{width:58px;height:58px;border:5px solid #173f32;border-radius:50%;display:grid;place-items:center;color:#d2ad36;font-style:normal}.variant-panel{width:min(680px,96vw)}.variant-choice{display:grid!important;grid-template-columns:58px 1fr auto;gap:14px;align-items:center;text-align:left}.variant-choice b{font:800 26px Georgia,serif}.variant-choice span{font-weight:800}.variant-choice em{font-size:9px;font-style:normal;letter-spacing:.08em}.variant-choice.active{background:#1e5b46}.variant-choice:disabled{background:#e3e5df;color:#66706a;opacity:1}
+
+.coto-entry-logo-image{width:min(1000px,94vw);padding:0;overflow:hidden;background:#fffaf1;line-height:0}.coto-entry-logo-image img{display:block;width:100%;height:auto}.coto-entry-logo-image .logo-continue{display:block;padding:14px 18px;font:800 13px/1.2 Arial,sans-serif;letter-spacing:.12em;color:#173f32;background:#fff;line-height:1.2}
