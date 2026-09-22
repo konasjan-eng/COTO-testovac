@@ -3,3 +3,36 @@
 @media print{body>main>*{display:none!important}.print-batch{display:block!important}.printed-sheet{display:block;page-break-after:always;padding:5mm}.printed-sheet:last-child{page-break-after:auto}.printed-sheet .tvl-section{display:block!important}.printed-sheet .cut-copy{display:block!important}}
 
 .project-columns{display:grid;grid-template-columns:1fr 46px 52px;align-items:end;margin-left:24px;border-bottom:1px solid #777;font:6px/1.15 Arial,sans-serif;text-align:center}.project-columns>span{text-align:left;padding:3px}.project-columns>b{padding:3px 1px;border-left:1px solid #777}.survey-box .project-row{grid-template-columns:24px 1fr 46px 52px!important;padding:0;width:100%;cursor:pointer}.survey-box .project-row>span:nth-last-child(-n+2){height:24px;border:1px solid #777;border-bottom:0;background:#fff;display:grid;place-items:center;padding:0;font:800 8px Arial,sans-serif}.survey-box .project-row>span:last-child{border-left:0}.survey-box .project-row:last-child>span:nth-last-child(-n+2){border-bottom:1px solid #777}
+
+
+/* Obnova TVL podle zaznamu 3. 8. 2026: tri dlouha pole C + oddelene ctvercove hodnoceni. */
+.project-columns{grid-template-columns:1fr 34px;margin-left:24px}
+.project-columns>b{font-size:7px}
+.survey-box .project-row{grid-template-columns:24px 1fr 0 34px!important;min-height:28px}
+.survey-box .project-row strong{min-height:26px;display:flex;align-items:center;border-bottom:1px solid #777;padding:2px 5px;color:#373c39}
+.survey-box .project-row .manager-priority{display:none!important}
+.survey-box .project-row .participant-score{height:28px!important;width:34px;border:1px solid #555!important;border-bottom:0!important;font-size:11px!important}
+.survey-box .project-row:last-child .participant-score{border-bottom:1px solid #555!important}
+
+@media print{
+  @page{size:A4 portrait;margin:5mm}
+  .printed-sheet{height:287mm;max-height:287mm;padding:0;overflow:hidden;page-break-after:always;break-after:page}
+  .printed-sheet:last-child{page-break-after:auto;break-after:auto}
+  .printed-sheet .printed-number{height:4mm;margin:0;font-size:7px}
+  .printed-sheet .tvl-section{padding:0 2px}
+  .printed-sheet .tvl-topline{margin-bottom:2px;gap:5px}
+  .printed-sheet .tvl-topline h2{font-size:15px}
+  .printed-sheet .tvl-columns{gap:4%}
+  .printed-sheet .choice-box>div{min-height:20px}
+  .printed-sheet .identifier-label{margin:3px 0 2px}
+  .printed-sheet .identifier{height:19px}
+  .printed-sheet .admin-box{margin-top:4px;min-height:58px}
+  .printed-sheet .activation strong,.printed-sheet .activation b{font-size:8px}
+  .printed-sheet .survey-box h3{font-size:9px;padding:2px}
+  .printed-sheet .survey-box .project-row{min-height:18px}
+  .printed-sheet .survey-box .project-row strong{min-height:18px;font-size:7px}
+  .printed-sheet .survey-box .project-row .participant-score{height:19px!important}
+  .printed-sheet .personal-only{min-height:58px;margin-top:3px}
+  .printed-sheet .voucher-instructions,.printed-sheet .section-explanation,.printed-sheet .invalid-warning,.printed-sheet .cut-copy{display:none!important}
+  .printed-sheet .cut{height:10px;font-size:8px}
+}
