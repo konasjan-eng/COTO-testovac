@@ -36,3 +36,109 @@
   .printed-sheet .voucher-instructions,.printed-sheet .section-explanation,.printed-sheet .invalid-warning,.printed-sheet .cut-copy{display:none!important}
   .printed-sheet .cut{height:10px;font-size:8px}
 }
+
+/* Původní A4 TVL: pevné proporce podle souboru „volební šablona 2025-04.pdf“.
+   Jednotlivé díly už nerostou podle obsahu, takže se jejich okna nemohou překrýt. */
+.tvl-paper.original-a4{
+  aspect-ratio:210 / 297;
+  overflow:hidden;
+  display:grid;
+  grid-template-rows:38.5% 2% 27% 2% 30.5%;
+  padding:2.7%;
+  background:#fff;
+}
+.tvl-paper.original-a4>.cut-copy{display:none}
+.tvl-paper.original-a4>.tvl-section{
+  min-height:0;
+  height:100%;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  padding:0;
+}
+.original-a4 .tvl-topline{
+  flex:0 0 8%;
+  min-height:26px;
+  margin:0 0 5px;
+  gap:7px;
+  grid-template-columns:1fr 1.5fr 1fr 1.85fr;
+}
+.original-a4 .tvl-topline h2{font-size:20px}
+.original-a4 .tvl-topline>span{font-size:8px;min-width:0}
+.original-a4 .tvl-topline i{height:22px;min-width:34px;margin-left:3px;font-size:8px}
+.original-a4 .tvl-topline .validity{gap:3px}
+.original-a4 .tvl-topline .validity i{min-width:58px}
+.original-a4 .tvl-columns{
+  flex:1 1 auto;
+  min-height:0;
+  display:grid;
+  grid-template-columns:40% 53%;
+  gap:7%;
+}
+.original-a4 .tvl-left,.original-a4 .tvl-right{min-width:0;min-height:0;overflow:hidden}
+.original-a4 .choice-box>div{min-height:25px}
+.original-a4 .choice-box span{font-size:10px}
+.original-a4 .choice-box.window-e>div{grid-template-columns:minmax(0,1fr) repeat(5,20px)}
+.original-a4 .choice-box.window-e>div:nth-of-type(1){grid-template-columns:minmax(0,1fr) repeat(2,20px)}
+.original-a4 .identifier-label{grid-template-columns:1fr 74px;margin:5px 0 2px;font-size:7px}
+.original-a4 .identifier{grid-template-columns:1fr 74px;height:23px}
+.original-a4 .identifier code{font-size:7px}
+.original-a4 .admin-box{margin-top:6px;min-height:0;height:calc(100% - 88px);grid-template-columns:38% 62%;overflow:hidden}
+.original-a4 .stamp{padding:3px 2px 0;font-size:7px;overflow:hidden}
+.original-a4 .stamp i{width:42px;height:42px;margin:4px auto 2px;font-size:6px}
+.original-a4 .stamp small{font-size:5.5px;line-height:1.1;overflow-wrap:anywhere}
+.original-a4 .activation{min-width:0;min-height:0;grid-template-rows:55% 45%;font-size:7px;overflow:hidden}
+.original-a4 .activation>div{min-height:0;padding:4px;overflow:hidden}
+.original-a4 .activation>div:first-child{display:grid;grid-template-columns:54px minmax(0,1fr);align-content:start;gap:2px 4px}
+.original-a4 .activation span{min-width:0;font-size:6.5px;line-height:1.1}
+.original-a4 .activation strong{min-width:0;margin:0;font:700 9px/1.05 monospace;white-space:nowrap}
+.original-a4 .activation b{min-width:0;margin-top:2px;font:800 8px/1.05 monospace;white-space:normal;overflow-wrap:anywhere}
+.original-a4 .window-a-actions{height:21px}
+.original-a4 .window-a-actions button{padding:3px;font-size:7px}
+.original-a4 .survey-box{height:auto;max-height:64%;overflow:hidden}
+.original-a4 .survey-box h3{font-size:11px;padding:3px}
+.original-a4 .survey-box .project-list{padding:0 5px 2px}
+.original-a4 .project-columns{margin-left:20px;grid-template-columns:1fr 29px;font-size:5.5px}
+.original-a4 .survey-box .project-row{grid-template-columns:20px minmax(0,1fr) 0 29px!important;min-height:22px}
+.original-a4 .survey-box .project-row strong{min-width:0;min-height:22px;font-size:7px;line-height:1.05;overflow:hidden}
+.original-a4 .survey-box .project-row .participant-score{width:29px;height:23px!important;font-size:8px!important}
+.original-a4 .personal-only{grid-template-columns:minmax(0,1fr) 82px;min-height:0;height:36%;margin-top:5px;overflow:hidden}
+.original-a4 .address-lines{min-width:0;padding:4px 5px 0!important;overflow:hidden}
+.original-a4 .address-lines span{font-size:6.5px;line-height:1.25;white-space:nowrap;overflow:hidden}
+.original-a4 .address-lines b{margin:3px -5px 0;padding:3px 5px;font-size:7px;white-space:nowrap;overflow:hidden}
+.original-a4 .personal-only .qr{min-width:0;overflow:hidden;display:grid;place-content:center;text-align:center;gap:1px;font-size:6px}
+.original-a4 .personal-only .qr span{font-size:6px;letter-spacing:0}
+.original-a4 .personal-only .qr b{padding:5px;font-size:9px;max-width:42px;margin:auto}
+.original-a4 .section-explanation{height:35%;padding:5px 5px 0;font-size:6.5px;line-height:1.15;overflow:hidden}
+.original-a4 .section-explanation ol{margin:3px 0;padding-left:16px}
+.original-a4 .section-explanation p{margin:3px 0}
+.original-a4 .voucher-instructions{flex:0 0 10%;padding:4px 1px 0;font-size:6.5px;line-height:1.15;overflow:hidden}
+.original-a4 .invalid-warning{flex:0 0 8%;padding-top:4px;font-size:10px;overflow:hidden}
+.tvl-paper.original-a4>.cut{height:auto;min-height:0;font-size:10px;overflow:hidden}
+.tvl-paper.original-a4>.cut span{font-size:5.5px}
+
+@media(max-width:700px){
+  .paper-wrap{overflow-x:auto}
+  .tvl-paper.original-a4{width:760px;max-width:none}
+}
+
+@media print{
+  .printed-sheet.original-a4{
+    width:200mm;
+    height:287mm;
+    max-height:287mm;
+    padding:0;
+    display:grid;
+    grid-template-rows:4mm 106mm 6mm 78mm 6mm 87mm;
+    overflow:hidden;
+  }
+  .printed-sheet.original-a4>.cut-copy{display:none!important}
+  .printed-sheet.original-a4>.tvl-section{height:100%;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+  .printed-sheet.original-a4>.cut{height:auto!important;min-height:0;overflow:hidden}
+  .printed-sheet.original-a4 .admin-box{height:calc(100% - 64px);min-height:0}
+  .printed-sheet.original-a4 .survey-box{max-height:64%}
+  .printed-sheet.original-a4 .personal-only{height:36%;min-height:0}
+  .printed-sheet.original-a4 .voucher-instructions,
+  .printed-sheet.original-a4 .section-explanation,
+  .printed-sheet.original-a4 .invalid-warning{display:block!important}
+}
