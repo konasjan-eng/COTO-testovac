@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 720" role="img" aria-labelledby="t d">
+<title id="t">COTO – Co/dáš a To/máš</title><desc id="d">Logo podle vzhledu z videozáznamu aplikace COTO</desc>
+<rect width="720" height="720" rx="34" fill="#fbf8ef"/>
+<rect x="22" y="22" width="676" height="676" rx="30" fill="none" stroke="#d5a92d" stroke-width="8"/>
+<g fill="#18294d" font-family="Georgia,Times New Roman,serif" font-weight="700">
+<text x="76" y="260" font-size="186">C</text><text x="276" y="260" font-size="186">T</text>
+</g>
+<g>
+<circle cx="248" cy="191" r="86" fill="#d5a92d"/><circle cx="248" cy="191" r="70" fill="#f6ddbd"/>
+<path d="M190 180c8-60 105-78 121-5-12-18-28-28-47-30-21-2-49 8-74 35z" fill="#20242c"/>
+<ellipse cx="248" cy="194" rx="43" ry="51" fill="#edcaa6"/>
+<path d="M219 184q10-9 20 0M257 184q10-9 20 0" fill="none" stroke="#3b332f" stroke-width="4" stroke-linecap="round"/>
+<circle cx="232" cy="191" r="4" fill="#253040"/><circle cx="267" cy="191" r="4" fill="#253040"/>
+<path d="M235 213q14 12 29 0" fill="none" stroke="#8f4e43" stroke-width="4" stroke-linecap="round"/>
+<path d="M192 270q56-50 112 0v26H192z" fill="#36658d"/>
+</g>
+<g>
+<circle cx="516" cy="191" r="86" fill="#d5a92d"/><circle cx="516" cy="191" r="70" fill="#f6ddbd"/>
+<path d="M459 170c14-62 107-75 117 2-22-25-51-34-80-25-13 4-25 12-37 23z" fill="#b6783c"/>
+<ellipse cx="516" cy="194" rx="43" ry="51" fill="#e9c49f"/>
+<path d="M488 184q10-9 20 0M526 184q10-9 20 0" fill="none" stroke="#3b332f" stroke-width="4" stroke-linecap="round"/>
+<circle cx="500" cy="191" r="4" fill="#253040"/><circle cx="535" cy="191" r="4" fill="#253040"/>
+<path d="M503 213q14 12 29 0" fill="none" stroke="#8f4e43" stroke-width="4" stroke-linecap="round"/>
+<path d="M460 270q56-50 112 0v26H460z" fill="#e6e7e4"/>
+</g>
+<g fill="#18294d" font-family="Arial,sans-serif" font-weight="800">
+<text x="136" y="388" font-size="52">Co/dáš</text><text x="438" y="388" font-size="52">To/máš</text>
+</g>
+<text x="346" y="388" fill="#d5a92d" font-family="Arial,sans-serif" font-size="42" font-weight="800">A</text>
+<line x1="100" y1="423" x2="620" y2="423" stroke="#d5a92d" stroke-width="5"/>
+<g text-anchor="middle" font-family="Arial,sans-serif" font-weight="800">
+<text x="360" y="500" font-size="31" fill="#18294d">APLIKACE PRO</text>
+<text x="360" y="550" font-size="29" fill="#2a7968">SPRAVEDLIVOU VÝMĚNU INFORMACÍ</text>
+</g>
+</svg>
