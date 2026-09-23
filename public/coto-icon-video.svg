@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520" role="img">
+<rect width="520" height="520" rx="42" fill="#121a2c"/>
+<rect x="18" y="18" width="484" height="484" rx="32" fill="none" stroke="#d5a92d" stroke-width="8"/>
+<text x="54" y="285" fill="#fbf8ef" font-family="Georgia,serif" font-size="190" font-weight="700">C</text>
+<text x="265" y="285" fill="#fbf8ef" font-family="Georgia,serif" font-size="190" font-weight="700">T</text>
+<circle cx="214" cy="214" r="82" fill="#d5a92d"/><circle cx="214" cy="214" r="65" fill="#f0caa3"/>
+<path d="M159 194c14-62 101-72 110-4-22-27-53-33-78-24-12 4-22 13-32 28z" fill="#252a31"/>
+<circle cx="194" cy="214" r="5" fill="#18294d"/><circle cx="233" cy="214" r="5" fill="#18294d"/><path d="M195 240q19 16 38 0" fill="none" stroke="#8f4e43" stroke-width="5" stroke-linecap="round"/>
+<circle cx="436" cy="214" r="58" fill="#d5a92d"/><circle cx="436" cy="214" r="44" fill="#f0caa3"/>
+<path d="M397 198c11-45 72-51 79-2-15-20-37-24-56-17-9 3-16 9-23 19z" fill="#ae743c"/>
+<circle cx="422" cy="214" r="4" fill="#18294d"/><circle cx="449" cy="214" r="4" fill="#18294d"/><path d="M423 232q13 10 26 0" fill="none" stroke="#8f4e43" stroke-width="4" stroke-linecap="round"/>
+<text x="260" y="410" text-anchor="middle" fill="#fbf8ef" font-family="Arial,sans-serif" font-size="42" font-weight="800">COTO</text>
+</svg>
