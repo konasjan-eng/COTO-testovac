@@ -1,8 +1,10 @@
 # Projektová paměť COTO
 
-- **Povinný vstupní proces** – ikona se smajlíkem → logo COTO → Správce/Účastník → kontrola IČO správce v ARES → seznam čtyř variant PN, PP, DD, VO → výběr PN → editovatelná kopie TVL. Žádná pozdější úprava nesmí tento řetězec odstranit nebo přeskočit.
+- **Povinný vstupní proces** – původní ikona se smajlíkem → původní logo COTO → cíl a filosofie → Správce/Účastník → kontrola IČO správce v ARES → seznam čtyř variant PN, VL, PP, VT → živá vyplňovací kopie INVESTICE. Žádná pozdější úprava nesmí tento řetězec odstranit nebo přeskočit.
 
-- **COTO** – společný systém čtyř variant PN, PP, DD a VO.
+- **COTO** – společný systém čtyř variant PN, VL, PP a VT.
+- **Přímý přenos** – najetí ukáže nabídku varianty nebo týdne; kliknutí volbu ihned přenese do pracovního listu.
+- **Návrat výsledku** – shodná témata se seskupují a součtový výsledek se vrací správci i do každého vloženého TVL.
 - **TVL** – třídílný tisknutelný nosič komunikace, nikoli pouhá výstupní sestava.
 - **PN** – Průzkum názorů; první implementovaná varianta.
 - **Společný kód** – 17+4 symboly, shodné ve všech třech dílech TVL.

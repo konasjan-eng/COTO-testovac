@@ -22,23 +22,23 @@ Správce zakládá a připravuje aktivitu. V současné variantě PN vyplní nej
 
 COTO počítá se čtyřmi společnými variantami:
 
-- **PN – Průzkum názorů**: první a aktuálně rozpracovaná funkční varianta;
-- **PP – Pořadí priorit**: v nabídce je viditelná, ale zatím nepřístupná;
-- **DD – Dárce daru**: v nabídce je viditelná, ale zatím nepřístupná;
-- **VO – Volba občana**: v nabídce je viditelná, ale zatím nepřístupná.
+- **PN – Průzkum názorů**;
+- **VL – Vyber lepší**;
+- **PP – Podpora projektu**;
+- **VT – Volební tombola**.
 
 Další vývoj má zachovat společný systém variant a nesmí odstranit povinný vstupní průchod. Současná práce se soustředí na PN1 – Průzkum návrhů a otázek.
 
 ## Navigace aplikací
 
-Povinný začátek tvoří ikona COTO se smajlíkem, samostatné logo COTO a volba role **Správce / Účastník**.
+Povinný začátek tvoří původní ikona COTO se smajlíkem, samostatné logo COTO, obrazovka **Cíl a filosofie** a volba role **Správce / Účastník**.
 
 Průchod správce pokračuje takto:
 
 1. interní kontrola IČO správce v kroku ARES;
-2. nabídka variant PN, PP, DD a VO;
-3. otevření pracovní šablony PN;
-4. editace projektů a souběžná kontrola všech tří dílů TVL;
+2. nabídka variant PN, VL, PP a VT;
+3. otevření živé pracovní šablony INVESTICE;
+4. výběr varianty a týdne z nabídky přímo u pracovního listu a editace C1–C3;
 5. náhled celého TVL a vznik časového razítka;
 6. případný návrat k opravám, nebo potvrzení PN1;
 7. přehled správce se sloupci živých a ukončených průzkumů.
