@@ -1,5 +1,13 @@
 # Vývojový deník COTO
 
+## 24. září 2026 – obnova celé živé šablony
+
+- Obnoven celý průchod od původní ikony a loga přes cíl a filosofii, role, ARES a čtyři varianty PN, VL, PP a VT.
+- Vrácena živá vyplňovací šablona INVESTICE s nabídkami varianty a týdne po najetí a okamžitým přenosem zvolené hodnoty.
+- Doplněna okna B a D, identifikátor 17+4 a původní poměry tří dílů pro společný tisk na jednu A4.
+- Obnoven návrat součtových výsledků správci i do každého vloženého TVL a seskupování shodných projektů.
+- Přidána závazná dokumentace celého vyplňovacího postupu a automatické kontroly, aby jej další úprava znovu nepřeskočila.
+
 ## 30. srpna 2026 – úplný vstup správce
 
 - Doplněn průchod od ikony přes logo, volbu role a kontrolu ARES.
