@@ -38,7 +38,7 @@ test("logo COTO v horní liště vrací na titulní obrázek", async () => {
 
 test("živá pracovní šablona se nesmí znovu přeskočit", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
-  for (const text of ["Živá pracovní šablona INVESTICE", "Kód varianty COTO", "Týden platnosti", "Vyplnit řádek C1", "UKONČIT EDITACI A ZOBRAZIT CELÝ TVL"]) assert.match(page, new RegExp(text));
+  for (const text of ["Živá pracovní šablona INVESTICE", "Kód a pořadí použití", "Hodnota průzkumu pro správce", "Datum a doba platnosti", "Vyplnit první pole okna C", "UKONČIT EDITACI A ZOBRAZIT CELÝ TVL"]) assert.match(page, new RegExp(text));
 });
 
 test("celý TVL zachovává identifikátor B, osobní okno D a jednu A4", async () => {
@@ -52,4 +52,40 @@ test("celý TVL zachovává identifikátor B, osobní okno D a jednu A4", async 
 test("výsledek se vrací ke správci i do vložených TVL", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   for (const text of ["Návrh", "Posílení", "Kopírování", "Sčítání", "Řešení", "každého vloženého TVL"]) assert.match(page, new RegExp(text));
+});
+
+test("originální logo a obrazovka cíle se nesmí znovu nahradit maketou", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const logo = await readFile(new URL("../public/coto-logo-original.png", import.meta.url));
+  assert.ok(logo.byteLength > 1_000_000, "chybí dodané originální logo");
+  assert.match(page, /coto-logo-original\.png/);
+  assert.doesNotMatch(page, /coto-logo-video\.svg/);
+  for (const text of ["Cíl a filosofie internetové aplikace COTO", "průběžný a obousměrný", "TVL je Třídílný Volební List"]) assert.match(page, new RegExp(text));
+  assert.match(page, /shodným\s+kódem a časovým razítkem/);
+});
+
+test("okno C má tři nečíslovaná dlouhá pole a jedno hodnocení", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const css = await readFile(new URL("../app/revision-2026-09-24.css", import.meta.url), "utf8");
+  const windowC = page.slice(page.indexOf('className="project-list window-c"'), page.indexOf('{kind === "voucher"'));
+  assert.match(page, /className="project-field"/);
+  assert.match(page, /className=\{\s*"participant-score/);
+  assert.doesNotMatch(windowC, /<span>\{index \+ 1\}<\/span>/);
+  assert.match(css, /grid-template-columns: minmax\(0, 1fr\) 38px/);
+});
+
+test("poukázka obsahuje okno D, text a střihovou linku v pevné A4", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const css = await readFile(new URL("../app/revision-2026-09-24.css", import.meta.url), "utf8");
+  assert.match(page, /className="voucher-footer"/);
+  assert.match(page, /<CutLine label="oddělit POUKÁZKU"/);
+  assert.match(page, /cut-scissors/);
+  assert.match(css, /grid-template-rows: 55% 43%/);
+});
+
+test("všechny opravované obrazovky jsou očíslované", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /OBRAZOVKY PRO OPRAVY/);
+  assert.match(page, /ScreenRail current=\{1\}/);
+  assert.match(page, /current=\{role === "participant" \? 10 : 7\}/);
 });

@@ -16,7 +16,7 @@ Správce zakládá a připravuje aktivitu. V současné variantě PN vyplní nej
 
 ### Účastník
 
-Účastník vybere správce a jeho živou aktivitu, otevře úplné popisy řádků C1–C3 a každému nezávisle přidělí 1–9 bodů. Po odeslání získá časové razítko a osobní kontrolní kód pro pozdější dohledání svého řádku a dopadu názoru. Současný prototyp opakování stejného počtu bodů nezakazuje; konečné pravidlo dosud nebylo schváleno.
+Účastník vybere správce a jeho živou aktivitu, otevře úplné popisy tří nečíslovaných témat okna C a každému nezávisle přidělí 1–9 bodů. Po odeslání získá časové razítko a osobní kontrolní kód pro pozdější dohledání svého tématu a dopadu názoru. Současný prototyp opakování stejného počtu bodů nezakazuje; konečné pravidlo dosud nebylo schváleno.
 
 ## Varianty COTO
 
@@ -31,17 +31,18 @@ Další vývoj má zachovat společný systém variant a nesmí odstranit povinn
 
 ## Navigace aplikací
 
-Povinný začátek tvoří původní ikona COTO se smajlíkem, samostatné logo COTO, obrazovka **Cíl a filosofie** a volba role **Správce / Účastník**.
+Povinný začátek tvoří původní ikona COTO se smajlíkem, samostatné dodané logo COTO bez náhradní kresby, obrazovka **Cíl a filosofie** podle videozáznamu a volba role **Správce / Účastník**. Logo vždy otevře obrazovku cíle a filosofie. Všech deset obrazovek má trvalé číslo 01–10 pro slovní připomínky v levém přehledu.
 
 Průchod správce pokračuje takto:
 
 1. interní kontrola IČO správce v kroku ARES;
 2. nabídka variant PN, VL, PP a VT;
 3. otevření živé pracovní šablony INVESTICE;
-4. výběr varianty a týdne z nabídky přímo u pracovního listu a editace C1–C3;
-5. náhled celého TVL a vznik časového razítka;
-6. případný návrat k opravám, nebo potvrzení PN1;
-7. přehled správce se sloupci živých a ukončených průzkumů.
+4. výběr kódu a pořadí použití, hodnoty průzkumu pro správce a data s dobou platnosti přímo u pracovního listu; volba se ihned zobrazí v listu;
+5. vyplnění tří nečíslovaných témat okna C;
+6. náhled celého TVL a vznik časového razítka;
+7. případný návrat k opravám, nebo potvrzení PN1;
+8. přehled správce se sloupci živých a ukončených průzkumů.
 
 Průchod účastníka vede z volby role na seznam správců, dále na živé aktivity vybraného správce a poté na hodnocení konkrétní PN. Horní přepínač rolí umožňuje v prototypu přecházet mezi pohledem správce a účastníka.
 
@@ -63,7 +64,7 @@ Společné údaje a obsah projektů se během editace propisují do všech tří
 
 - **A – správce a aktivace:** vlevo obsahuje ověřenou identifikaci správce z kroku ARES. Vpravo zobrazuje datum, běžící čas s tisícinami sekundy a časové razítko ukončení editace.
 - **B – anonymizér:** obsahuje společný kód 17+4 symboly, shodný ve všech třech dílech konkrétního TVL. Každý další tisk nebo stažení musí získat nový kód.
-- **C – obsah PN:** obsahuje nejvýše tři samostatné návrhy nebo otázky. Každý má nadpis, úplný popis, oddělenou prioritu správce 1–3 Kč a hodnocení účastníka 1–9 bodů.
+- **C – obsah PN:** obsahuje tři nečíslovaná dlouhá pole podobná oknu B. Každé má nadpis, úplný popis a právě jedno samostatné čtvercové pole pro hodnocení účastníka 1–9 bodů; priorita správce 1–3 Kč zůstává součástí obsahu tématu.
 - **D – osobní údaje:** adresa a další osobní údaje účastníka smějí být pouze v POUKÁZCE.
 - **E – původní volební pole:** zachovává názvy „Číslo volené strany“ a „Číslo voleného zástupce“, dvě číslicová okénka pro stranu a pět pro kandidáta. Z tohoto okna se odvozuje označení PN1 v horním řádku.
 
@@ -75,6 +76,8 @@ Otevření celého náhledu vytvoří přesné časové razítko, zapíše je do
 - **POTVRDIT PN1** zveřejní aktivitu mezi živými projekty a zachová ji uzamčenou.
 
 Potvrzení tedy nevytváří náhled: následuje až po náhledu. Již potvrzený průzkum nesmí správce měnit; z přehledu jej otevírá jen ke čtení a kopírování.
+
+POUKÁZKA zachovává větší výšku podle originálního listu. Pod jejími okny zůstává vysvětlující text, upozornění na neplatnost přepisovaného listu a samostatná čárkovaná střihová linka s nůžkami. POUKÁZKA, INVESTICE a DOKLAD se vždy tisknou společně na jedinou A4.
 
 ## Živé a ukončené projekty
 

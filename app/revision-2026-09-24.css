@@ -1,0 +1,477 @@
+/* Opravy podle originálního loga, videozáznamu a původního listu TVL. */
+
+.with-screen-rail {
+  padding-left: 238px !important;
+}
+
+.screen-rail {
+  position: fixed;
+  top: 16px;
+  left: 14px;
+  z-index: 35;
+  width: 206px;
+  max-height: calc(100vh - 32px);
+  padding: 15px 13px;
+  overflow: auto;
+  border: 1px solid #cfc7b3;
+  border-top: 5px solid var(--video-gold);
+  border-radius: 9px;
+  background: #fffdf8f2;
+  box-shadow: 0 10px 28px #17231f1c;
+  backdrop-filter: blur(8px);
+}
+
+.screen-rail > p {
+  margin: 0 0 10px;
+  color: var(--video-navy);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .11em;
+}
+
+.screen-rail ol {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.screen-rail li {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  align-items: center;
+  gap: 7px;
+  min-height: 30px;
+  padding: 4px 6px;
+  border-radius: 5px;
+  color: #72766f;
+}
+
+.screen-rail li span {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 23px;
+  border: 1px solid #c9c4b7;
+  border-radius: 4px;
+  background: white;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.screen-rail li b {
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.screen-rail li.current {
+  background: var(--video-navy);
+  color: white;
+}
+
+.screen-rail li.current span {
+  border-color: var(--video-gold);
+  background: var(--video-gold);
+  color: #18294d;
+}
+
+.screen-rail > small {
+  display: block;
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid #ddd7c8;
+  color: #5e655f;
+  font: 10px/1.35 Georgia, serif;
+}
+
+/* Obrazovka 02 – bez náhradní kresby, pouze dodaný originál. */
+.coto-entry-logo-image {
+  width: min(680px, calc(100vw - 280px)) !important;
+  max-height: calc(100vh - 30px) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+.coto-entry-logo-image img {
+  width: 100% !important;
+  max-height: calc(100vh - 30px) !important;
+  object-fit: contain !important;
+}
+
+.entry-mini-logo {
+  width: 112px !important;
+  height: 112px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  background: white;
+}
+
+/* Obrazovka 03 – text a členění podle videozáznamu. */
+.purpose-panel {
+  position: relative;
+  width: min(850px, calc(100vw - 280px)) !important;
+  max-height: calc(100vh - 28px);
+  padding: 34px 38px 26px !important;
+  gap: 0 !important;
+  overflow: auto;
+  border-color: var(--video-navy) !important;
+  border-radius: 3px !important;
+}
+
+.purpose-panel .purpose-close {
+  position: absolute;
+  top: 13px;
+  right: 14px;
+  width: 35px;
+  height: 35px;
+  padding: 0;
+  border: 1px solid #d8d3c6;
+  border-radius: 50%;
+  background: #f3f1e9;
+  color: #333;
+  font-size: 23px;
+  line-height: 1;
+}
+
+.purpose-panel .eyebrow {
+  margin-bottom: 8px;
+  color: #b95756;
+  text-align: left;
+}
+
+.purpose-panel h1 {
+  margin: 0 45px 22px 0;
+  padding-bottom: 17px;
+  border-bottom: 1px solid #e0d9c8;
+  color: #1d2530;
+  font: 700 35px/1.08 Georgia, serif;
+  text-align: left;
+}
+
+.purpose-copy {
+  display: grid;
+  gap: 14px;
+}
+
+.purpose-copy p {
+  margin: 0;
+  color: #383c3a;
+  font: 16px/1.5 Georgia, serif;
+}
+
+.purpose-copy mark {
+  padding: 0 2px;
+  background: #f4dfa0;
+  color: inherit;
+}
+
+.purpose-blue { color: #496f9c; }
+.purpose-green { color: #4d9a62; }
+.purpose-red { color: #c55f64; }
+
+.purpose-added {
+  padding: 12px 14px;
+  border-left: 5px solid var(--video-gold);
+  background: #fff7dc;
+}
+
+.purpose-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 17px;
+  border-top: 1px solid #ddd7c9;
+}
+
+.purpose-actions > span,
+.purpose-actions > button {
+  min-height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .03em;
+}
+
+.purpose-actions > span {
+  border: 1px solid #d5d0c4;
+  background: #f5f2ea;
+  color: #4c6584;
+}
+
+/* Obrazovka 07 – první řádek má tři samostatné, živé volby. */
+.live-intro,
+.live-workbench {
+  max-width: 980px !important;
+}
+
+.live-selector-row {
+  grid-template-columns: 1.05fr .8fr 1.25fr !important;
+  gap: 10px !important;
+}
+
+.field-selector > button {
+  min-height: 60px !important;
+}
+
+.field-selector > button span small {
+  display: block;
+  margin-top: 2px;
+  color: #6e746e;
+  font-size: 9px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.value-selector > button {
+  grid-template-columns: auto 1fr auto;
+}
+
+.week-selector > button b {
+  font-size: 12px !important;
+}
+
+.selector-menu {
+  min-width: 100%;
+}
+
+.selector-menu button span {
+  min-width: 0;
+}
+
+.value-menu button {
+  grid-template-columns: 48px 1fr;
+}
+
+/* Okno C – tři dlouhá okna jako B a jediné čtvercové hodnocení 1–9. */
+.project-columns {
+  grid-template-columns: minmax(0, 1fr) 38px !important;
+  margin-left: 0 !important;
+}
+
+.survey-box .project-row {
+  grid-template-columns: minmax(0, 1fr) 38px !important;
+  gap: 0 !important;
+  min-height: 31px;
+  padding: 0 !important;
+}
+
+.survey-box .project-row .project-field {
+  min-width: 0;
+  min-height: 31px;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 6px !important;
+  border: 1px solid #555 !important;
+  border-bottom: 0 !important;
+  background: white !important;
+  color: #373c39 !important;
+  text-align: left;
+}
+
+.survey-box .project-row:last-child .project-field {
+  border-bottom: 1px solid #555 !important;
+}
+
+.survey-box .project-row .project-field strong {
+  min-width: 0;
+  min-height: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+  border: 0 !important;
+  color: #373c39;
+  font: 10px/1.15 Georgia, serif;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.survey-box .project-row .project-field small {
+  color: #65706a;
+  font: 7px/1.1 Arial, sans-serif;
+  white-space: nowrap;
+}
+
+.survey-box .project-row .participant-score {
+  width: 38px !important;
+  height: 31px !important;
+  display: grid !important;
+  place-items: center;
+  padding: 0 !important;
+  border: 1px solid #555 !important;
+  border-left: 0 !important;
+  border-bottom: 0 !important;
+  background: white !important;
+  font: 800 10px Arial, sans-serif !important;
+}
+
+.survey-box .project-row:last-child .participant-score {
+  border-bottom: 1px solid #555 !important;
+}
+
+.original-a4 .project-columns {
+  grid-template-columns: minmax(0, 1fr) 29px !important;
+}
+
+.original-a4 .survey-box .project-row {
+  grid-template-columns: minmax(0, 1fr) 29px !important;
+  min-height: 23px;
+}
+
+.original-a4 .survey-box .project-row .project-field,
+.original-a4 .survey-box .project-row .participant-score {
+  min-height: 23px !important;
+  height: 23px !important;
+}
+
+.original-a4 .survey-box .project-row .project-field strong {
+  font-size: 7px;
+}
+
+.original-a4 .survey-box .project-row .project-field small {
+  font-size: 5.5px;
+}
+
+.original-a4 .survey-box .project-row .participant-score {
+  width: 29px !important;
+  font-size: 8px !important;
+}
+
+/* POUKÁZKA drží velikost původního dílu a má vlastní text i střihovou linku. */
+.original-a4 .voucher .tvl-columns {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.original-a4 .voucher .tvl-right {
+  grid-template-rows: 55% 43% !important;
+  gap: 2% !important;
+}
+
+.voucher-footer {
+  flex: 0 0 20%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+
+.original-a4 .voucher-footer .voucher-instructions {
+  padding: 4px 1px 2px;
+  overflow: hidden;
+  font-size: 6.5px;
+  line-height: 1.15;
+}
+
+.original-a4 .voucher-footer .invalid-warning {
+  padding: 2px 0 0;
+  overflow: hidden;
+  font-size: 9px;
+  line-height: 1.1;
+}
+
+.cut {
+  display: grid !important;
+  grid-template-columns: auto auto minmax(20px, 1fr) auto;
+  align-items: center;
+  gap: 7px;
+  height: 100% !important;
+  min-height: 0;
+  color: #555b57;
+}
+
+.cut:after { display: none !important; }
+
+.cut em {
+  font: 700 6px/1 Arial, sans-serif;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.cut i {
+  display: block;
+  border-top: 1px dashed #686d69;
+}
+
+.cut-scissors {
+  font-size: 12px !important;
+  line-height: 1;
+}
+
+.cut-scissors-right {
+  transform: scaleX(-1);
+}
+
+.readonly-toolbar {
+  align-items: center;
+}
+
+.readonly-toolbar > strong {
+  margin-right: auto;
+  color: var(--video-navy);
+  font-size: 11px;
+  letter-spacing: .08em;
+}
+
+.dashboard-title {
+  display: grid !important;
+  gap: 2px;
+  text-align: left !important;
+}
+
+.dashboard-title small {
+  color: #6d736e;
+  font-size: 9px;
+  letter-spacing: .1em;
+}
+
+@media print {
+  .screen-rail { display: none !important; }
+  .with-screen-rail { padding-left: 0 !important; }
+
+  .printed-sheet.original-a4 .voucher-footer,
+  .printed-sheet.original-a4 .voucher-instructions,
+  .printed-sheet.original-a4 .voucher-footer .invalid-warning {
+    display: grid !important;
+  }
+
+  .printed-sheet.original-a4 .voucher-instructions {
+    display: block !important;
+  }
+
+  .printed-sheet.original-a4 .cut {
+    display: grid !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .screen-rail { display: none; }
+  .with-screen-rail { padding-left: 0 !important; }
+
+  .coto-entry-logo-image,
+  .purpose-panel {
+    width: min(94vw, 680px) !important;
+  }
+
+  .live-selector-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .purpose-panel {
+    padding: 28px 22px 22px !important;
+  }
+
+  .purpose-panel h1 {
+    font-size: 28px;
+  }
+
+  .purpose-copy p {
+    font-size: 15px;
+  }
+}
