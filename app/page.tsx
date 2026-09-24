@@ -30,6 +30,19 @@ const variantOptions: { code: VariantCode; name: string; description: string }[]
   { code: "VT", name: "Volební tombola", description: "Výběr lidí spojených s řešením" },
 ];
 
+const screenSteps = [
+  "Ikona COTO",
+  "Originální logo",
+  "Cíl a filosofie",
+  "Volba role",
+  "Ověření správce",
+  "Výběr varianty",
+  "Živá šablona",
+  "Celý TVL",
+  "Přehled správce",
+  "Průchod účastníka",
+];
+
 const initialProjects: Project[] = [
   { title: "", detail: "", value: 1 },
   { title: "", detail: "", value: 2 },
@@ -99,11 +112,40 @@ function ResultsJourney({ scoreTotal }: { scoreTotal?: number }) {
   );
 }
 
+function ScreenRail({ current }: { current: number }) {
+  return (
+    <aside className="screen-rail" aria-label="Číslovaný přehled obrazovek">
+      <p>OBRAZOVKY PRO OPRAVY</p>
+      <ol>
+        {screenSteps.map((step, index) => (
+          <li className={current === index + 1 ? "current" : ""} key={step}>
+            <span>{String(index + 1).padStart(2, "0")}</span>
+            <b>{step}</b>
+          </li>
+        ))}
+      </ol>
+      <small>Při další opravě stačí napsat číslo obrazovky.</small>
+    </aside>
+  );
+}
+
+function CutLine({ label }: { label: string }) {
+  return (
+    <div className="cut">
+      <span className="cut-scissors" aria-hidden="true">✂</span>
+      <em>{label}</em>
+      <i />
+      <span className="cut-scissors cut-scissors-right" aria-hidden="true">✂</span>
+    </div>
+  );
+}
+
 function TvlSection({
   kind,
   code,
   organiser,
   variant,
+  surveyValue,
   title,
   validFrom,
   validTo,
@@ -122,6 +164,7 @@ function TvlSection({
   code: string;
   organiser: string;
   variant: VariantCode;
+  surveyValue: number;
   title: string;
   validFrom: string;
   validTo: string;
@@ -148,12 +191,12 @@ function TvlSection({
       <div className="tvl-topline">
         <span>
           <b>Kód varianty<br />COTO</b>
-          <i>{variant} 1</i>
+          <i>{variant}001</i>
         </span>
         <h2><em>{numbers[kind]}</em> {labels[kind]}</h2>
         <span>
           <b>Hodnota z účtu<br />správce</b>
-          <i>1–3 Kč</i>
+          <i>{surveyValue} Kč</i>
         </span>
         <span className="validity">
           <b>Týden platnosti<br />tohoto listu</b>
@@ -227,12 +270,14 @@ function TvlSection({
                   className="project-row"
                   onClick={() => onInspect(index)}
                   title="Kliknutím otevřete celý popis"
+                  aria-label="Otevřít téma v okně C"
                 >
-                  <span>{index + 1}</span>
-                  <strong>
-                    {project.title || "Klikněte a zapište projekt nebo otázku"}
-                  </strong>
-                  <span className="manager-priority">{project.value} Kč</span>
+                  <span className="project-field">
+                    <strong>
+                      {project.title || "Klikněte a zapište projekt nebo otázku"}
+                    </strong>
+                    <small>hodnota správce {project.value} Kč</small>
+                  </span>
                   <span
                     className={
                       "participant-score " +
@@ -288,13 +333,19 @@ function TvlSection({
       </div>
 
       {kind === "voucher" && (
-        <div className="voucher-instructions">
-          <b>Pasivní účastník</b> může doplnit adresu pro papírové použití.{" "}
-          <strong>Aktivní účastník</strong> používá shodný identifikátor ve všech
-          třech dílech; osobní údaje zůstávají pouze v okně D POUKÁZKY.
+        <div className="voucher-footer">
+          <div className="voucher-instructions">
+            <b>Pasivní účastník</b> doplní adresu pro papírové použití.{" "}
+            <strong>Aktivní účastník</strong> používá shodný identifikátor a
+            časové razítko ve všech třech dílech; osobní údaje zůstávají pouze
+            v okně D POUKÁZKY.
+          </div>
+          <div className="invalid-warning">
+            PŘI PŘEPISOVÁNÍ A ŠKRTÁNÍ JE TIŠTĚNÝ LIST NEPLATNÝ!
+          </div>
         </div>
       )}
-      {kind !== "investment" && (
+      {kind === "receipt" && (
         <div className="invalid-warning">
           PŘI PŘEPISOVÁNÍ A ŠKRTÁNÍ JE TIŠTĚNÝ LIST NEPLATNÝ!
         </div>
@@ -315,8 +366,11 @@ export default function Home() {
   const [account, setAccount] = useState("4310751369/0800");
   const [aresVerified, setAresVerified] = useState(false);
   const [start, setStart] = useState(weeks[0]?.start || "");
+  const [surveyValue, setSurveyValue] = useState(1);
   const [selected, setSelected] = useState<number | null>(null);
-  const [selectorOpen, setSelectorOpen] = useState<"variant" | "week" | null>(null);
+  const [selectorOpen, setSelectorOpen] = useState<
+    "variant" | "value" | "week" | null
+  >(null);
   const [preview, setPreview] = useState(false);
   const [locked, setLocked] = useState(false);
   const [live, setLive] = useState<
@@ -329,7 +383,7 @@ export default function Home() {
   const [activationStamp, setActivationStamp] = useState("");
   const [currentTime, setCurrentTime] = useState("");
   const [currentDate, setCurrentDate] = useState("");
-  const [printCount, setPrintCount] = useState(1);
+  const [printCount] = useState(1);
   const [formError, setFormError] = useState("");
 
   useEffect(() => {
@@ -393,16 +447,21 @@ export default function Home() {
     setFormError("");
   };
 
+  const chooseSurveyValue = (nextValue: number) => {
+    setSurveyValue(nextValue);
+    setSelectorOpen(null);
+    setFormError("");
+  };
+
   const openStampedPreview = () => {
     const missingProjects = projects
       .map((project, index) =>
-        project.title.trim() && project.detail.trim() ? "" : "C" + (index + 1),
+        project.title.trim() && project.detail.trim() ? "" : String(index),
       )
       .filter(Boolean);
     if (!start || missingProjects.length) {
       setFormError(
-        "Doplňte týden a nadpis i stručný popis všech tří řádků " +
-          (missingProjects.length ? "(" + missingProjects.join(", ") + ")." : "."),
+        "Doplňte týden a nadpis i stručný popis všech tří témat v okně C.",
       );
       return;
     }
@@ -454,6 +513,7 @@ export default function Home() {
     code,
     organiser,
     variant,
+    surveyValue,
     title,
     validFrom: validity.from,
     validTo: validity.to,
@@ -466,7 +526,8 @@ export default function Home() {
 
   if (entryStage === "icon") {
     return (
-      <main className="entry-screen">
+      <main className="entry-screen with-screen-rail">
+        <ScreenRail current={1} />
         <button
           className="coto-entry-icon video-look original-icon"
           onClick={() => setEntryStage("logo")}
@@ -480,14 +541,15 @@ export default function Home() {
 
   if (entryStage === "logo") {
     return (
-      <main className="entry-screen">
+      <main className="entry-screen with-screen-rail">
+        <ScreenRail current={2} />
         <button
           className="coto-entry-logo coto-entry-logo-image"
           onClick={() => setEntryStage("purpose")}
           aria-label="Pokračovat z loga COTO k cíli aplikace"
         >
           <img
-            src="/COTO-testovac/coto-logo-video.svg"
+            src="/COTO-testovac/coto-logo-original.png"
             alt="COTO – Co/dáš a To/máš, aplikace pro spravedlivou výměnu informací"
           />
         </button>
@@ -497,22 +559,67 @@ export default function Home() {
 
   if (entryStage === "purpose") {
     return (
-      <main className="entry-screen">
-        <section className="entry-panel purpose-panel">
-          <p className="eyebrow">CÍL A FILOSOFIE COTO</p>
-          <h1>Od osobního názoru k řešení</h1>
-          <p>
-            COTO dává člověku jednoduchý nástroj, kterým může svůj názor vložit,
-            dohledat jeho cestu a zkontrolovat jeho rostoucí hodnotu.
-          </p>
-          <p>
-            Shodné potřeby se mohou spojovat napříč obcemi, spolky a dalšími
-            správci zdola nahoru. Výsledek se vrací správci i na každý
-            související TVL.
-          </p>
-          <ResultsJourney />
-          <button onClick={() => setEntryStage("roles")}>POKRAČOVAT DO COTO</button>
-          <button className="muted" onClick={() => setEntryStage("logo")}>ZPĚT</button>
+      <main className="entry-screen with-screen-rail">
+        <ScreenRail current={3} />
+        <section className="entry-panel purpose-panel" id="dokument-projekt-coto">
+          <button
+            className="purpose-close"
+            onClick={() => setEntryStage("logo")}
+            aria-label="Zpět k logu COTO"
+          >
+            ×
+          </button>
+          <p className="eyebrow">PROJEKT COTO · OBRAZOVKA 03</p>
+          <h1>Cíl a filosofie internetové aplikace COTO</h1>
+          <div className="purpose-copy">
+            <p>
+              Aplikace <strong className="purpose-blue">Co/dáš</strong> a{" "}
+              <strong className="purpose-green">To/máš</strong> (COTO) mění
+              zavedený volební systém na <mark>průběžný a obousměrný
+              kontrolovatelný proces</mark> každým účastníkem průzkumu.
+            </p>
+            <p>
+              Cílem internetové verze aplikace COTO je{" "}
+              <strong className="purpose-blue">obnovení důvěry v hodnotu Hlasu
+              voliče</strong> prostřednictvím virtuální – ověřené finanční
+              hodnoty <mark>1–3 Kč za informaci</mark>, potřebnou pro správce.
+            </p>
+            <p>
+              Správcem aplikace může být osoba nebo instituce s{" "}
+              <strong className="purpose-green">IČO zapsaným v systému ARES</strong>{" "}
+              (obec, firma nebo spolek).
+            </p>
+            <p>
+              Virtuální – internetovou finanční hodnotu „Hlasu voliče“ lze změnit
+              na <mark>reálnou finanční transakci</mark> mezi správcem a účastníkem.
+              Vytištěním vyplněných tiskopisů se hodnota informace mění na{" "}
+              <strong className="purpose-blue">účetní doklad s identitou správce</strong>.
+            </p>
+            <p>
+              Nástrojem pro průzkum názorů je{" "}
+              <strong className="purpose-red">Třídílný volební list (TVL)</strong>.
+              Tři téměř shodné šablony se liší názvem –{" "}
+              <strong className="purpose-blue">POUKÁZKA</strong>,{" "}
+              <strong className="purpose-green">INVESTICE</strong> a{" "}
+              <strong>DOKLAD</strong> – a adresou účastníka na prvním dílu TVL,
+              pro případ inkasa za pasivní účast.
+            </p>
+            <p className="purpose-added">
+              <b>TVL je Třídílný Volební List:</b> tři šablony propojené shodným
+              kódem a časovým razítkem. Tyto dva prvky anonymní kontroly jsou pro
+              aplikaci klíčové; u dvou posledních variant použití systému je
+              doplňují další tři kontrolní prvky.
+            </p>
+            <p>
+              Účastník si první díl listu TVL ponechá. Verifikační kód na trojici
+              šablon mu dovolí najít hodnotu Hlasu na zveřejněném účtu obce,
+              spolku nebo firmy.
+            </p>
+          </div>
+          <div className="purpose-actions">
+            <span>Dokument Projekt COTO</span>
+            <button onClick={() => setEntryStage("roles")}>POKRAČOVAT DO COTO →</button>
+          </div>
         </section>
       </main>
     );
@@ -520,9 +627,10 @@ export default function Home() {
 
   if (entryStage === "roles") {
     return (
-      <main className="entry-screen">
+      <main className="entry-screen with-screen-rail">
+        <ScreenRail current={4} />
         <section className="entry-panel role-panel">
-          <img className="entry-mini-logo" src="/COTO-testovac/coto-logo-video.svg" alt="" />
+          <img className="entry-mini-logo" src="/COTO-testovac/coto-logo-original.png" alt="Logo COTO" />
           <h1>Vyber si</h1>
           <div className="role-buttons">
             <button onClick={() => { setRole("manager"); setEntryStage("ares"); }}>SPRÁVCE</button>
@@ -540,9 +648,10 @@ export default function Home() {
 
   if (entryStage === "ares") {
     return (
-      <main className="entry-screen">
+      <main className="entry-screen with-screen-rail">
+        <ScreenRail current={5} />
         <section className="entry-panel manager-entry">
-          <img className="entry-mini-logo" src="/COTO-testovac/coto-logo-video.svg" alt="" />
+          <img className="entry-mini-logo" src="/COTO-testovac/coto-logo-original.png" alt="Logo COTO" />
           <p className="eyebrow">KONTROLA SPRÁVCE V ARES</p>
           <h1>Ověření správce</h1>
           <p>
@@ -596,7 +705,8 @@ export default function Home() {
 
   if (entryStage === "variants") {
     return (
-      <main className="entry-screen">
+      <main className="entry-screen with-screen-rail">
+        <ScreenRail current={6} />
         <section className="entry-panel variant-panel">
           <p className="verified-manager">Ověřený správce: <b>{organiser}</b></p>
           <p className="eyebrow">VÝBĚR VARIANTY COTO</p>
@@ -626,9 +736,13 @@ export default function Home() {
 
   if (entryStage === "dashboard") {
     return (
-      <main className="dashboard-screen">
+      <main className="dashboard-screen with-screen-rail">
+        <ScreenRail current={9} />
         <header className="dashboard-logo">
-          <button className="dashboard-home" onClick={() => setEntryStage("icon")}>COTO</button>
+          <div className="dashboard-title">
+            <small>OBRAZOVKA 09 · PŘEHLED SPRÁVCE</small>
+            <button className="dashboard-home" onClick={() => setEntryStage("icon")}>COTO</button>
+          </div>
           <div>
             <strong>{organiser}</strong>
             <small>Ověřená identita správce · ARES</small>
@@ -675,15 +789,17 @@ export default function Home() {
 
   if (entryStage === "readonly") {
     return (
-      <main className="readonly-screen">
+      <main className="readonly-screen with-screen-rail">
+        <ScreenRail current={8} />
         <div className="readonly-toolbar">
+          <strong>OBRAZOVKA 08 · CELÝ TVL</strong>
           <button onClick={() => setEntryStage("dashboard")}>ZPĚT NA PŘEHLED</button>
           <button
             onClick={() =>
               navigator.clipboard?.writeText(
                 title + "\n" +
-                projects.map((project, index) =>
-                  "C" + (index + 1) + " " + project.title + ": " + project.detail,
+                projects.map((project) =>
+                  project.title + ": " + project.detail,
                 ).join("\n"),
               )
             }
@@ -694,18 +810,29 @@ export default function Home() {
         </div>
         <div className="tvl-paper original-a4">
           <TvlSection kind="voucher" {...sharedTvl} participantScores={receipt ? scores : undefined} onInspect={setSelected} />
-          <div className="cut">✂ <span>oddělit POUKÁZKU</span></div>
+          <CutLine label="oddělit POUKÁZKU" />
           <TvlSection kind="investment" {...sharedTvl} participantScores={receipt ? scores : undefined} onInspect={setSelected} />
-          <div className="cut">✂ <span>oddělit INVESTICI</span></div>
+          <CutLine label="oddělit INVESTICI" />
           <TvlSection kind="receipt" {...sharedTvl} participantScores={receipt ? scores : undefined} onInspect={setSelected} />
         </div>
         <ResultsJourney scoreTotal={receipt ? scores.reduce((sum, score) => sum + score, 0) : undefined} />
+        <div className="print-batch" aria-hidden="true">
+          <div className="tvl-paper printed-sheet original-a4">
+            <div className="printed-number">TVL {variant}1 · celý třídílný list</div>
+            <TvlSection kind="voucher" {...sharedTvl} participantScores={receipt ? scores : undefined} onInspect={() => {}} />
+            <CutLine label="oddělit POUKÁZKU" />
+            <TvlSection kind="investment" {...sharedTvl} participantScores={receipt ? scores : undefined} onInspect={() => {}} />
+            <CutLine label="oddělit INVESTICI" />
+            <TvlSection kind="receipt" {...sharedTvl} participantScores={receipt ? scores : undefined} onInspect={() => {}} />
+          </div>
+        </div>
       </main>
     );
   }
 
   return (
-    <main>
+    <main className="application-screen with-screen-rail">
+      <ScreenRail current={role === "participant" ? 10 : 7} />
       <nav className="topbar">
         <div>
           <button className="topbar-home" onClick={() => setEntryStage("icon")} aria-label="Zobrazit titulní stránku COTO">
@@ -727,7 +854,7 @@ export default function Home() {
         <>
           <header className="intro participant-intro">
             <div>
-              <p className="eyebrow">ÚČASTNÍK · VYPLŇOVACÍ PRŮCHOD</p>
+              <p className="eyebrow">OBRAZOVKA 10 · ÚČASTNÍK · VYPLŇOVACÍ PRŮCHOD</p>
               <h1>Vyberte správce.<br />Otevřete jeho aktivitu.</h1>
             </div>
             <p>
@@ -795,7 +922,7 @@ export default function Home() {
                     {projects.map((project, index) => (
                       <article key={index}>
                         <button className="participant-detail" onClick={() => setSelected(index)}>
-                          <span>C{index + 1}</span>
+                          <span>C</span>
                           <div>
                             <b>{project.title || "Nevyplněné téma"}</b>
                             <small>Kliknutím otevřete celý popis a hodnotu správce</small>
@@ -851,13 +978,13 @@ export default function Home() {
         <>
           <header className="intro live-intro">
             <div>
-              <p className="eyebrow">SPRÁVCE · PRACOVNÍ LIST</p>
+              <p className="eyebrow">OBRAZOVKA 07 · SPRÁVCE · PRACOVNÍ LIST</p>
               <h1>Živá pracovní šablona INVESTICE</h1>
             </div>
             <p>
-              Najeďte kurzorem na pole varianty nebo týdne a vyberte nabídku.
+              Najeďte kurzorem na variantu, hodnotu nebo dobu platnosti a vyberte nabídku.
               Změna se ihned propíše do INVESTICE a později do stejného místa
-              POUKÁZKY a DOKLADU. Řádky C1–C3 otevřete přímo v listu.
+              POUKÁZKY a DOKLADU. Tři pole okna C otevřete přímo v listu.
             </p>
           </header>
 
@@ -866,9 +993,8 @@ export default function Home() {
               <div
                 className="field-selector"
                 onMouseEnter={() => !locked && setSelectorOpen("variant")}
-                onMouseLeave={() => setSelectorOpen(null)}
               >
-                <small>Kód varianty COTO</small>
+                <small>Kód a pořadí použití</small>
                 <button
                   disabled={locked}
                   onFocus={() => setSelectorOpen("variant")}
@@ -887,7 +1013,38 @@ export default function Home() {
                         className={variant === option.code ? "chosen" : ""}
                         onClick={() => chooseVariant(option.code)}
                       >
-                        <b>{option.code}</b><span>{option.name}</span>
+                        <b>{option.code}001</b>
+                        <span>{option.name}<small>{option.description}</small></span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div
+                className="field-selector value-selector"
+                onMouseEnter={() => !locked && setSelectorOpen("value")}
+              >
+                <small>Hodnota průzkumu pro správce</small>
+                <button
+                  disabled={locked}
+                  onFocus={() => setSelectorOpen("value")}
+                  onClick={() => setSelectorOpen(selectorOpen === "value" ? null : "value")}
+                  aria-expanded={selectorOpen === "value"}
+                >
+                  <b>{surveyValue} Kč</b>
+                  <span>za informaci</span>
+                  <em>▾</em>
+                </button>
+                {selectorOpen === "value" && (
+                  <div className="selector-menu value-menu" role="listbox">
+                    {[1, 2, 3].map((value) => (
+                      <button
+                        key={value}
+                        className={surveyValue === value ? "chosen" : ""}
+                        onClick={() => chooseSurveyValue(value)}
+                      >
+                        <b>{value} Kč</b><span>hodnota průzkumu</span>
                       </button>
                     ))}
                   </div>
@@ -897,9 +1054,8 @@ export default function Home() {
               <div
                 className="field-selector week-selector"
                 onMouseEnter={() => !locked && setSelectorOpen("week")}
-                onMouseLeave={() => setSelectorOpen(null)}
               >
-                <small>Týden platnosti</small>
+                <small>Datum a doba platnosti</small>
                 <button
                   disabled={locked}
                   onFocus={() => setSelectorOpen("week")}
@@ -925,8 +1081,9 @@ export default function Home() {
             </div>
 
             <p className="transfer-note">
-              <span>●</span> Vybráno: <b>{variant}1</b> · <b>{validity.period}</b>.
-              Stejné údaje čekají na přenos do všech tří dílů.
+              <span>●</span> Ihned zobrazeno v listu: <b>{variant}001</b> ·{" "}
+              <b>{surveyValue} Kč</b> · <b>{validity.period}</b>. Nabídka zůstane
+              otevřená až do volby; stejné údaje se přenesou do všech tří dílů.
             </p>
 
             <div className="working-paper-wrap">
@@ -945,16 +1102,16 @@ export default function Home() {
                 />
                 {!locked && (
                   <>
-                    <button className="sheet-marker marker-c1" onClick={() => setSelected(0)} aria-label="Vyplnit řádek C1">+</button>
-                    <button className="sheet-marker marker-c2" onClick={() => setSelected(1)} aria-label="Vyplnit řádek C2">+</button>
-                    <button className="sheet-marker marker-c3" onClick={() => setSelected(2)} aria-label="Vyplnit řádek C3">+</button>
+                    <button className="sheet-marker marker-c1" onClick={() => setSelected(0)} aria-label="Vyplnit první pole okna C">+</button>
+                    <button className="sheet-marker marker-c2" onClick={() => setSelected(1)} aria-label="Vyplnit druhé pole okna C">+</button>
+                    <button className="sheet-marker marker-c3" onClick={() => setSelected(2)} aria-label="Vyplnit třetí pole okna C">+</button>
                   </>
                 )}
               </div>
             </div>
 
             <p className="work-instruction">
-              Klikněte na řádek C1, C2 nebo C3, napište nadpis a stručný popis a
+              Klikněte na některé ze tří polí okna C, napište nadpis a stručný popis a
               vyberte prioritu správce 1–3 Kč. Po vyplnění všech tří řádků
               ukončete editaci v okně A.
             </p>
@@ -965,55 +1122,6 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="manager-columns">
-            <div>
-              <p className="eyebrow">ŽIVÉ</p>
-              <h2>Živé průzkumy</h2>
-              {live.length ? (
-                live.map((item) => (
-                  <article key={item.code}>
-                    <span className="live-dot" />
-                    <div><b>{item.title}</b><small>{item.period}</small></div>
-                    <code>{item.code}</code>
-                  </article>
-                ))
-              ) : (
-                <p className="empty-column">Po kontrole celého TVL a potvrzení se aktivita objeví zde.</p>
-              )}
-            </div>
-            <div>
-              <p className="eyebrow">UKONČENÉ</p>
-              <h2>Ukončené průzkumy</h2>
-              <p className="empty-column">
-                Po skončení platnosti se zde objeví součtové výsledky a vazby
-                na shodné projekty.
-              </p>
-            </div>
-          </section>
-
-          <section className="print-controls">
-            <div>
-              <p className="eyebrow">PAPÍROVÁ VERZE</p>
-              <h2>Tisk celého TVL</h2>
-              <p>
-                Každý výtisk dostane vlastní identifikátor B. Všechny tři díly
-                se tisknou na jedinou A4.
-              </p>
-            </div>
-            <label>
-              Počet číslovaných listů
-              <input
-                type="number"
-                min="1"
-                max="999"
-                value={printCount}
-                onChange={(event) =>
-                  setPrintCount(Math.min(999, Math.max(1, Number(event.target.value))))
-                }
-              />
-            </label>
-            <button onClick={() => window.print()}>TISK CELÉHO TVL · {printCount} ks</button>
-          </section>
         </>
       )}
 
@@ -1021,7 +1129,7 @@ export default function Home() {
         <div className="modal-backdrop" onMouseDown={() => setSelected(null)}>
           <section className="modal" onMouseDown={(event) => event.stopPropagation()}>
             <button className="close" onClick={() => setSelected(null)}>×</button>
-            <p className="eyebrow">OKNO C · ŘÁDEK C{selected + 1}</p>
+            <p className="eyebrow">OKNO C · TÉMA</p>
             <h2>Projekt, námět nebo otázka</h2>
             <label>
               Nadpis
@@ -1069,7 +1177,7 @@ export default function Home() {
         <div className="preview-overlay">
           <div className="preview-toolbar">
             <div>
-              <b>Celý TVL · časové razítko {activationStamp}</b>
+              <b>OBRAZOVKA 08 · CELÝ TVL · časové razítko {activationStamp}</b>
               <span>
                 Zkontrolujte POUKÁZKU včetně okna D, identifikátor B, INVESTICI
                 a DOKLAD. Zpět razítko zruší; potvrzení TVL uzamkne.
@@ -1083,9 +1191,9 @@ export default function Home() {
           <div className="preview-scroll">
             <div className="tvl-paper original-a4">
               <TvlSection kind="voucher" {...sharedTvl} onInspect={setSelected} />
-              <div className="cut">✂ <span>oddělit POUKÁZKU</span></div>
+              <CutLine label="oddělit POUKÁZKU" />
               <TvlSection kind="investment" {...sharedTvl} onInspect={setSelected} />
-              <div className="cut">✂ <span>oddělit INVESTICI</span></div>
+              <CutLine label="oddělit INVESTICI" />
               <TvlSection kind="receipt" {...sharedTvl} onInspect={setSelected} />
             </div>
           </div>
@@ -1107,9 +1215,9 @@ export default function Home() {
             <div className="tvl-paper printed-sheet original-a4" key={printCode}>
               <div className="printed-number">TVL {variant}1 · pořadové číslo {copyIndex + 1}</div>
               <TvlSection kind="voucher" {...printShared} onInspect={() => {}} />
-              <div className="cut">✂ <span>oddělit POUKÁZKU</span></div>
+              <CutLine label="oddělit POUKÁZKU" />
               <TvlSection kind="investment" {...printShared} onInspect={() => {}} />
-              <div className="cut">✂ <span>oddělit INVESTICI</span></div>
+              <CutLine label="oddělit INVESTICI" />
               <TvlSection kind="receipt" {...printShared} onInspect={() => {}} />
             </div>
           );

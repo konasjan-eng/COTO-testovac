@@ -4,6 +4,7 @@ import "./participant.css";
 import "./tvl-corrections.css";
 import "./flow.css";
 import "./restored-live.css";
+import "./revision-2026-09-24.css";
 
 export const metadata: Metadata = {
   title: "COTO · Digitální pracovní list TVL",
