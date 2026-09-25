@@ -85,6 +85,115 @@
   font: 10px/1.35 Georgia, serif;
 }
 
+.screen-note {
+  display: grid;
+  gap: 7px;
+  margin-top: 11px;
+  padding-top: 11px;
+  border-top: 1px solid #d8d1bf;
+}
+
+.screen-note label {
+  color: var(--video-navy);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .06em;
+}
+
+.screen-note textarea {
+  width: 100%;
+  min-height: 82px;
+  padding: 8px;
+  resize: vertical;
+  border: 1px solid #bdb5a3;
+  border-radius: 5px;
+  background: white;
+  color: #303632;
+  font: 11px/1.35 Arial, sans-serif;
+}
+
+.screen-note textarea:focus {
+  outline: 2px solid var(--video-gold);
+  outline-offset: 1px;
+}
+
+.screen-note > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.screen-note button {
+  min-height: 31px;
+  padding: 5px 3px;
+  border: 1px solid var(--video-navy);
+  border-radius: 4px;
+  background: var(--video-navy);
+  color: white;
+  cursor: pointer;
+  font-size: 7px;
+  font-weight: 900;
+}
+
+.screen-note small {
+  min-height: 13px;
+  color: #3d7257;
+  font-size: 8px;
+  font-weight: 700;
+}
+
+/* Popisky správce – zobrazí se při najetí myší i při ovládání klávesnicí. */
+.manager-help {
+  position: relative !important;
+}
+
+.manager-help::after {
+  content: attr(data-help);
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 50%;
+  z-index: 90;
+  width: max-content;
+  max-width: 290px;
+  padding: 9px 11px;
+  border: 1px solid #c99c22;
+  border-radius: 6px;
+  background: #fff8d9;
+  box-shadow: 0 10px 24px #17231f33;
+  color: #27312c;
+  font: 11px/1.4 Arial, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-align: left;
+  text-transform: none;
+  white-space: normal;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(-3px);
+  transition: opacity .12s ease, transform .12s ease;
+}
+
+.manager-help:hover::after,
+.manager-help:focus-visible::after,
+.manager-help:focus-within::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.manager-help.help-right::after {
+  top: 50%;
+  left: calc(100% + 10px);
+  transform: translateY(-50%) translateX(-3px);
+}
+
+.manager-help.help-right:hover::after,
+.manager-help.help-right:focus-visible::after,
+.manager-help.help-right:focus-within::after {
+  transform: translateY(-50%) translateX(0);
+}
+
 /* Obrazovka 02 – bez náhradní kresby, pouze dodaný originál. */
 .coto-entry-logo-image {
   width: min(680px, calc(100vw - 280px)) !important;
@@ -246,6 +355,28 @@
 
 .value-menu button {
   grid-template-columns: 48px 1fr;
+}
+
+.manager-hover-caption {
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: 142px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  margin: 11px 0 7px;
+  padding: 10px 12px;
+  border: 1px solid #d7b34e;
+  border-left: 5px solid var(--video-gold);
+  border-radius: 5px;
+  background: #fff8dc;
+  color: #39413d;
+  font: 12px/1.4 Georgia, serif;
+}
+
+.manager-hover-caption b {
+  color: var(--video-navy);
+  font: 9px/1.3 Arial, sans-serif;
+  letter-spacing: .09em;
 }
 
 /* Okno C – tři dlouhá okna jako B a jediné čtvercové hodnocení 1–9. */

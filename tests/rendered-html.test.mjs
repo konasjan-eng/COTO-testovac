@@ -89,3 +89,18 @@ test("všechny opravované obrazovky jsou očíslované", async () => {
   assert.match(page, /ScreenRail current=\{1\}/);
   assert.match(page, /current=\{role === "participant" \? 10 : 7\}/);
 });
+
+test("levý sloupec ukládá poznámku ke každé obrazovce v tomto počítači", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  for (const text of ["OPRAVA K OBRAZOVCE", "coto-oprava-obrazovka-", "KOPÍROVAT TUTO", "KOPÍROVAT VŠE", "Uloženo v tomto počítači"]) assert.match(page, new RegExp(text));
+  assert.match(page, /window\.localStorage\.setItem/);
+});
+
+test("správce dostává popisky při pohybu kurzoru", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const css = await readFile(new URL("../app/revision-2026-09-24.css", import.meta.url), "utf8");
+  for (const text of ["POPIS PRO SPRÁVCE", "Přejeďte kurzorem přes volbu", "Kód a pořadí", "Uzamkne TVL"]) assert.match(page, new RegExp(text));
+  assert.match(page, /data-help=/);
+  assert.match(css, /\.manager-help:hover::after/);
+  assert.match(css, /\.manager-hover-caption/);
+});

@@ -6,6 +6,8 @@
 - **Přímý přenos** – najetí ukáže nabídku kódu a pořadí použití, hodnoty průzkumu pro správce nebo data a doby platnosti; nabídka zůstává otevřená do volby a kliknutí ji ihned přenese do pracovního listu.
 - **Originální logo** – vždy se používá přesně dodaný obraz bez náhradní kresby; kliknutí vede na cíl a filosofii podle videozáznamu.
 - **Čísla obrazovek** – deset kroků 01–10 je trvale očíslováno pro slovní připomínky v levém přehledu.
+- **Pracovní poznámky** – každá obrazovka 01–10 má v levém sloupci vlastní poznámku uloženou v Chrome daného počítače; text lze vložit z přepisu videozáznamu a zkopírovat pro další opravu.
+- **Popisky správce** – najetí nebo zaměření ukazuje význam volby, její okamžitý přenos do TVL a případné uzamčení.
 - **Návrat výsledku** – shodná témata se seskupují a součtový výsledek se vrací správci i do každého vloženého TVL.
 - **TVL** – třídílný tisknutelný nosič komunikace, nikoli pouhá výstupní sestava.
 - **PN** – Průzkum názorů; první implementovaná varianta.

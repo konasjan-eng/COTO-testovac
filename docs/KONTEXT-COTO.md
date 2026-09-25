@@ -33,6 +33,8 @@ Další vývoj má zachovat společný systém variant a nesmí odstranit povinn
 
 Povinný začátek tvoří původní ikona COTO se smajlíkem, samostatné dodané logo COTO bez náhradní kresby, obrazovka **Cíl a filosofie** podle videozáznamu a volba role **Správce / Účastník**. Logo vždy otevře obrazovku cíle a filosofie. Všech deset obrazovek má trvalé číslo 01–10 pro slovní připomínky v levém přehledu.
 
+Levý přehled obsahuje pracovní poznámku ke právě otevřené obrazovce. Text se průběžně ukládá pouze v Chrome na daném počítači, takže do něj lze vložit přepis z videozáznamu nebo přesný popis opravy. Jednu poznámku nebo souhrn všech poznámek lze zkopírovat pro další komunikaci.
+
 Průchod správce pokračuje takto:
 
 1. interní kontrola IČO správce v kroku ARES;
@@ -43,6 +45,8 @@ Průchod správce pokračuje takto:
 6. náhled celého TVL a vznik časového razítka;
 7. případný návrat k opravám, nebo potvrzení PN1;
 8. přehled správce se sloupci živých a ukončených průzkumů.
+
+Na počítači se správci při najetí kurzorem nebo při zaměření klávesnicí ukazuje význam volby. V živé šabloně se popis zobrazuje pod horní trojicí polí a vysvětluje také okamžitý přenos do všech tří dílů, návrat k opravám a okamžik uzamčení.
 
 Průchod účastníka vede z volby role na seznam správců, dále na živé aktivity vybraného správce a poté na hodnocení konkrétní PN. Horní přepínač rolí umožňuje v prototypu přecházet mezi pohledem správce a účastníka.
 

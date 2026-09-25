@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type Project = { title: string; detail: string; value: number };
 type SectionKind = "voucher" | "investment" | "receipt";
@@ -113,6 +113,54 @@ function ResultsJourney({ scoreTotal }: { scoreTotal?: number }) {
 }
 
 function ScreenRail({ current }: { current: number }) {
+  const storageKey = "coto-oprava-obrazovka-" + current;
+  const noteRef = useRef<HTMLTextAreaElement>(null);
+  const [noteStatus, setNoteStatus] = useState("Připraveno k zápisu");
+
+  useEffect(() => {
+    if (noteRef.current) {
+      noteRef.current.value = window.localStorage.getItem(storageKey) || "";
+    }
+  }, [storageKey]);
+
+  const updateNote = (value: string) => {
+    window.localStorage.setItem(storageKey, value);
+    setNoteStatus("Uloženo v tomto počítači");
+  };
+
+  const copyNotes = async (all: boolean) => {
+    if (!navigator.clipboard) {
+      setNoteStatus("Kopírování v tomto prohlížeči není dostupné");
+      return;
+    }
+    const text = all
+      ? screenSteps
+          .map((step, index) => {
+            const value = window.localStorage.getItem(
+              "coto-oprava-obrazovka-" + (index + 1),
+            );
+            return value?.trim()
+              ? "OBRAZOVKA " + String(index + 1).padStart(2, "0") +
+                  " · " + step + "\n" + value.trim()
+              : "";
+          })
+          .filter(Boolean)
+          .join("\n\n")
+      : "OBRAZOVKA " + String(current).padStart(2, "0") + " · " +
+          screenSteps[current - 1] + "\n" +
+          (window.localStorage.getItem(storageKey) || "").trim();
+    if (!text.trim()) {
+      setNoteStatus("Nejdřív napište poznámku");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      setNoteStatus(all ? "Všechny poznámky jsou zkopírované" : "Poznámka je zkopírovaná");
+    } catch {
+      setNoteStatus("Chrome kopírování odmítl; označte text ručně");
+    }
+  };
+
   return (
     <aside className="screen-rail" aria-label="Číslovaný přehled obrazovek">
       <p>OBRAZOVKY PRO OPRAVY</p>
@@ -124,7 +172,24 @@ function ScreenRail({ current }: { current: number }) {
           </li>
         ))}
       </ol>
-      <small>Při další opravě stačí napsat číslo obrazovky.</small>
+      <section className="screen-note" aria-label={"Poznámka k obrazovce " + current}>
+        <label htmlFor={"screen-note-" + current}>
+          OPRAVA K OBRAZOVCE {String(current).padStart(2, "0")}
+        </label>
+        <textarea
+          id={"screen-note-" + current}
+          ref={noteRef}
+          onChange={(event) => updateNote(event.target.value)}
+          placeholder="Sem napište opravu nebo vložte zkopírovaný text z videozáznamu."
+          rows={5}
+        />
+        <div>
+          <button type="button" onClick={() => copyNotes(false)}>KOPÍROVAT TUTO</button>
+          <button type="button" onClick={() => copyNotes(true)}>KOPÍROVAT VŠE</button>
+        </div>
+        <small>{noteStatus}</small>
+      </section>
+      <small>Poznámky zůstávají uložené v Chrome na tomto počítači.</small>
     </aside>
   );
 }
@@ -269,7 +334,9 @@ function TvlSection({
                   key={index}
                   className="project-row"
                   onClick={() => onInspect(index)}
-                  title="Kliknutím otevřete celý popis"
+                  title={showControls
+                    ? "Správce: kliknutím otevřete nadpis, popis a hodnotu tématu"
+                    : "Kliknutím otevřete celý popis"}
                   aria-label="Otevřít téma v okně C"
                 >
                   <span className="project-field">
@@ -385,6 +452,9 @@ export default function Home() {
   const [currentDate, setCurrentDate] = useState("");
   const [printCount] = useState(1);
   const [formError, setFormError] = useState("");
+  const [managerHint, setManagerHint] = useState(
+    "Přejeďte kurzorem přes volbu. Tady se ukáže její význam a místo přenosu do TVL.",
+  );
 
   useEffect(() => {
     const showTime = () => {
@@ -633,7 +703,13 @@ export default function Home() {
           <img className="entry-mini-logo" src="/COTO-testovac/coto-logo-original.png" alt="Logo COTO" />
           <h1>Vyber si</h1>
           <div className="role-buttons">
-            <button onClick={() => { setRole("manager"); setEntryStage("ares"); }}>SPRÁVCE</button>
+            <button
+              className="manager-help"
+              data-help="Správce založí průzkum, vyplní živou šablonu a po kontrole ji uzamkne."
+              onClick={() => { setRole("manager"); setEntryStage("ares"); }}
+            >
+              SPRÁVCE
+            </button>
             <button onClick={() => { setRole("participant"); setEntryStage("app"); }}>ÚČASTNÍK</button>
           </div>
           <p>
@@ -658,7 +734,10 @@ export default function Home() {
             Zadejte IČO a účet na propagaci. V této zkušební verzi se pouze
             ověří správný průchod a přenos do okna A.
           </p>
-          <label>
+          <label
+            className="manager-help help-right"
+            data-help="Osm číslic IČO určí správce a později se přenese do okna A všech tří dílů."
+          >
             IČO správce
             <input
               inputMode="numeric"
@@ -669,7 +748,10 @@ export default function Home() {
               }}
             />
           </label>
-          <label>
+          <label
+            className="manager-help help-right"
+            data-help="Účet správce určuje zdroj hodnoty 1–3 Kč za informaci; ve zkoušce se peníze neposílají."
+          >
             Účet na propagaci
             <input
               value={account}
@@ -678,6 +760,8 @@ export default function Home() {
           </label>
           {!aresVerified ? (
             <button
+              className="manager-help help-right"
+              data-help="Zkontroluje osm číslic IČO a připraví identitu správce pro okno A."
               onClick={() => {
                 if (ico.length !== 8 || !account.trim()) {
                   setFormError("Doplňte osm číslic IČO a účet na propagaci.");
@@ -693,7 +777,13 @@ export default function Home() {
           ) : (
             <>
               <p className="ares-ok">Ověřeno: identita správce je připravena pro okno A.</p>
-              <button onClick={() => setEntryStage("variants")}>POKRAČOVAT K VARIANTÁM</button>
+              <button
+                className="manager-help help-right"
+                data-help="Otevře čtyři způsoby použití COTO. Zvolený kód se přenese do záhlaví TVL."
+                onClick={() => setEntryStage("variants")}
+              >
+                POKRAČOVAT K VARIANTÁM
+              </button>
             </>
           )}
           {formError && <p className="form-error">{formError}</p>}
@@ -718,7 +808,8 @@ export default function Home() {
           {variantOptions.map((option) => (
             <button
               key={option.code}
-              className={"variant-choice " + (hoveredVariant === option.code ? "active" : "")}
+              className={"variant-choice manager-help help-right " + (hoveredVariant === option.code ? "active" : "")}
+              data-help={option.description + ". Kliknutím otevřete živou pracovní šablonu a kód " + option.code + "001 se ihned zapíše do TVL."}
               onMouseEnter={() => setHoveredVariant(option.code)}
               onFocus={() => setHoveredVariant(option.code)}
               onClick={() => { chooseVariant(option.code); setEntryStage("app"); }}
@@ -749,7 +840,8 @@ export default function Home() {
           </div>
         </header>
         <button
-          className="new-survey"
+          className="new-survey manager-help"
+          data-help="Založí nový průzkum a vrátí správce k výběru varianty."
           onClick={() => { setLocked(false); setActivationStamp(""); setEntryStage("variants"); }}
         >
           + NOVÝ PRŮZKUM
@@ -992,14 +1084,21 @@ export default function Home() {
             <div className="live-selector-row">
               <div
                 className="field-selector"
-                onMouseEnter={() => !locked && setSelectorOpen("variant")}
+                onMouseEnter={() => {
+                  if (!locked) setSelectorOpen("variant");
+                  setManagerHint("Vyberte způsob použití COTO. Kód a pořadí, například PN001, se ihned zapíší do POUKÁZKY, INVESTICE i DOKLADU.");
+                }}
               >
                 <small>Kód a pořadí použití</small>
                 <button
                   disabled={locked}
-                  onFocus={() => setSelectorOpen("variant")}
+                  onFocus={() => {
+                    setSelectorOpen("variant");
+                    setManagerHint("Vyberte způsob použití COTO. Kód a pořadí, například PN001, se ihned zapíší do POUKÁZKY, INVESTICE i DOKLADU.");
+                  }}
                   onClick={() => setSelectorOpen(selectorOpen === "variant" ? null : "variant")}
                   aria-expanded={selectorOpen === "variant"}
+                  aria-describedby="manager-hover-caption"
                 >
                   <b>{variant}001</b>
                   <span>{chosenVariant.name}</span>
@@ -1023,14 +1122,21 @@ export default function Home() {
 
               <div
                 className="field-selector value-selector"
-                onMouseEnter={() => !locked && setSelectorOpen("value")}
+                onMouseEnter={() => {
+                  if (!locked) setSelectorOpen("value");
+                  setManagerHint("Vyberte hodnotu 1, 2 nebo 3 Kč za informaci. Zvolená částka se ihned ukáže v záhlaví všech tří dílů TVL.");
+                }}
               >
                 <small>Hodnota průzkumu pro správce</small>
                 <button
                   disabled={locked}
-                  onFocus={() => setSelectorOpen("value")}
+                  onFocus={() => {
+                    setSelectorOpen("value");
+                    setManagerHint("Vyberte hodnotu 1, 2 nebo 3 Kč za informaci. Zvolená částka se ihned ukáže v záhlaví všech tří dílů TVL.");
+                  }}
                   onClick={() => setSelectorOpen(selectorOpen === "value" ? null : "value")}
                   aria-expanded={selectorOpen === "value"}
+                  aria-describedby="manager-hover-caption"
                 >
                   <b>{surveyValue} Kč</b>
                   <span>za informaci</span>
@@ -1053,14 +1159,21 @@ export default function Home() {
 
               <div
                 className="field-selector week-selector"
-                onMouseEnter={() => !locked && setSelectorOpen("week")}
+                onMouseEnter={() => {
+                  if (!locked) setSelectorOpen("week");
+                  setManagerHint("Vyberte týden platnosti od pondělí do neděle. Po kliknutí se začátek i konec ihned přenesou do TVL.");
+                }}
               >
                 <small>Datum a doba platnosti</small>
                 <button
                   disabled={locked}
-                  onFocus={() => setSelectorOpen("week")}
+                  onFocus={() => {
+                    setSelectorOpen("week");
+                    setManagerHint("Vyberte týden platnosti od pondělí do neděle. Po kliknutí se začátek i konec ihned přenesou do TVL.");
+                  }}
                   onClick={() => setSelectorOpen(selectorOpen === "week" ? null : "week")}
                   aria-expanded={selectorOpen === "week"}
+                  aria-describedby="manager-hover-caption"
                 >
                   <b>{validity.period}</b><em>▾</em>
                 </button>
@@ -1080,6 +1193,11 @@ export default function Home() {
               </div>
             </div>
 
+            <p id="manager-hover-caption" className="manager-hover-caption" aria-live="polite">
+              <b>POPIS PRO SPRÁVCE</b>
+              <span>{managerHint}</span>
+            </p>
+
             <p className="transfer-note">
               <span>●</span> Ihned zobrazeno v listu: <b>{variant}001</b> ·{" "}
               <b>{surveyValue} Kč</b> · <b>{validity.period}</b>. Nabídka zůstane
@@ -1091,7 +1209,10 @@ export default function Home() {
                 <span>ORIGINÁLNÍ DÍL 2 · INVESTICE</span>
                 <small>Zelené značky ukazují vyplňovaná místa</small>
               </div>
-              <div className="tvl-paper working-investment">
+              <div
+                className="tvl-paper working-investment"
+                onMouseEnter={() => setManagerHint("V pracovním dílu INVESTICE klikněte na některé dlouhé pole okna C. Otevře se nadpis, popis a hodnota tématu správce.")}
+              >
                 <TvlSection
                   kind="investment"
                   {...sharedTvl}
@@ -1102,9 +1223,9 @@ export default function Home() {
                 />
                 {!locked && (
                   <>
-                    <button className="sheet-marker marker-c1" onClick={() => setSelected(0)} aria-label="Vyplnit první pole okna C">+</button>
-                    <button className="sheet-marker marker-c2" onClick={() => setSelected(1)} aria-label="Vyplnit druhé pole okna C">+</button>
-                    <button className="sheet-marker marker-c3" onClick={() => setSelected(2)} aria-label="Vyplnit třetí pole okna C">+</button>
+                    <button className="sheet-marker marker-c1" title="Otevřít první nečíslované téma okna C" onMouseEnter={() => setManagerHint("Otevřete první nečíslované téma okna C a vložte název i stručný popis.")} onClick={() => setSelected(0)} aria-label="Vyplnit první pole okna C">+</button>
+                    <button className="sheet-marker marker-c2" title="Otevřít druhé nečíslované téma okna C" onMouseEnter={() => setManagerHint("Otevřete druhé nečíslované téma okna C a vložte název i stručný popis.")} onClick={() => setSelected(1)} aria-label="Vyplnit druhé pole okna C">+</button>
+                    <button className="sheet-marker marker-c3" title="Otevřít třetí nečíslované téma okna C" onMouseEnter={() => setManagerHint("Otevřete třetí nečíslované téma okna C a vložte název i stručný popis.")} onClick={() => setSelected(2)} aria-label="Vyplnit třetí pole okna C">+</button>
                   </>
                 )}
               </div>
@@ -1117,8 +1238,19 @@ export default function Home() {
             </p>
             {formError && <p className="form-error work-error">{formError}</p>}
             <div className="workbench-actions">
-              <button onClick={() => setEntryStage("variants")}>ZPĚT</button>
-              <button className="finish-work" onClick={openStampedPreview}>UKONČIT EDITACI A ZOBRAZIT CELÝ TVL</button>
+              <button
+                onMouseEnter={() => setManagerHint("Vrátí správce k výběru varianty bez potvrzení a uzamčení TVL.")}
+                onClick={() => setEntryStage("variants")}
+              >
+                ZPĚT
+              </button>
+              <button
+                className="finish-work"
+                onMouseEnter={() => setManagerHint("Zkontroluje vyplnění tří témat, vytvoří časové razítko a otevře celý TVL před konečným potvrzením.")}
+                onClick={openStampedPreview}
+              >
+                UKONČIT EDITACI A ZOBRAZIT CELÝ TVL
+              </button>
             </div>
           </section>
 
@@ -1131,7 +1263,10 @@ export default function Home() {
             <button className="close" onClick={() => setSelected(null)}>×</button>
             <p className="eyebrow">OKNO C · TÉMA</p>
             <h2>Projekt, námět nebo otázka</h2>
-            <label>
+            <label
+              className="manager-help help-right"
+              data-help="Vložte krátký název tématu. Po uložení se objeví ve všech třech dílech TVL."
+            >
               Nadpis
               <input
                 autoFocus
@@ -1140,7 +1275,10 @@ export default function Home() {
                 onChange={(event) => updateProject(selected, { title: event.target.value })}
               />
             </label>
-            <label>
+            <label
+              className="manager-help help-right"
+              data-help="Sem lze vložit zkopírovaný text. Účastník otevře úplný popis kliknutím na název tématu."
+            >
               Stručný popis
               <textarea
                 disabled={locked}
@@ -1149,7 +1287,11 @@ export default function Home() {
                 onChange={(event) => updateProject(selected, { detail: event.target.value })}
               />
             </label>
-            <fieldset className="priority-choice" disabled={locked}>
+            <fieldset
+              className="priority-choice manager-help help-right"
+              data-help="Správce určí tématu hodnotu 1–3 Kč. Nejde o hodnocení účastníka 1–9."
+              disabled={locked}
+            >
               <legend>Priorita správce z účtu na propagaci</legend>
               {[1, 2, 3].map((value) => (
                 <button
@@ -1166,7 +1308,11 @@ export default function Home() {
               Částka správce 1–3 Kč a hodnocení účastníka 1–9 bodů jsou dvě
               různá pole. Uložený řádek se ihned přenese do všech tří dílů TVL.
             </div>
-            <button className="save" onClick={() => setSelected(null)}>
+            <button
+              className="save manager-help help-right"
+              data-help="Uloží změnu a okamžitě ji přenese do POUKÁZKY, INVESTICE i DOKLADU."
+              onClick={() => setSelected(null)}
+            >
               {locked ? "ZAVŘÍT" : "ULOŽIT A PŘENÉST DO TVL"}
             </button>
           </section>
@@ -1184,8 +1330,20 @@ export default function Home() {
               </span>
             </div>
             <div>
-              <button onClick={returnToEditing}>ZPĚT K OPRAVÁM</button>
-              <button className="confirm" onClick={confirm}>POTVRDIT {variant}1</button>
+              <button
+                className="manager-help"
+                data-help="Zruší právě vytvořené časové razítko a vrátí správce do živé šablony."
+                onClick={returnToEditing}
+              >
+                ZPĚT K OPRAVÁM
+              </button>
+              <button
+                className="confirm manager-help"
+                data-help="Uzamkne TVL a vloží průzkum mezi živé. Potom už jej správce neupravuje."
+                onClick={confirm}
+              >
+                POTVRDIT {variant}1
+              </button>
             </div>
           </div>
           <div className="preview-scroll">
