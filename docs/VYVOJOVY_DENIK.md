@@ -1,5 +1,13 @@
 # Vývojový deník COTO
 
+## 25. září 2026 – živé poznámky a popisky správce
+
+- Levý přehled obrazovek doplněn o samostatnou pracovní poznámku ke každému číslu 01–10.
+- Poznámky se průběžně ukládají v Chrome na používaném počítači a lze kopírovat jednu nebo všechny najednou.
+- Obnoveny vysvětlující popisky správce při najetí kurzorem a při ovládání klávesnicí.
+- Pod třemi horními volbami živé šablony se zobrazuje měnící se popis významu a okamžitého přenosu do TVL.
+- Doplněny popisky ověření správce, variant, témat okna C, návratu k opravám a konečného uzamčení.
+
 ## 24. září 2026 – originální logo, filosofie a přesná POUKÁZKA
 
 - Nahrazeny náhradní kresby přesně dodaným originálním logem COTO; kliknutí vede na obnovenou obrazovku cíle a filosofie podle videozáznamu.
