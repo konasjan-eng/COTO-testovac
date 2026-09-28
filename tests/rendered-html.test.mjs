@@ -82,7 +82,7 @@ test("účastník vidí řádkové výsledky účtu na propagaci", async () => {
 test("pokyny používají přímé tykání", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   for (const text of ["Vyber si správce", "Otevři jeho aktivitu", "Tvoje hodnocení", "Zadej IČO", "Přejeď kurzorem"]) assert.match(page, new RegExp(text));
-  assert.doesNotMatch(page, /Zadejte|Doplňte|Vyberte|Otevřete|Najeďte|Klikněte|Můžete|Zkontrolujte|Vaše hodnocení/);
+  assert.doesNotMatch(page, /zadejte|doplňte|vyberte|otevřete|najeďte|klikněte|přidělte|můžete|zkontrolujte|vaše hodnocení/i);
 });
 
 test("originální logo a obrazovka cíle se nesmí znovu nahradit maketou", async () => {
