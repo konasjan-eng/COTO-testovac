@@ -1,145 +1,43 @@
 /* Opravy podle originálního loga, videozáznamu a původního listu TVL. */
 
-.with-screen-rail {
-  padding-left: 238px !important;
-}
-
-.screen-rail {
+.screen-badge {
   position: fixed;
-  top: 16px;
+  bottom: 16px;
   left: 14px;
   z-index: 35;
-  width: 206px;
-  max-height: calc(100vh - 32px);
-  padding: 15px 13px;
-  overflow: auto;
+  display: grid;
+  grid-template-columns: 34px auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 6px 6px;
   border: 1px solid #cfc7b3;
-  border-top: 5px solid var(--video-gold);
-  border-radius: 9px;
-  background: #fffdf8f2;
-  box-shadow: 0 10px 28px #17231f1c;
+  border-left: 4px solid var(--video-gold);
+  border-radius: 6px;
+  background: #fffdf8e8;
+  box-shadow: 0 5px 18px #17231f18;
   backdrop-filter: blur(8px);
 }
 
-.screen-rail > p {
-  margin: 0 0 10px;
-  color: var(--video-navy);
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: .11em;
-}
-
-.screen-rail ol {
-  display: grid;
-  gap: 3px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.screen-rail li {
-  display: grid;
-  grid-template-columns: 30px 1fr;
-  align-items: center;
-  gap: 7px;
-  min-height: 30px;
-  padding: 4px 6px;
-  border-radius: 5px;
-  color: #72766f;
-}
-
-.screen-rail li span {
+.screen-badge span {
   display: grid;
   place-items: center;
-  width: 27px;
-  height: 23px;
-  border: 1px solid #c9c4b7;
+  width: 34px;
+  height: 27px;
+  border: 1px solid var(--video-gold);
   border-radius: 4px;
-  background: white;
-  font-size: 9px;
+  background: var(--video-navy);
+  color: white;
+  font-size: 10px;
   font-weight: 900;
 }
 
-.screen-rail li b {
-  font-size: 10px;
-  line-height: 1.2;
-}
-
-.screen-rail li.current {
-  background: var(--video-navy);
-  color: white;
-}
-
-.screen-rail li.current span {
-  border-color: var(--video-gold);
-  background: var(--video-gold);
-  color: #18294d;
-}
-
-.screen-rail > small {
-  display: block;
-  margin-top: 10px;
-  padding-top: 9px;
-  border-top: 1px solid #ddd7c8;
-  color: #5e655f;
-  font: 10px/1.35 Georgia, serif;
-}
-
-.screen-note {
-  display: grid;
-  gap: 7px;
-  margin-top: 11px;
-  padding-top: 11px;
-  border-top: 1px solid #d8d1bf;
-}
-
-.screen-note label {
+.screen-badge b {
   color: var(--video-navy);
   font-size: 9px;
+  line-height: 1.2;
   font-weight: 900;
-  letter-spacing: .06em;
-}
-
-.screen-note textarea {
-  width: 100%;
-  min-height: 82px;
-  padding: 8px;
-  resize: vertical;
-  border: 1px solid #bdb5a3;
-  border-radius: 5px;
-  background: white;
-  color: #303632;
-  font: 11px/1.35 Arial, sans-serif;
-}
-
-.screen-note textarea:focus {
-  outline: 2px solid var(--video-gold);
-  outline-offset: 1px;
-}
-
-.screen-note > div {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5px;
-}
-
-.screen-note button {
-  min-height: 31px;
-  padding: 5px 3px;
-  border: 1px solid var(--video-navy);
-  border-radius: 4px;
-  background: var(--video-navy);
-  color: white;
-  cursor: pointer;
-  font-size: 7px;
-  font-weight: 900;
-}
-
-.screen-note small {
-  min-height: 13px;
-  color: #3d7257;
-  font-size: 8px;
-  font-weight: 700;
+  letter-spacing: .04em;
+  white-space: nowrap;
 }
 
 /* Popisky správce – zobrazí se při najetí myší i při ovládání klávesnicí. */
@@ -196,7 +94,7 @@
 
 /* Obrazovka 02 – bez náhradní kresby, pouze dodaný originál. */
 .coto-entry-logo-image {
-  width: min(680px, calc(100vw - 280px)) !important;
+  width: min(680px, calc(100vw - 40px)) !important;
   max-height: calc(100vh - 30px) !important;
   padding: 0 !important;
   border: 0 !important;
@@ -221,7 +119,7 @@
 /* Obrazovka 03 – text a členění podle videozáznamu. */
 .purpose-panel {
   position: relative;
-  width: min(850px, calc(100vw - 280px)) !important;
+  width: min(850px, calc(100vw - 40px)) !important;
   max-height: calc(100vh - 28px);
   padding: 34px 38px 26px !important;
   gap: 0 !important;
@@ -563,8 +461,7 @@
 }
 
 @media print {
-  .screen-rail { display: none !important; }
-  .with-screen-rail { padding-left: 0 !important; }
+  .screen-badge { display: none !important; }
 
   .printed-sheet.original-a4 .voucher-footer,
   .printed-sheet.original-a4 .voucher-instructions,
@@ -582,8 +479,11 @@
 }
 
 @media (max-width: 900px) {
-  .screen-rail { display: none; }
-  .with-screen-rail { padding-left: 0 !important; }
+  .screen-badge {
+    position: fixed;
+    bottom: 7px;
+    left: 7px;
+  }
 
   .coto-entry-logo-image,
   .purpose-panel {

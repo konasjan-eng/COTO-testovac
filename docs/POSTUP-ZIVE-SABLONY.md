@@ -8,7 +8,7 @@ Tento postup skládá dochované kroky z července a srpna 2026, videozáznamu a
 2. Zobrazí se beze změny dodané originální logo COTO. Kliknutí otevře cíl a filosofii.
 3. Obrazovka Cíl a filosofie vychází z videozáznamu. Vysvětluje průběžný obousměrný proces a TVL jako tři šablony propojené shodným kódem a časovým razítkem.
 4. Následuje volba Správce nebo Účastník.
-5. V levém sloupci lze ke každé obrazovce napsat nebo vložit opravu. Poznámka se průběžně ukládá v Chrome na tomto počítači a lze ji zkopírovat samostatně nebo společně s ostatními.
+5. Každá obrazovka nese nenápadné číslo 01–10 pro přesné určení oprav. Samotné zadání opravy a odpověď Lin patří do pracovního chatu, nikoli do veřejné aplikace COTO.
 
 ## Správce
 

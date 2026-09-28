@@ -83,17 +83,17 @@ test("poukázka obsahuje okno D, text a střihovou linku v pevné A4", async () 
   assert.match(css, /grid-template-rows: 55% 43%/);
 });
 
-test("všechny opravované obrazovky jsou očíslované", async () => {
+test("všechny opravované obrazovky mají nenápadné číslo", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
-  assert.match(page, /OBRAZOVKY PRO OPRAVY/);
-  assert.match(page, /ScreenRail current=\{1\}/);
+  assert.match(page, /className="screen-badge"/);
+  assert.match(page, /ScreenBadge current=\{1\}/);
   assert.match(page, /current=\{role === "participant" \? 10 : 7\}/);
 });
 
-test("levý sloupec ukládá poznámku ke každé obrazovce v tomto počítači", async () => {
+test("pracovní komunikace s Lin není vložena do veřejné aplikace", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
-  for (const text of ["OPRAVA K OBRAZOVCE", "coto-oprava-obrazovka-", "KOPÍROVAT TUTO", "KOPÍROVAT VŠE", "Uloženo v tomto počítači"]) assert.match(page, new RegExp(text));
-  assert.match(page, /window\.localStorage\.setItem/);
+  for (const text of ["OPRAVA K OBRAZOVCE", "coto-oprava-obrazovka-", "KOPÍROVAT TUTO", "KOPÍROVAT VŠE"]) assert.doesNotMatch(page, new RegExp(text));
+  assert.doesNotMatch(page, /window\.localStorage\.setItem/);
 });
 
 test("správce dostává popisky při pohybu kurzoru", async () => {
