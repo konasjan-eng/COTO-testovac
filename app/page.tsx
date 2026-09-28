@@ -593,7 +593,7 @@ export default function Home() {
           onClick={() => setEntryStage("logo")}
           aria-label="Otevřít COTO"
         >
-          <img src="/COTO-testovac/coto-icon-original.png" alt="Původní ikona COTO" />
+          <img src="/COTO-testovac/coto-icon-original-2026-09-28.png" alt="Původní ikona COTO" />
         </button>
       </main>
     );
