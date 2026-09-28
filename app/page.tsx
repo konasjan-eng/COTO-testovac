@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Project = { title: string; detail: string; value: number };
 type SectionKind = "voucher" | "investment" | "receipt";
@@ -112,85 +112,12 @@ function ResultsJourney({ scoreTotal }: { scoreTotal?: number }) {
   );
 }
 
-function ScreenRail({ current }: { current: number }) {
-  const storageKey = "coto-oprava-obrazovka-" + current;
-  const noteRef = useRef<HTMLTextAreaElement>(null);
-  const [noteStatus, setNoteStatus] = useState("Připraveno k zápisu");
-
-  useEffect(() => {
-    if (noteRef.current) {
-      noteRef.current.value = window.localStorage.getItem(storageKey) || "";
-    }
-  }, [storageKey]);
-
-  const updateNote = (value: string) => {
-    window.localStorage.setItem(storageKey, value);
-    setNoteStatus("Uloženo v tomto počítači");
-  };
-
-  const copyNotes = async (all: boolean) => {
-    if (!navigator.clipboard) {
-      setNoteStatus("Kopírování v tomto prohlížeči není dostupné");
-      return;
-    }
-    const text = all
-      ? screenSteps
-          .map((step, index) => {
-            const value = window.localStorage.getItem(
-              "coto-oprava-obrazovka-" + (index + 1),
-            );
-            return value?.trim()
-              ? "OBRAZOVKA " + String(index + 1).padStart(2, "0") +
-                  " · " + step + "\n" + value.trim()
-              : "";
-          })
-          .filter(Boolean)
-          .join("\n\n")
-      : "OBRAZOVKA " + String(current).padStart(2, "0") + " · " +
-          screenSteps[current - 1] + "\n" +
-          (window.localStorage.getItem(storageKey) || "").trim();
-    if (!text.trim()) {
-      setNoteStatus("Nejdřív napište poznámku");
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(text);
-      setNoteStatus(all ? "Všechny poznámky jsou zkopírované" : "Poznámka je zkopírovaná");
-    } catch {
-      setNoteStatus("Chrome kopírování odmítl; označte text ručně");
-    }
-  };
-
+function ScreenBadge({ current }: { current: number }) {
   return (
-    <aside className="screen-rail" aria-label="Číslovaný přehled obrazovek">
-      <p>OBRAZOVKY PRO OPRAVY</p>
-      <ol>
-        {screenSteps.map((step, index) => (
-          <li className={current === index + 1 ? "current" : ""} key={step}>
-            <span>{String(index + 1).padStart(2, "0")}</span>
-            <b>{step}</b>
-          </li>
-        ))}
-      </ol>
-      <section className="screen-note" aria-label={"Poznámka k obrazovce " + current}>
-        <label htmlFor={"screen-note-" + current}>
-          OPRAVA K OBRAZOVCE {String(current).padStart(2, "0")}
-        </label>
-        <textarea
-          id={"screen-note-" + current}
-          ref={noteRef}
-          onChange={(event) => updateNote(event.target.value)}
-          placeholder="Sem napište opravu nebo vložte zkopírovaný text z videozáznamu."
-          rows={5}
-        />
-        <div>
-          <button type="button" onClick={() => copyNotes(false)}>KOPÍROVAT TUTO</button>
-          <button type="button" onClick={() => copyNotes(true)}>KOPÍROVAT VŠE</button>
-        </div>
-        <small>{noteStatus}</small>
-      </section>
-      <small>Poznámky zůstávají uložené v Chrome na tomto počítači.</small>
-    </aside>
+    <div className="screen-badge" aria-label={"Obrazovka " + current}>
+      <span>{String(current).padStart(2, "0")}</span>
+      <b>{screenSteps[current - 1]}</b>
+    </div>
   );
 }
 
@@ -596,8 +523,8 @@ export default function Home() {
 
   if (entryStage === "icon") {
     return (
-      <main className="entry-screen with-screen-rail">
-        <ScreenRail current={1} />
+      <main className="entry-screen">
+        <ScreenBadge current={1} />
         <button
           className="coto-entry-icon video-look original-icon"
           onClick={() => setEntryStage("logo")}
@@ -611,8 +538,8 @@ export default function Home() {
 
   if (entryStage === "logo") {
     return (
-      <main className="entry-screen with-screen-rail">
-        <ScreenRail current={2} />
+      <main className="entry-screen">
+        <ScreenBadge current={2} />
         <button
           className="coto-entry-logo coto-entry-logo-image"
           onClick={() => setEntryStage("purpose")}
@@ -629,8 +556,8 @@ export default function Home() {
 
   if (entryStage === "purpose") {
     return (
-      <main className="entry-screen with-screen-rail">
-        <ScreenRail current={3} />
+      <main className="entry-screen">
+        <ScreenBadge current={3} />
         <section className="entry-panel purpose-panel" id="dokument-projekt-coto">
           <button
             className="purpose-close"
@@ -697,8 +624,8 @@ export default function Home() {
 
   if (entryStage === "roles") {
     return (
-      <main className="entry-screen with-screen-rail">
-        <ScreenRail current={4} />
+      <main className="entry-screen">
+        <ScreenBadge current={4} />
         <section className="entry-panel role-panel">
           <img className="entry-mini-logo" src="/COTO-testovac/coto-logo-original.png" alt="Logo COTO" />
           <h1>Vyber si</h1>
@@ -724,8 +651,8 @@ export default function Home() {
 
   if (entryStage === "ares") {
     return (
-      <main className="entry-screen with-screen-rail">
-        <ScreenRail current={5} />
+      <main className="entry-screen">
+        <ScreenBadge current={5} />
         <section className="entry-panel manager-entry">
           <img className="entry-mini-logo" src="/COTO-testovac/coto-logo-original.png" alt="Logo COTO" />
           <p className="eyebrow">KONTROLA SPRÁVCE V ARES</p>
@@ -795,8 +722,8 @@ export default function Home() {
 
   if (entryStage === "variants") {
     return (
-      <main className="entry-screen with-screen-rail">
-        <ScreenRail current={6} />
+      <main className="entry-screen">
+        <ScreenBadge current={6} />
         <section className="entry-panel variant-panel">
           <p className="verified-manager">Ověřený správce: <b>{organiser}</b></p>
           <p className="eyebrow">VÝBĚR VARIANTY COTO</p>
@@ -827,8 +754,8 @@ export default function Home() {
 
   if (entryStage === "dashboard") {
     return (
-      <main className="dashboard-screen with-screen-rail">
-        <ScreenRail current={9} />
+      <main className="dashboard-screen">
+        <ScreenBadge current={9} />
         <header className="dashboard-logo">
           <div className="dashboard-title">
             <small>OBRAZOVKA 09 · PŘEHLED SPRÁVCE</small>
@@ -881,8 +808,8 @@ export default function Home() {
 
   if (entryStage === "readonly") {
     return (
-      <main className="readonly-screen with-screen-rail">
-        <ScreenRail current={8} />
+      <main className="readonly-screen">
+        <ScreenBadge current={8} />
         <div className="readonly-toolbar">
           <strong>OBRAZOVKA 08 · CELÝ TVL</strong>
           <button onClick={() => setEntryStage("dashboard")}>ZPĚT NA PŘEHLED</button>
@@ -923,8 +850,8 @@ export default function Home() {
   }
 
   return (
-    <main className="application-screen with-screen-rail">
-      <ScreenRail current={role === "participant" ? 10 : 7} />
+    <main className="application-screen">
+      <ScreenBadge current={role === "participant" ? 10 : 7} />
       <nav className="topbar">
         <div>
           <button className="topbar-home" onClick={() => setEntryStage("icon")} aria-label="Zobrazit titulní stránku COTO">

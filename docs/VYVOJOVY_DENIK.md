@@ -1,5 +1,13 @@
 # Vývojový deník COTO
 
+## 28. září 2026 – oddělení COTO od pracovního rozhraní
+
+- Znovu projita časová osa od prvního funkčního TVL z 29. srpna přes úplný vstup správce, účastníka a zářijové obnovy podle videozáznamu.
+- Potvrzeno, že levé zadání a pravá odpověď s pochopením a nápovědou patřily do pracovního rozhraní autora s Lin, nikoli do veřejné aplikace COTO.
+- Z veřejné aplikace odstraněn chybně vložený poznámkový sloupec a místní ukládání připomínek.
+- Deset kroků zůstává označeno pouze nenápadným číslem a názvem obrazovky, aby je bylo možné přesně popisovat v pracovním chatu.
+- Zachovány samostatné popisky správce při najetí kurzorem; ty vysvětlují ovládání COTO a nesmějí se zaměňovat s odpovědí Lin.
+
 ## 25. září 2026 – živé poznámky a popisky správce
 
 - Levý přehled obrazovek doplněn o samostatnou pracovní poznámku ke každému číslu 01–10.
