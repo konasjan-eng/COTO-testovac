@@ -9,6 +9,9 @@
 - **Pracovní komunikace** – zadání autora, zopakování pochopení Lin, související nápověda a modelování procesu patří do pracovního chatu. Veřejná aplikace nesmí obsahovat poznámkový sloupec ani náhražku odpovědi AI.
 - **Popisky správce** – najetí nebo zaměření ukazuje význam volby, její okamžitý přenos do TVL a případné uzamčení; jde o nápovědu uživateli COTO, nikoli o pracovní komunikaci s Lin.
 - **Návrat výsledku** – shodná témata se seskupují a součtový výsledek se vrací správci i do každého vloženého TVL.
+- **Kopie průzkumu** – pokud stejný průzkum převezme další správce, součtový výsledek se načte do všech původních i zkopírovaných listů COTO.
+- **Účet na propagaci** – účastník podle anonymního kódu vidí řádkový výsledek každého tématu ze svého TVL; osobní okno D se na účet nepřenáší.
+- **Tykání** – správce i účastník jsou v celé aplikaci oslovováni přímým kamarádským „ty“.
 - **TVL** – třídílný tisknutelný nosič komunikace, nikoli pouhá výstupní sestava.
 - **PN** – Průzkum názorů; první implementovaná varianta.
 - **Společný kód** – 17 symbolů vytvořených systémem a čtyři samostatné volitelné symboly účastníka, shodné ve všech třech dílech TVL.

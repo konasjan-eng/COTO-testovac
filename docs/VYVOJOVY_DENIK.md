@@ -1,5 +1,13 @@
 # Vývojový deník COTO
 
+## 28. září 2026 – originální ikona, tykání a kontrola výsledků
+
+- Stará oříznutá ikona byla přesně nahrazena znovu dodaným originálem 1254 × 1254 bez spodních nápisů.
+- Celý průchod správce i účastníka byl sjednocen na přímé tykání v jednotném čísle.
+- Volba role znovu uvádí podmínku IČO a samostatného účtu na propagaci i smysl nejmenších správních a společenských celků.
+- Účastník může na účtu na propagaci zkontrolovat řádkové výsledky všech témat svého TVL.
+- Kopie shodného průzkumu u dalšího správce jsou propojeny a výsledek se načítá do všech použitých listů COTO.
+
 ## 28. září 2026 – oddělení COTO od pracovního rozhraní
 
 - Znovu projita časová osa od prvního funkčního TVL z 29. srpna přes úplný vstup správce, účastníka a zářijové obnovy podle videozáznamu.

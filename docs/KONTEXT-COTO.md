@@ -12,11 +12,11 @@ Aplikace je nyní funkční prototyp. Neprovádí skutečné hlasování ani pla
 
 ### Správce
 
-Správce zakládá a připravuje aktivitu. V současné variantě PN vyplní nejvýše tři návrhy nebo otázky, jejich podrobné popisy a každému přidělí vlastní prioritu v hodnotě 1–3 Kč ze svého účtu na propagaci. Tato částka není hlas účastníka. Správce určuje také počáteční pondělí týdne platnosti, kontroluje celý TVL v náhledu a aktivitu potvrzuje. Potvrzenou aktivitu už smí otevřít jen ke čtení a kopírování.
+Správce zakládá a připravuje aktivitu. Podmínkou už ve volbě role je IČO a samostatný účet na propagaci. V současné variantě PN vyplní nejvýše tři návrhy nebo otázky, jejich podrobné popisy a každému přidělí vlastní prioritu v hodnotě 1–3 Kč ze svého účtu na propagaci. Tato částka není hlas účastníka. Správce určuje také počáteční pondělí týdne platnosti, kontroluje celý TVL v náhledu a aktivitu potvrzuje. Potvrzenou aktivitu už smí otevřít jen ke čtení a kopírování.
 
 ### Účastník
 
-Účastník vybere správce a jeho živou aktivitu, otevře úplné popisy tří nečíslovaných témat okna C a každému nezávisle přidělí 1–9 bodů. Po odeslání získá časové razítko a osobní kontrolní kód pro pozdější dohledání svého tématu a dopadu názoru. Současný prototyp opakování stejného počtu bodů nezakazuje; konečné pravidlo dosud nebylo schváleno.
+Účastník vybere správce a jeho živou aktivitu, otevře úplné popisy tří nečíslovaných témat okna C a každému nezávisle přidělí 1–9 bodů. Po odeslání získá časové razítko a osobní kontrolní kód. V prostředí účtu na propagaci podle něj zkontroluje řádkové výsledky každého tématu ze svého TVL bez přenosu osobních údajů z okna D. Současný prototyp opakování stejného počtu bodů nezakazuje; konečné pravidlo dosud nebylo schváleno.
 
 ## Varianty COTO
 
@@ -32,6 +32,8 @@ Další vývoj má zachovat společný systém variant a nesmí odstranit povinn
 ## Navigace aplikací
 
 Povinný začátek tvoří původní ikona COTO se smajlíkem, samostatné dodané logo COTO bez náhradní kresby, obrazovka **Cíl a filosofie** podle videozáznamu a volba role **Správce / Účastník**. Logo vždy otevře obrazovku cíle a filosofie. Všech deset obrazovek má nenápadné číslo 01–10, aby je autor mohl jednoznačně označit při opravách.
+
+Nad modrým polem SPRÁVCE a zeleným polem ÚČASTNÍK je krátce uvedeno, že COTO slouží nejmenším správním a společenským celkům a že se do nich vracejí výsledky průzkumů. Celá aplikace oslovuje správce i účastníka kamarádsky v jednotném čísle.
 
 Pracovní komunikace autora s Lin není součást veřejné aplikace. Probíhá v pracovním chatu: autor vlevo odešle požadavek a Lin vpravo zopakuje pochopení, doplní související nápovědu a průběžně modeluje měněný krok, vazbu nebo schéma. Veřejná aplikace proto nesmí obsahovat poznámkový sloupec, místní úložiště připomínek ani náhražku odpovědi AI.
 
