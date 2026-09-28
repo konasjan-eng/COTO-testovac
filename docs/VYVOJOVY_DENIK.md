@@ -21,7 +21,7 @@
 - Nahrazeny náhradní kresby přesně dodaným originálním logem COTO; kliknutí vede na obnovenou obrazovku cíle a filosofie podle videozáznamu.
 - Doplněno vysvětlení TVL jako tří šablon propojených shodným kódem a časovým razítkem a dalších kontrolních prvků pro dvě poslední varianty.
 - V prvním řádku živé šablony jsou tři trvalé nabídky: kód a pořadí použití, hodnota průzkumu pro správce a datum s dobou platnosti. Volba se zobrazuje okamžitě.
-- Okno C má tři nečíslovaná dlouhá pole a u každého jediné čtvercové hodnocení 1–9.
+- Okno B má 17symbolový systémový kód a čtyři samostatná volitelná políčka účastníka. Okno C má tři nečíslovaná samostatně orámovaná dlouhá pole a u každého jediné čtvercové hodnocení 1–9.
 - POUKÁZKA byla zvětšena podle původního poměru a dostala text, upozornění i čárkovanou střihovou linku s nůžkami. Celý TVL zůstává na jedné A4.
 - Proces byl rozdělen do deseti očíslovaných obrazovek a duplicitní přehledy byly odstraněny ze živé šablony.
 

@@ -13,7 +13,7 @@ Tento dokument odděluje doložené kroky veřejné aplikace od pracovního způ
 
 - Vznikl digitální TVL se společným přenosem údajů mezi třemi díly.
 - Byla doplněna pracovní INVESTICE správce, tři témata okna C, náhled, časové razítko, potvrzení a uzamčení.
-- Okna dostala obnovený význam: A správce a aktivace, B anonymizér 17+4, C témata, D osobní údaje pouze v POUKÁZCE a E původní volební pole.
+- Okna dostala obnovený význam: A správce a aktivace, B 17symbolový anonymizér se čtyřmi volitelnými políčky účastníka, C témata, D osobní údaje pouze v POUKÁZCE a E původní volební pole.
 - Doplněn průchod účastníka: správce → živá aktivita → úplné popisy témat → hodnocení 1–9 → odeslání → osobní kontrolní kód.
 - Přibyly sloupce živých a ukončených průzkumů a návrat k opravám před potvrzením.
 

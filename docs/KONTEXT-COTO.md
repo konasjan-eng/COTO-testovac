@@ -62,12 +62,12 @@ Jeden TVL se skládá ze tří propojených dílů:
 2. **INVESTICE** – základ pracovní šablony správce a hlavní místo jeho práce;
 3. **DOKLAD** – kontrolní a účetní část bez osobních údajů.
 
-Společné údaje a obsah projektů se během editace propisují do všech tří dílů. Všechny díly jednoho TVL nesou shodný anonymizační kód složený ze 17+4 symbolů. Při dávkovém tisku správce dostane každý výtisk nový kód B; účastník může tisknout pouze svůj vyplněný TVL.
+Společné údaje a obsah projektů se během editace propisují do všech tří dílů. Všechny díly jednoho TVL nesou shodný 17symbolový anonymizační kód vytvořený systémem a čtyři samostatná volitelná políčka účastníka. Při dávkovém tisku správce dostane každý výtisk nový základní kód B; účastník může tisknout pouze svůj vyplněný TVL.
 
 ## Okna A–E
 
 - **A – správce a aktivace:** vlevo obsahuje ověřenou identifikaci správce z kroku ARES. Vpravo zobrazuje datum, běžící čas s tisícinami sekundy a časové razítko ukončení editace.
-- **B – anonymizér:** obsahuje společný kód 17+4 symboly, shodný ve všech třech dílech konkrétního TVL. Každý další tisk nebo stažení musí získat nový kód.
+- **B – anonymizér:** obsahuje společný 17symbolový kód vytvořený systémem a čtyři samostatná políčka pro volitelné symboly účastníka. Vyplněné okno B je shodné ve všech třech dílech konkrétního TVL. Každý další tisk nebo stažení musí získat nový základní kód.
 - **C – obsah PN:** obsahuje tři nečíslovaná dlouhá pole podobná oknu B. Každé má nadpis, úplný popis a právě jedno samostatné čtvercové pole pro hodnocení účastníka 1–9 bodů; priorita správce 1–3 Kč zůstává součástí obsahu tématu.
 - **D – osobní údaje:** adresa a další osobní údaje účastníka smějí být pouze v POUKÁZCE.
 - **E – původní volební pole:** zachovává názvy „Číslo volené strany“ a „Číslo voleného zástupce“, dvě číslicová okénka pro stranu a pět pro kandidáta. Z tohoto okna se odvozuje označení PN1 v horním řádku.

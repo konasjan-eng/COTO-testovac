@@ -278,9 +278,36 @@
 }
 
 /* Okno C – tři dlouhá okna jako B a jediné čtvercové hodnocení 1–9. */
+.identifier-label {
+  grid-template-columns: minmax(0, 1fr) 112px !important;
+}
+
+.identifier.window-b {
+  grid-template-columns: minmax(0, 1fr) repeat(4, 25px) !important;
+}
+
+.identifier.window-b .identifier-main {
+  min-width: 0;
+  border-left: 0;
+  justify-content: flex-start;
+}
+
+.identifier.window-b .identifier-symbol {
+  display: grid;
+  place-items: center;
+  border-left: 1px solid #555;
+  background: white;
+  font: 800 10px Arial, sans-serif;
+}
+
 .project-columns {
   grid-template-columns: minmax(0, 1fr) 38px !important;
   margin-left: 0 !important;
+}
+
+.survey-box .window-c {
+  display: grid;
+  gap: 4px;
 }
 
 .survey-box .project-row {
@@ -299,14 +326,10 @@
   gap: 5px;
   padding: 3px 6px !important;
   border: 1px solid #555 !important;
-  border-bottom: 0 !important;
+  border-bottom: 1px solid #555 !important;
   background: white !important;
   color: #373c39 !important;
   text-align: left;
-}
-
-.survey-box .project-row:last-child .project-field {
-  border-bottom: 1px solid #555 !important;
 }
 
 .survey-box .project-row .project-field strong {
@@ -335,17 +358,25 @@
   padding: 0 !important;
   border: 1px solid #555 !important;
   border-left: 0 !important;
-  border-bottom: 0 !important;
+  border-bottom: 1px solid #555 !important;
   background: white !important;
   font: 800 10px Arial, sans-serif !important;
 }
 
-.survey-box .project-row:last-child .participant-score {
-  border-bottom: 1px solid #555 !important;
-}
-
 .original-a4 .project-columns {
   grid-template-columns: minmax(0, 1fr) 29px !important;
+}
+
+.original-a4 .identifier-label {
+  grid-template-columns: minmax(0, 1fr) 76px !important;
+}
+
+.original-a4 .identifier.window-b {
+  grid-template-columns: minmax(0, 1fr) repeat(4, 19px) !important;
+}
+
+.original-a4 .survey-box .window-c {
+  gap: 2px;
 }
 
 .original-a4 .survey-box .project-row {
@@ -370,6 +401,44 @@
 .original-a4 .survey-box .project-row .participant-score {
   width: 29px !important;
   font-size: 8px !important;
+}
+
+.participant-symbol-form {
+  margin: 0 0 20px;
+  padding: 14px 16px 16px;
+  border: 1px solid #cfc8b7;
+  border-radius: 10px;
+  background: #faf8f1;
+}
+
+.participant-symbol-form legend {
+  padding: 0 8px;
+  color: var(--video-navy);
+  font-weight: 800;
+}
+
+.participant-symbol-form p {
+  margin: 0 0 10px;
+  color: #565f59;
+  font-size: 11px;
+}
+
+.participant-symbol-form div {
+  display: grid;
+  grid-template-columns: repeat(4, 42px);
+  gap: 6px;
+}
+
+.participant-symbol-form input {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid #8e897e;
+  border-radius: 3px;
+  background: white;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 800;
 }
 
 /* POUKÁZKA drží velikost původního dílu a má vlastní text i střihovou linku. */
