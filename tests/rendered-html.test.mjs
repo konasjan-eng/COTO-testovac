@@ -20,7 +20,7 @@ test("začíná klikací ikonou COTO", async () => {
 });
 
 test("úvod používá přesně znovu dodanou čtvercovou ikonu bez spodních nápisů", async () => {
-  const icon = await readFile(new URL("../public/coto-icon-original.png", import.meta.url));
+  const icon = await readFile(new URL("../public/coto-icon-original-2026-09-28.png", import.meta.url));
   assert.equal(icon.readUInt32BE(16), 1254);
   assert.equal(icon.readUInt32BE(20), 1254);
   assert.equal(createHash("sha256").update(icon).digest("hex"), "55d8399c207848e15bcf6b8dc33e84fef4e51f485d9ab3affe2d4712b91a2897");
