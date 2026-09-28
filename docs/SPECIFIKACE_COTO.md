@@ -10,7 +10,7 @@ TVL je „lopata“ – nosič komunikace mezi správcem a účastníkem v množ
 2. **INVESTICE** – základ pracovní šablony správce.
 3. **DOKLAD** – kontrolní a účetní díl bez osobních údajů.
 
-Všechny díly mají shodný kód složený ze 17+4 symbolů. Společné údaje a projekty se přenášejí souběžně do všech tří dílů.
+Všechny díly mají shodný 17symbolový kód vytvořený systémem a čtyři samostatná volitelná políčka účastníka. Společné údaje a projekty se přenášejí souběžně do všech tří dílů.
 
 ## První funkční varianta
 
@@ -25,8 +25,8 @@ Při otevření náhledu COTO vytvoří přesné časové razítko viditelné sp
 ## Význam oken TVL
 
 - **A** – vlevo ověřená identifikace správce z ARES; vpravo běžící čas a pod ním větším písmem časové razítko ukončení editace.
-- **B** – anonymizér 17+4 symboly. Je shodný ve třech dílech jednoho TVL; každý další tisk nebo stažení dostává nový kód.
-- **C** – nejvýše tři projekty nebo otázky. Každý řádek končí dvěma odlišnými poli: hodnotou priority správce 1–3 Kč a hodnocením účastníka 1–9 bodů.
+- **B** – anonymizér s 17symbolovým kódem vytvořeným systémem a čtyřmi samostatnými políčky pro volitelné symboly účastníka. Vyplněné okno B je shodné ve třech dílech jednoho TVL; každý další tisk nebo stažení dostává nový základní kód.
+- **C** – nejvýše tři projekty nebo otázky. Každý název má vlastní dlouhé orámované pole podobné oknu B a na konci právě jedno čtvercové pole pro hodnocení účastníka 1–9 bodů. Hodnota priority správce 1–3 Kč zůstává uvnitř obsahu tématu, nikoli v dalším koncovém políčku.
 - **D** – adresa a osobní údaje účastníka pouze v POUKÁZCE.
 - **E** – původní volební pole. Zatím se zachovávají názvy „Číslo volené strany“ a „Číslo voleného zástupce“ i původní okénka pro číslice. Z E se odvozuje kód průzkumu PN1 v horním řádku.
 

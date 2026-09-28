@@ -25,7 +25,7 @@ Tento postup skládá dochované kroky z července a srpna 2026, videozáznamu a
 ## Celý TVL
 
 - POUKÁZKA, INVESTICE a DOKLAD se tisknou společně na jednu A4.
-- Okno B obsahuje shodný identifikátor 17+4 znaků ve všech třech dílech.
+- Okno B obsahuje shodný 17symbolový identifikátor vytvořený systémem a za ním čtyři samostatná volitelná políčka účastníka; vše se shodně přenese do tří dílů.
 - Okno D s adresou, rodným číslem nebo osobním kódem je pouze v POUKÁZCE.
 - Okno C má tři nečíslovaná dlouhá pole podobná oknu B a u každého právě jedno čtvercové pole pro hodnocení 1–9.
 - POUKÁZKA má vlastní text a pod sebou čárkovanou střihovou linku s nůžkami.

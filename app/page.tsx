@@ -143,6 +143,7 @@ function TvlSection({
   validTo,
   projects,
   participantScores,
+  participantSymbols,
   personal,
   activationStamp,
   currentDate,
@@ -162,6 +163,7 @@ function TvlSection({
   validTo: string;
   projects: Project[];
   participantScores?: number[];
+  participantSymbols?: string[];
   personal?: PersonalData;
   activationStamp?: string;
   currentDate: string;
@@ -213,11 +215,15 @@ function TvlSection({
 
           <div className="identifier-label">
             <span><mark>B</mark> Identifikátor TVL · 17 symbolů</span>
-            <span>+ 4 symboly</span>
+            <span>4 volitelné symboly účastníka</span>
           </div>
           <div className="identifier window-b">
-            <code>{code.slice(0, 17)}</code>
-            <code>{code.slice(-4)}</code>
+            <code className="identifier-main">{code.slice(0, 17)}</code>
+            {Array.from({ length: 4 }, (_, index) => (
+              <span className="identifier-symbol" key={index}>
+                {participantSymbols?.[index] || ""}
+              </span>
+            ))}
           </div>
 
           <div className="admin-box window-a">
@@ -372,6 +378,7 @@ export default function Home() {
   >([]);
   const [participantOpen, setParticipantOpen] = useState(false);
   const [scores, setScores] = useState<number[]>([0, 0, 0]);
+  const [participantSymbols, setParticipantSymbols] = useState<string[]>(["", "", "", ""]);
   const [personal, setPersonal] = useState<PersonalData>(emptyPersonal);
   const [receipt, setReceipt] = useState("");
   const [activationStamp, setActivationStamp] = useState("");
@@ -419,7 +426,7 @@ export default function Home() {
 
   const code = useMemo(() => {
     const datePart = start.replaceAll("-", "").padEnd(8, "0").slice(0, 8);
-    return variant + datePart + "COTO001" + "A001";
+    return variant + datePart + "COTO001";
   }, [start, variant]);
 
   const updateProject = (index: number, patch: Partial<Project>) => {
@@ -501,7 +508,7 @@ export default function Home() {
     }
     const stamp = new Date();
     setReceipt(
-      code + "-" + stamp.getTime().toString(36).toUpperCase() + " · " +
+      code + participantSymbols.join("") + "-" + stamp.getTime().toString(36).toUpperCase() + " · " +
       stamp.toLocaleString("cs-CZ", { fractionalSecondDigits: 3 }),
     );
   };
@@ -515,6 +522,7 @@ export default function Home() {
     validFrom: validity.from,
     validTo: validity.to,
     projects,
+    participantSymbols,
     personal,
     activationStamp,
     currentDate,
@@ -937,6 +945,27 @@ export default function Home() {
                     </label>
                   </fieldset>
 
+                  <fieldset className="participant-symbol-form">
+                    <legend>Okno B · čtyři volitelné symboly účastníka</legend>
+                    <p>Každé políčko přijme jeden vlastní symbol. Můžete je nechat prázdná.</p>
+                    <div>
+                      {participantSymbols.map((symbol, index) => (
+                        <input
+                          key={index}
+                          aria-label={`Volitelný symbol ${index + 1}`}
+                          maxLength={1}
+                          value={symbol}
+                          onChange={(event) => {
+                            const nextSymbol = event.target.value.replace(/\s/g, "").slice(-1).toUpperCase();
+                            setParticipantSymbols((current) =>
+                              current.map((item, itemIndex) => itemIndex === index ? nextSymbol : item),
+                            );
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </fieldset>
+
                   <div className="participant-projects">
                     {projects.map((project, index) => (
                       <article key={index}>
@@ -1290,11 +1319,12 @@ export default function Home() {
           ? Array.from({ length: Math.min(999, printCount) }, (_, index) => index)
           : receipt ? [0] : []
         ).map((copyIndex) => {
-          const printCode = code.slice(0, 17) + String(copyIndex + 1).padStart(4, "0");
+          const printCode = code.slice(0, 14) + String(copyIndex + 1).padStart(3, "0");
           const printShared = {
             ...sharedTvl,
             code: printCode,
             participantScores: role === "participant" ? scores : undefined,
+            participantSymbols: role === "participant" ? participantSymbols : ["", "", "", ""],
           };
           return (
             <div className="tvl-paper printed-sheet original-a4" key={printCode}>

@@ -6,7 +6,7 @@ První funkční varianta **PN – Průzkum názorů**. Základem je třídíln�
 
 - editace tří řádků projektů v pracovní části správce;
 - okamžitý přenos společných údajů do POUKÁZKY, INVESTICE a DOKLADU;
-- shodný kód 17+4 symboly ve všech třech dílech;
+- shodný 17symbolový kód a čtyři samostatná volitelná políčka účastníka ve všech třech dílech;
 - osobní údaje pouze v POUKÁZCE;
 - náhled celého TVL a kontrola podrobností kliknutím;
 - potvrzení, nevratné uzamčení a přesun mezi živé projekty.

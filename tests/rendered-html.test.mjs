@@ -44,6 +44,11 @@ test("živá pracovní šablona se nesmí znovu přeskočit", async () => {
 test("celý TVL zachovává identifikátor B, osobní okno D a jednu A4", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   assert.match(page, /Identifikátor TVL · 17 symbolů/);
+  assert.match(page, /4 volitelné symboly účastníka/);
+  assert.match(page, /Array\.from\(\{ length: 4 \}/);
+  assert.match(page, /className="identifier-symbol"/);
+  assert.match(page, /Volitelný symbol \$\{index \+ 1\}/);
+  assert.doesNotMatch(page, /"COTO001" \+ "A001"/);
   assert.match(page, /className="personal-only window-d"/);
   assert.match(page, /Okno D · pouze na POUKÁZCE/);
   assert.match(page, /className="tvl-paper printed-sheet original-a4"/);
@@ -71,7 +76,10 @@ test("okno C má tři nečíslovaná dlouhá pole a jedno hodnocení", async () 
   assert.match(page, /className="project-field"/);
   assert.match(page, /className=\{\s*"participant-score/);
   assert.doesNotMatch(windowC, /<span>\{index \+ 1\}<\/span>/);
+  assert.doesNotMatch(windowC, /manager-priority/);
   assert.match(css, /grid-template-columns: minmax\(0, 1fr\) 38px/);
+  assert.match(css, /\.survey-box \.window-c \{[\s\S]*?gap: 4px/);
+  assert.match(css, /border-bottom: 1px solid #555 !important/);
 });
 
 test("poukázka obsahuje okno D, text a střihovou linku v pevné A4", async () => {
