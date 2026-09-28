@@ -557,7 +557,7 @@ export default function Home() {
 
   const sendOpinion = () => {
     if (scores.some((score) => score < 1 || score > 9)) {
-      window.alert("Přidělte všem třem projektům hodnocení od 1 do 9 bodů.");
+      window.alert("Přiděl všem třem projektům hodnocení od 1 do 9 bodů.");
       return;
     }
     const stamp = new Date();
@@ -1147,7 +1147,7 @@ export default function Home() {
             <p>
               Najeď kurzorem na variantu, hodnotu nebo dobu platnosti a vyber nabídku.
               Změna se ihned propíše do INVESTICE a později do stejného místa
-              POUKÁZKY a DOKLADU. Tři pole okna C otevřete přímo v listu.
+              POUKÁZKY a DOKLADU. Tři pole okna C otevři přímo v listu.
             </p>
           </header>
 
@@ -1282,7 +1282,7 @@ export default function Home() {
               </div>
               <div
                 className="tvl-paper working-investment"
-                onMouseEnter={() => setManagerHint("V pracovním dílu INVESTICE klikněte na některé dlouhé pole okna C. Otevře se nadpis, popis a hodnota tématu správce.")}
+                onMouseEnter={() => setManagerHint("V pracovním dílu INVESTICE klikni na některé dlouhé pole okna C. Otevře se nadpis, popis a hodnota tématu správce.")}
               >
                 <TvlSection
                   kind="investment"
