@@ -84,7 +84,13 @@ function buildWeekOptions() {
   });
 }
 
-function ResultsJourney({ scoreTotal }: { scoreTotal?: number }) {
+function ResultsJourney({
+  scoreTotal,
+  linkedTvlCount = 1,
+}: {
+  scoreTotal?: number;
+  linkedTvlCount?: number;
+}) {
   return (
     <section className="results-journey" aria-label="Cesta tématu a návrat výsledku">
       <p className="eyebrow">CESTA TÉMATU A VÝSLEDKU</p>
@@ -100,7 +106,9 @@ function ResultsJourney({ scoreTotal }: { scoreTotal?: number }) {
       </div>
       <p>
         Shodné projekty se spojují napříč správci. Součtový výsledek se vrací
-        správci i do každého vloženého TVL a ukazuje, na které úrovni má vzniklý
+        správci i do každého původního nebo zkopírovaného TVL. Právě je
+        propojeno {linkedTvlCount} {linkedTvlCount === 1 ? "použité TVL" : "použitých TVL"};
+        na všech se načte shodný výsledek a ukáže, na které úrovni má vzniklý
         tlak dostat řešení.
       </p>
       {typeof scoreTotal === "number" && (
@@ -108,6 +116,50 @@ function ResultsJourney({ scoreTotal }: { scoreTotal?: number }) {
           Zkušební součet právě vloženého TVL: {scoreTotal} bodů
         </strong>
       )}
+    </section>
+  );
+}
+
+function PromotionAccountResults({
+  account,
+  identifier,
+  projects,
+  scores,
+  linkedTvlCount,
+}: {
+  account: string;
+  identifier: string;
+  projects: Project[];
+  scores: number[];
+  linkedTvlCount: number;
+}) {
+  return (
+    <section className="promotion-account" aria-label="Řádkové výsledky účtu na propagaci">
+      <header>
+        <div>
+          <p className="eyebrow">KONTROLA ÚČASTNÍKA</p>
+          <h2>Účet na propagaci</h2>
+        </div>
+        <code>{account}</code>
+      </header>
+      <p>
+        Pod svým anonymním identifikátorem tu najdeš řádek každého tématu ze
+        svého TVL. Osobní údaje z okna D se sem nepřenášejí.
+      </p>
+      <div className="account-result-head" aria-hidden="true">
+        <span>TVL</span><span>Téma</span><span>Správce</span><span>Tvoje body</span>
+      </div>
+      {projects.map((project, index) => (
+        <div className="account-result-row" key={project.title + index}>
+          <code>{identifier}</code>
+          <b>{project.title || "Nevyplněné téma"}</b>
+          <span>{project.value} Kč</span>
+          <strong>{scores[index] || "–"}</strong>
+        </div>
+      ))}
+      <small>
+        Výsledek je načtený do všech propojených listů COTO: {linkedTvlCount}× TVL.
+      </small>
     </section>
   );
 }
@@ -268,13 +320,13 @@ function TvlSection({
                   className="project-row"
                   onClick={() => onInspect(index)}
                   title={showControls
-                    ? "Správce: kliknutím otevřete nadpis, popis a hodnotu tématu"
-                    : "Kliknutím otevřete celý popis"}
+                    ? "Správce: kliknutím otevři nadpis, popis a hodnotu tématu"
+                    : "Kliknutím otevři celý popis"}
                   aria-label="Otevřít téma v okně C"
                 >
                   <span className="project-field">
                     <strong>
-                      {project.title || "Klikněte a zapište projekt nebo otázku"}
+                      {project.title || "Klikni a zapiš projekt nebo otázku"}
                     </strong>
                     <small>hodnota správce {project.value} Kč</small>
                   </span>
@@ -381,13 +433,15 @@ export default function Home() {
   const [participantSymbols, setParticipantSymbols] = useState<string[]>(["", "", "", ""]);
   const [personal, setPersonal] = useState<PersonalData>(emptyPersonal);
   const [receipt, setReceipt] = useState("");
+  const [showAccountResults, setShowAccountResults] = useState(false);
+  const [copiedSurveyCount, setCopiedSurveyCount] = useState(0);
   const [activationStamp, setActivationStamp] = useState("");
   const [currentTime, setCurrentTime] = useState("");
   const [currentDate, setCurrentDate] = useState("");
   const [printCount] = useState(1);
   const [formError, setFormError] = useState("");
   const [managerHint, setManagerHint] = useState(
-    "Přejeďte kurzorem přes volbu. Tady se ukáže její význam a místo přenosu do TVL.",
+    "Přejeď kurzorem přes volbu. Tady se ukáže její význam a místo přenosu do TVL.",
   );
 
   useEffect(() => {
@@ -414,7 +468,7 @@ export default function Home() {
 
   const validity = useMemo(() => {
     const date = new Date(start + "T12:00:00");
-    if (Number.isNaN(date.getTime())) return { from: "", to: "", period: "vyberte týden" };
+    if (Number.isNaN(date.getTime())) return { from: "", to: "", period: "vyber týden" };
     const end = new Date(date);
     end.setDate(end.getDate() + 6);
     return {
@@ -465,7 +519,7 @@ export default function Home() {
       .filter(Boolean);
     if (!start || missingProjects.length) {
       setFormError(
-        "Doplňte týden a nadpis i stručný popis všech tří témat v okně C.",
+        "Doplň týden a nadpis i stručný popis všech tří témat v okně C.",
       );
       return;
     }
@@ -511,6 +565,7 @@ export default function Home() {
       code + participantSymbols.join("") + "-" + stamp.getTime().toString(36).toUpperCase() + " · " +
       stamp.toLocaleString("cs-CZ", { fractionalSecondDigits: 3 }),
     );
+    setShowAccountResults(true);
   };
 
   const sharedTvl = {
@@ -636,20 +691,29 @@ export default function Home() {
         <ScreenBadge current={4} />
         <section className="entry-panel role-panel">
           <img className="entry-mini-logo" src="/COTO-testovac/coto-logo-original.png" alt="Logo COTO" />
+          <p className="role-summary">
+            COTO je nástroj pro nejmenší správní a společenské celky – obce,
+            spolky, školy nebo firmy. Právě do nich se vracejí výsledky průzkumů,
+            aby vedly k řešení tam, kde téma vzniklo.
+          </p>
           <h1>Vyber si</h1>
           <div className="role-buttons">
             <button
               className="manager-help"
-              data-help="Správce založí průzkum, vyplní živou šablonu a po kontrole ji uzamkne."
+              data-help="Jako správce založíš průzkum, vyplníš živou šablonu a po kontrole ji uzamkneš."
               onClick={() => { setRole("manager"); setEntryStage("ares"); }}
             >
-              SPRÁVCE
+              <strong>SPRÁVCE</strong>
+              <small>Potřebuješ IČO a samostatný účet na propagaci.</small>
             </button>
-            <button onClick={() => { setRole("participant"); setEntryStage("app"); }}>ÚČASTNÍK</button>
+            <button onClick={() => { setRole("participant"); setEntryStage("app"); }}>
+              <strong>ÚČASTNÍK</strong>
+              <small>Vybereš živý průzkum a zkontroluješ řádkové výsledky.</small>
+            </button>
           </div>
           <p>
-            Správce vytváří a potvrzuje průzkum. Účastník vybírá správce,
-            otevírá jeho živou aktivitu a posiluje témata svým TVL.
+            Jako správce vytváříš a potvrzuješ průzkum. Jako účastník si vybereš
+            správce, otevřeš jeho živou aktivitu a posílíš témata svým TVL.
           </p>
           <button className="muted" onClick={() => setEntryStage("purpose")}>ZPĚT</button>
         </section>
@@ -666,8 +730,8 @@ export default function Home() {
           <p className="eyebrow">KONTROLA SPRÁVCE V ARES</p>
           <h1>Ověření správce</h1>
           <p>
-            Zadejte IČO a účet na propagaci. V této zkušební verzi se pouze
-            ověří správný průchod a přenos do okna A.
+            Zadej IČO a samostatný účet na propagaci. V této zkušební verzi si
+            ověříš správný průchod a přenos do okna A.
           </p>
           <label
             className="manager-help help-right"
@@ -699,7 +763,7 @@ export default function Home() {
               data-help="Zkontroluje osm číslic IČO a připraví identitu správce pro okno A."
               onClick={() => {
                 if (ico.length !== 8 || !account.trim()) {
-                  setFormError("Doplňte osm číslic IČO a účet na propagaci.");
+                  setFormError("Doplň osm číslic IČO a samostatný účet na propagaci.");
                   return;
                 }
                 setOrganiser("Jan Koňas · správce COTO · IČO " + ico);
@@ -744,7 +808,7 @@ export default function Home() {
             <button
               key={option.code}
               className={"variant-choice manager-help help-right " + (hoveredVariant === option.code ? "active" : "")}
-              data-help={option.description + ". Kliknutím otevřete živou pracovní šablonu a kód " + option.code + "001 se ihned zapíše do TVL."}
+              data-help={option.description + ". Kliknutím otevři živou pracovní šablonu a kód " + option.code + "001 se ihned zapíše do TVL."}
               onMouseEnter={() => setHoveredVariant(option.code)}
               onFocus={() => setHoveredVariant(option.code)}
               onClick={() => { chooseVariant(option.code); setEntryStage("app"); }}
@@ -795,6 +859,18 @@ export default function Home() {
                   <button onClick={() => { setRole("participant"); setParticipantOpen(true); setEntryStage("app"); }}>
                     OTEVŘÍT JAKO ÚČASTNÍK
                   </button>
+                  <button
+                    onClick={() => setCopiedSurveyCount((count) => count + 1)}
+                    title="Připojí další použití stejného průzkumu k návratu součtových výsledků"
+                  >
+                    ZKOPÍROVAT PRO DALŠÍHO SPRÁVCE
+                  </button>
+                  {copiedSurveyCount > 0 && (
+                    <small>
+                      Propojeno s dalšími správci: {copiedSurveyCount}. Výsledky se načtou
+                      na všech {copiedSurveyCount + 1} použitých TVL.
+                    </small>
+                  )}
                 </div>
                 <code>{item.code}</code>
               </article>
@@ -809,7 +885,19 @@ export default function Home() {
             </p>
           </div>
         </section>
-        <ResultsJourney scoreTotal={receipt ? scores.reduce((sum, score) => sum + score, 0) : undefined} />
+        {receipt && (
+          <PromotionAccountResults
+            account={account}
+            identifier={receipt.split(" · ")[0]}
+            projects={projects}
+            scores={scores}
+            linkedTvlCount={copiedSurveyCount + 1}
+          />
+        )}
+        <ResultsJourney
+          scoreTotal={receipt ? scores.reduce((sum, score) => sum + score, 0) : undefined}
+          linkedTvlCount={copiedSurveyCount + 1}
+        />
       </main>
     );
   }
@@ -842,7 +930,19 @@ export default function Home() {
           <CutLine label="oddělit INVESTICI" />
           <TvlSection kind="receipt" {...sharedTvl} participantScores={receipt ? scores : undefined} onInspect={setSelected} />
         </div>
-        <ResultsJourney scoreTotal={receipt ? scores.reduce((sum, score) => sum + score, 0) : undefined} />
+        {receipt && (
+          <PromotionAccountResults
+            account={account}
+            identifier={receipt.split(" · ")[0]}
+            projects={projects}
+            scores={scores}
+            linkedTvlCount={copiedSurveyCount + 1}
+          />
+        )}
+        <ResultsJourney
+          scoreTotal={receipt ? scores.reduce((sum, score) => sum + score, 0) : undefined}
+          linkedTvlCount={copiedSurveyCount + 1}
+        />
         <div className="print-batch" aria-hidden="true">
           <div className="tvl-paper printed-sheet original-a4">
             <div className="printed-number">TVL {variant}1 · celý třídílný list</div>
@@ -882,11 +982,11 @@ export default function Home() {
           <header className="intro participant-intro">
             <div>
               <p className="eyebrow">OBRAZOVKA 10 · ÚČASTNÍK · VYPLŇOVACÍ PRŮCHOD</p>
-              <h1>Vyberte správce.<br />Otevřete jeho aktivitu.</h1>
+              <h1>Vyber si správce.<br />Otevři jeho aktivitu.</h1>
             </div>
             <p>
-              Otevřete úplné popisy C1–C3, přidělte každému 1–9 bodů a
-              odešlete svůj TVL. Potom dostanete identifikátor pro návrat k
+              Otevři úplné popisy C1–C3, přiděl každému 1–9 bodů a
+              odešli svůj TVL. Potom dostaneš identifikátor pro návrat k
               výsledku.
             </p>
           </header>
@@ -907,8 +1007,8 @@ export default function Home() {
             <div className="activity-column">
               {!participantOpen ? (
                 <div className="empty-state">
-                  <b>{live.length ? "Klikněte na správce vlevo" : "Správce zatím nemá potvrzenou živou aktivitu"}</b>
-                  <span>{live.length ? "Potom se zobrazí jeho živý TVL." : "Nejprve v roli správce vyplňte a potvrďte pracovní šablonu."}</span>
+                  <b>{live.length ? "Klikni na správce vlevo" : "Správce zatím nemá potvrzenou živou aktivitu"}</b>
+                  <span>{live.length ? "Potom se zobrazí jeho živý TVL." : "Nejdřív v roli správce vyplň a potvrď pracovní šablonu."}</span>
                 </div>
               ) : (
                 <>
@@ -947,7 +1047,7 @@ export default function Home() {
 
                   <fieldset className="participant-symbol-form">
                     <legend>Okno B · čtyři volitelné symboly účastníka</legend>
-                    <p>Každé políčko přijme jeden vlastní symbol. Můžete je nechat prázdná.</p>
+                    <p>Každé políčko přijme jeden tvůj symbol. Můžeš je nechat prázdná.</p>
                     <div>
                       {participantSymbols.map((symbol, index) => (
                         <input
@@ -973,11 +1073,11 @@ export default function Home() {
                           <span>C</span>
                           <div>
                             <b>{project.title || "Nevyplněné téma"}</b>
-                            <small>Kliknutím otevřete celý popis a hodnotu správce</small>
+                            <small>Kliknutím otevři celý popis a hodnotu správce</small>
                           </div>
                         </button>
                         <label>
-                          Vaše hodnocení
+                          Tvoje hodnocení
                           <select
                             value={scores[index]}
                             onChange={(event) =>
@@ -1005,14 +1105,29 @@ export default function Home() {
                       <p className="eyebrow">OSOBNÍ KONTROLNÍ KÓD</p>
                       <strong>{receipt}</strong>
                       <p>
-                        Tento kód spojuje váš DOKLAD s pozdějším součtovým
+                        Tento kód spojuje tvůj DOKLAD s pozdějším součtovým
                         výsledkem, aniž by se do něj přeneslo okno D.
                       </p>
                       <button onClick={() => window.print()}>TISK MÉHO CELÉHO TVL NA JEDNU A4</button>
                       <button onClick={() => setEntryStage("readonly")}>ZOBRAZIT VÝSLEDEK VRÁCENÝ DO TVL</button>
+                      <button onClick={() => setShowAccountResults((shown) => !shown)}>
+                        {showAccountResults ? "SKRÝT ŘÁDKY ÚČTU NA PROPAGACI" : "ZKONTROLOVAT ŘÁDKY ÚČTU NA PROPAGACI"}
+                      </button>
                     </div>
                   )}
-                  <ResultsJourney scoreTotal={receipt ? scores.reduce((sum, score) => sum + score, 0) : undefined} />
+                  {receipt && showAccountResults && (
+                    <PromotionAccountResults
+                      account={account}
+                      identifier={receipt.split(" · ")[0]}
+                      projects={projects}
+                      scores={scores}
+                      linkedTvlCount={copiedSurveyCount + 1}
+                    />
+                  )}
+                  <ResultsJourney
+                    scoreTotal={receipt ? scores.reduce((sum, score) => sum + score, 0) : undefined}
+                    linkedTvlCount={copiedSurveyCount + 1}
+                  />
                   <p className="prototype-warning">
                     Tato verze neodesílá skutečný hlas ani peníze. Slouží k
                     ověření celého vyplňovacího postupu.
@@ -1030,7 +1145,7 @@ export default function Home() {
               <h1>Živá pracovní šablona INVESTICE</h1>
             </div>
             <p>
-              Najeďte kurzorem na variantu, hodnotu nebo dobu platnosti a vyberte nabídku.
+              Najeď kurzorem na variantu, hodnotu nebo dobu platnosti a vyber nabídku.
               Změna se ihned propíše do INVESTICE a později do stejného místa
               POUKÁZKY a DOKLADU. Tři pole okna C otevřete přímo v listu.
             </p>
@@ -1042,7 +1157,7 @@ export default function Home() {
                 className="field-selector"
                 onMouseEnter={() => {
                   if (!locked) setSelectorOpen("variant");
-                  setManagerHint("Vyberte způsob použití COTO. Kód a pořadí, například PN001, se ihned zapíší do POUKÁZKY, INVESTICE i DOKLADU.");
+                  setManagerHint("Vyber způsob použití COTO. Kód a pořadí, například PN001, se ihned zapíší do POUKÁZKY, INVESTICE i DOKLADU.");
                 }}
               >
                 <small>Kód a pořadí použití</small>
@@ -1050,7 +1165,7 @@ export default function Home() {
                   disabled={locked}
                   onFocus={() => {
                     setSelectorOpen("variant");
-                    setManagerHint("Vyberte způsob použití COTO. Kód a pořadí, například PN001, se ihned zapíší do POUKÁZKY, INVESTICE i DOKLADU.");
+                    setManagerHint("Vyber způsob použití COTO. Kód a pořadí, například PN001, se ihned zapíší do POUKÁZKY, INVESTICE i DOKLADU.");
                   }}
                   onClick={() => setSelectorOpen(selectorOpen === "variant" ? null : "variant")}
                   aria-expanded={selectorOpen === "variant"}
@@ -1080,7 +1195,7 @@ export default function Home() {
                 className="field-selector value-selector"
                 onMouseEnter={() => {
                   if (!locked) setSelectorOpen("value");
-                  setManagerHint("Vyberte hodnotu 1, 2 nebo 3 Kč za informaci. Zvolená částka se ihned ukáže v záhlaví všech tří dílů TVL.");
+                  setManagerHint("Vyber hodnotu 1, 2 nebo 3 Kč za informaci. Zvolená částka se ihned ukáže v záhlaví všech tří dílů TVL.");
                 }}
               >
                 <small>Hodnota průzkumu pro správce</small>
@@ -1088,7 +1203,7 @@ export default function Home() {
                   disabled={locked}
                   onFocus={() => {
                     setSelectorOpen("value");
-                    setManagerHint("Vyberte hodnotu 1, 2 nebo 3 Kč za informaci. Zvolená částka se ihned ukáže v záhlaví všech tří dílů TVL.");
+                    setManagerHint("Vyber hodnotu 1, 2 nebo 3 Kč za informaci. Zvolená částka se ihned ukáže v záhlaví všech tří dílů TVL.");
                   }}
                   onClick={() => setSelectorOpen(selectorOpen === "value" ? null : "value")}
                   aria-expanded={selectorOpen === "value"}
@@ -1117,7 +1232,7 @@ export default function Home() {
                 className="field-selector week-selector"
                 onMouseEnter={() => {
                   if (!locked) setSelectorOpen("week");
-                  setManagerHint("Vyberte týden platnosti od pondělí do neděle. Po kliknutí se začátek i konec ihned přenesou do TVL.");
+                  setManagerHint("Vyber týden platnosti od pondělí do neděle. Po kliknutí se začátek i konec ihned přenesou do TVL.");
                 }}
               >
                 <small>Datum a doba platnosti</small>
@@ -1125,7 +1240,7 @@ export default function Home() {
                   disabled={locked}
                   onFocus={() => {
                     setSelectorOpen("week");
-                    setManagerHint("Vyberte týden platnosti od pondělí do neděle. Po kliknutí se začátek i konec ihned přenesou do TVL.");
+                    setManagerHint("Vyber týden platnosti od pondělí do neděle. Po kliknutí se začátek i konec ihned přenesou do TVL.");
                   }}
                   onClick={() => setSelectorOpen(selectorOpen === "week" ? null : "week")}
                   aria-expanded={selectorOpen === "week"}
@@ -1179,18 +1294,18 @@ export default function Home() {
                 />
                 {!locked && (
                   <>
-                    <button className="sheet-marker marker-c1" title="Otevřít první nečíslované téma okna C" onMouseEnter={() => setManagerHint("Otevřete první nečíslované téma okna C a vložte název i stručný popis.")} onClick={() => setSelected(0)} aria-label="Vyplnit první pole okna C">+</button>
-                    <button className="sheet-marker marker-c2" title="Otevřít druhé nečíslované téma okna C" onMouseEnter={() => setManagerHint("Otevřete druhé nečíslované téma okna C a vložte název i stručný popis.")} onClick={() => setSelected(1)} aria-label="Vyplnit druhé pole okna C">+</button>
-                    <button className="sheet-marker marker-c3" title="Otevřít třetí nečíslované téma okna C" onMouseEnter={() => setManagerHint("Otevřete třetí nečíslované téma okna C a vložte název i stručný popis.")} onClick={() => setSelected(2)} aria-label="Vyplnit třetí pole okna C">+</button>
+                    <button className="sheet-marker marker-c1" title="Otevřít první nečíslované téma okna C" onMouseEnter={() => setManagerHint("Otevři první nečíslované téma okna C a vlož název i stručný popis.")} onClick={() => setSelected(0)} aria-label="Vyplnit první pole okna C">+</button>
+                    <button className="sheet-marker marker-c2" title="Otevřít druhé nečíslované téma okna C" onMouseEnter={() => setManagerHint("Otevři druhé nečíslované téma okna C a vlož název i stručný popis.")} onClick={() => setSelected(1)} aria-label="Vyplnit druhé pole okna C">+</button>
+                    <button className="sheet-marker marker-c3" title="Otevřít třetí nečíslované téma okna C" onMouseEnter={() => setManagerHint("Otevři třetí nečíslované téma okna C a vlož název i stručný popis.")} onClick={() => setSelected(2)} aria-label="Vyplnit třetí pole okna C">+</button>
                   </>
                 )}
               </div>
             </div>
 
             <p className="work-instruction">
-              Klikněte na některé ze tří polí okna C, napište nadpis a stručný popis a
-              vyberte prioritu správce 1–3 Kč. Po vyplnění všech tří řádků
-              ukončete editaci v okně A.
+              Klikni na některé ze tří polí okna C, napiš nadpis a stručný popis a
+              vyber prioritu správce 1–3 Kč. Po vyplnění všech tří řádků
+              ukonči editaci v okně A.
             </p>
             {formError && <p className="form-error work-error">{formError}</p>}
             <div className="workbench-actions">
@@ -1221,7 +1336,7 @@ export default function Home() {
             <h2>Projekt, námět nebo otázka</h2>
             <label
               className="manager-help help-right"
-              data-help="Vložte krátký název tématu. Po uložení se objeví ve všech třech dílech TVL."
+              data-help="Vlož krátký název tématu. Po uložení se objeví ve všech třech dílech TVL."
             >
               Nadpis
               <input
@@ -1281,7 +1396,7 @@ export default function Home() {
             <div>
               <b>OBRAZOVKA 08 · CELÝ TVL · časové razítko {activationStamp}</b>
               <span>
-                Zkontrolujte POUKÁZKU včetně okna D, identifikátor B, INVESTICI
+                Zkontroluj POUKÁZKU včetně okna D, identifikátor B, INVESTICI
                 a DOKLAD. Zpět razítko zruší; potvrzení TVL uzamkne.
               </span>
             </div>

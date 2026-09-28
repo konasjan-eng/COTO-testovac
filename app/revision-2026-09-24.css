@@ -116,6 +116,33 @@
   background: white;
 }
 
+.role-summary {
+  margin: 0 0 8px !important;
+  padding: 12px 14px;
+  border-left: 5px solid var(--video-gold);
+  background: #fff7dc;
+  color: #2f3834;
+  font: 14px/1.45 Georgia, serif !important;
+  text-align: left;
+}
+
+.role-buttons button {
+  display: grid;
+  align-content: center;
+  gap: 7px;
+  padding: 16px;
+}
+
+.role-buttons button strong {
+  font-size: 18px;
+}
+
+.role-buttons button small {
+  font-size: 11px;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
 /* Obrazovka 03 – text a členění podle videozáznamu. */
 .purpose-panel {
   position: relative;
@@ -441,6 +468,89 @@
   font-weight: 800;
 }
 
+.promotion-account {
+  width: min(1050px, calc(100% - 32px));
+  margin: 24px auto;
+  padding: 22px;
+  border: 2px solid var(--video-navy);
+  border-radius: 8px;
+  background: #f8fbff;
+}
+
+.activity-column .promotion-account {
+  width: 100%;
+  margin: 18px 0;
+}
+
+.promotion-account header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 18px;
+}
+
+.promotion-account h2 {
+  margin: 3px 0 0;
+  color: var(--video-navy);
+  font: 28px/1.1 Georgia, serif;
+}
+
+.promotion-account > p {
+  margin: 12px 0 16px;
+  font: 14px/1.45 Georgia, serif;
+}
+
+.account-result-head,
+.account-result-row {
+  display: grid;
+  grid-template-columns: minmax(150px, .9fr) minmax(170px, 1.4fr) 72px 82px;
+  align-items: center;
+  gap: 8px;
+}
+
+.account-result-head {
+  padding: 7px 10px;
+  background: var(--video-navy);
+  color: white;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.account-result-row {
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid #ccd5df;
+  border-top: 0;
+  background: white;
+}
+
+.account-result-row code {
+  overflow-wrap: anywhere;
+  font-size: 9px;
+}
+
+.account-result-row b {
+  font-size: 12px;
+}
+
+.account-result-row strong {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #56687d;
+  background: #fff4dc;
+}
+
+.promotion-account > small {
+  display: block;
+  margin-top: 12px;
+  color: #3b654e;
+  font-weight: 800;
+}
+
 /* POUKÁZKA drží velikost původního dílu a má vlastní text i střihovou linku. */
 .original-a4 .voucher .tvl-columns {
   flex: 1 1 auto;
@@ -573,5 +683,27 @@
 
   .purpose-copy p {
     font-size: 15px;
+  }
+
+  .promotion-account header {
+    display: grid;
+  }
+
+  .account-result-head {
+    display: none;
+  }
+
+  .account-result-row {
+    grid-template-columns: 1fr 56px;
+  }
+
+  .account-result-row code,
+  .account-result-row b {
+    grid-column: 1;
+  }
+
+  .account-result-row span,
+  .account-result-row strong {
+    grid-column: 2;
   }
 }

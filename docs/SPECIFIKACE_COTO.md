@@ -16,6 +16,8 @@ Všechny díly mají shodný 17symbolový kód vytvořený systémem a čtyři s
 
 PN – Průzkum názorů. Správce připraví nejvýše tři projekty nebo otázky a jejich popisy. Každému ze své pozice přidělí hodnotu priority 1–3 Kč ze svého účtu na propagaci.
 
+Volba role předem uvádí, že správce potřebuje IČO a samostatný účet na propagaci. Nad modrým polem správce a zeleným polem účastníka je stručně vysvětleno, že COTO je nástroj nejmenších správních a společenských celků a výsledky se do nich vracejí. Veškeré pokyny používají jednotné číslo a tykání.
+
 ## Životní cyklus
 
 Pracovní šablona → Náhled celého TVL → POTVRDIT → uzamčení → živý projekt → po skončení týdne ukončený projekt.
@@ -45,6 +47,8 @@ Správce může zadat počet číslovaných papírových TVL; každý výtisk do
 Ikona COTO → logo COTO → volba Správce → kontrola IČO v ARES → pracovní šablona TVL → ZPĚT nebo UKONČIT přímo v okně A → celý náhled TVL → POTVRDIT PN1 → obrazovka s logem, identitou správce a sloupci Živé / Ukončené.
 
 Potvrzený průzkum lze z přehledu otevřít jen ke čtení a kopírování. Jeho obsah se tím nesmí změnit.
+
+Účet na propagaci zobrazuje účastníkovi podle anonymního identifikátoru samostatné výsledkové řádky všech témat z jeho TVL. Při převzetí a kopírování stejného průzkumu dalším správcem se společné výsledky automaticky načítají do všech použitých listů COTO.
 
 Horní názvy jsou dvouřádkové: „Kód varianty průzkumu COTO“, „Hodnota průzkumu z účtu správce“ a „Týden platnosti tohoto průzkumu názorů“. Začátek a konec týdne jsou v oddělených polích podle původního TVL.
 

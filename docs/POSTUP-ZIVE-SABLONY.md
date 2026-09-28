@@ -7,7 +7,7 @@ Tento postup skládá dochované kroky z července a srpna 2026, videozáznamu a
 1. Zobrazí se samostatná původní ikona COTO. Kliknutí otevře logo.
 2. Zobrazí se beze změny dodané originální logo COTO. Kliknutí otevře cíl a filosofii.
 3. Obrazovka Cíl a filosofie vychází z videozáznamu. Vysvětluje průběžný obousměrný proces a TVL jako tři šablony propojené shodným kódem a časovým razítkem.
-4. Následuje volba Správce nebo Účastník.
+4. Následuje volba Správce nebo Účastník. Nad oběma poli je shrnutí, že COTO slouží nejmenším správním a společenským celkům a výsledky se vracejí právě do nich. Správce už zde vidí podmínku IČO a samostatného účtu na propagaci.
 5. Každá obrazovka nese nenápadné číslo 01–10 pro přesné určení oprav. Samotné zadání opravy a odpověď Lin patří do pracovního chatu, nikoli do veřejné aplikace COTO.
 
 ## Správce
@@ -35,4 +35,5 @@ Tento postup skládá dochované kroky z července a srpna 2026, videozáznamu a
 1. Účastník vybere správce a jeho živou aktivitu.
 2. Doplní údaje okna D pro POUKÁZKU, otevře tři témata okna C a každému přidělí 1–9 bodů.
 3. Odeslání vytvoří osobní kontrolní kód a dovolí vytisknout celý vlastní TVL na jednu A4.
-4. Shodné projekty se při sčítání propojí. Výsledek se vrací správci i do každého vloženého TVL a ukazuje společenskou úroveň, na které má vzniklý tlak dostat řešení.
+4. Pod osobním kódem otevře kontrolu účtu na propagaci a uvidí samostatný výsledkový řádek každého tématu ze svého TVL.
+5. Shodné projekty se při sčítání propojí. Výsledek se vrací správci i do každého původního nebo zkopírovaného TVL a ukazuje společenskou úroveň, na které má vzniklý tlak dostat řešení.

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
@@ -16,6 +17,13 @@ test("začíná klikací ikonou COTO", async () => {
   assert.match(html, /aria-label="Otevřít COTO"/);
   assert.match(html, /COTO/);
   assert.doesNotMatch(html, /Your site is taking shape|codex-preview/);
+});
+
+test("úvod používá přesně znovu dodanou čtvercovou ikonu bez spodních nápisů", async () => {
+  const icon = await readFile(new URL("../public/coto-icon-original.png", import.meta.url));
+  assert.equal(icon.readUInt32BE(16), 1254);
+  assert.equal(icon.readUInt32BE(20), 1254);
+  assert.equal(createHash("sha256").update(icon).digest("hex"), "55d8399c207848e15bcf6b8dc33e84fef4e51f485d9ab3affe2d4712b91a2897");
 });
 
 test("obsahuje celý sjednaný průchod správce", async () => {
@@ -56,7 +64,25 @@ test("celý TVL zachovává identifikátor B, osobní okno D a jednu A4", async 
 
 test("výsledek se vrací ke správci i do vložených TVL", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
-  for (const text of ["Návrh", "Posílení", "Kopírování", "Sčítání", "Řešení", "každého vloženého TVL"]) assert.match(page, new RegExp(text));
+  for (const text of ["Návrh", "Posílení", "Kopírování", "Sčítání", "Řešení", "každého původního nebo zkopírovaného TVL", "všech se načte shodný výsledek"]) assert.match(page, new RegExp(text));
+});
+
+test("volba role vysvětluje účel COTO i podmínky správce", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  for (const text of ["nejmenší správní a společenské celky", "Potřebuješ IČO a samostatný účet na propagaci", "do nich se vracejí výsledky průzkumů"]) assert.match(page, new RegExp(text));
+});
+
+test("účastník vidí řádkové výsledky účtu na propagaci", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const css = await readFile(new URL("../app/revision-2026-09-24.css", import.meta.url), "utf8");
+  for (const text of ["Řádkové výsledky účtu na propagaci", "KONTROLA ÚČASTNÍKA", "Tvoje body", "ZKONTROLOVAT ŘÁDKY ÚČTU NA PROPAGACI", "ZKOPÍROVAT PRO DALŠÍHO SPRÁVCE"]) assert.match(page, new RegExp(text));
+  assert.match(css, /\.account-result-row/);
+});
+
+test("pokyny používají přímé tykání", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  for (const text of ["Vyber si správce", "Otevři jeho aktivitu", "Tvoje hodnocení", "Zadej IČO", "Přejeď kurzorem"]) assert.match(page, new RegExp(text));
+  assert.doesNotMatch(page, /Zadejte|Doplňte|Vyberte|Otevřete|Najeďte|Klikněte|Můžete|Zkontrolujte|Vaše hodnocení/);
 });
 
 test("originální logo a obrazovka cíle se nesmí znovu nahradit maketou", async () => {
@@ -107,7 +133,7 @@ test("pracovní komunikace s Lin není vložena do veřejné aplikace", async ()
 test("správce dostává popisky při pohybu kurzoru", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   const css = await readFile(new URL("../app/revision-2026-09-24.css", import.meta.url), "utf8");
-  for (const text of ["POPIS PRO SPRÁVCE", "Přejeďte kurzorem přes volbu", "Kód a pořadí", "Uzamkne TVL"]) assert.match(page, new RegExp(text));
+  for (const text of ["POPIS PRO SPRÁVCE", "Přejeď kurzorem přes volbu", "Kód a pořadí", "Uzamkne TVL"]) assert.match(page, new RegExp(text));
   assert.match(page, /data-help=/);
   assert.match(css, /\.manager-help:hover::after/);
   assert.match(css, /\.manager-hover-caption/);

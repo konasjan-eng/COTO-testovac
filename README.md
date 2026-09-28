@@ -8,6 +8,9 @@ První funkční varianta **PN – Průzkum názorů**. Základem je třídíln�
 - okamžitý přenos společných údajů do POUKÁZKY, INVESTICE a DOKLADU;
 - shodný 17symbolový kód a čtyři samostatná volitelná políčka účastníka ve všech třech dílech;
 - osobní údaje pouze v POUKÁZCE;
+- přímé tykání správci i účastníkovi a podmínka IČO se samostatným účtem na propagaci;
+- účastnická kontrola řádkových výsledků na účtu na propagaci;
+- návrat společných výsledků do všech původních i zkopírovaných TVL;
 - náhled celého TVL a kontrola podrobností kliknutím;
 - potvrzení, nevratné uzamčení a přesun mezi živé projekty.
 
