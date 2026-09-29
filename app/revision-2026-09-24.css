@@ -396,10 +396,12 @@
 }
 
 .survey-box .project-row {
+  display: grid !important;
   grid-template-columns: minmax(0, 1fr) 38px !important;
   gap: 0 !important;
   min-height: 31px;
   padding: 0 !important;
+  overflow: hidden;
 }
 
 .survey-box .project-row .project-field {
@@ -446,6 +448,46 @@
   border-bottom: 1px solid #555 !important;
   background: white !important;
   font: 800 10px Arial, sans-serif !important;
+  align-self: stretch;
+}
+
+/* Okno D podle originálu: adresa s QR a pod nimi jediný řádek přes celou šířku. */
+.personal-only.window-d {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.personal-address {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 96px;
+}
+
+.personal-address .qr {
+  border-left: 1px solid #555;
+}
+
+.personal-identifier-row {
+  min-width: 0;
+  min-height: 24px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 3px 7px;
+  border-top: 1px solid #555 !important;
+  background: #fff;
+  font: 9px/1 Georgia, serif;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.personal-identifier-row span {
+  min-width: 0;
+  letter-spacing: .13em;
+  overflow: hidden;
 }
 
 .original-a4 .project-columns {
@@ -473,6 +515,17 @@
 .original-a4 .survey-box .project-row .participant-score {
   min-height: 23px !important;
   height: 23px !important;
+}
+
+.original-a4 .personal-address {
+  grid-template-columns: minmax(0, 1fr) 82px;
+}
+
+.original-a4 .personal-identifier-row {
+  min-height: 17px;
+  padding: 2px 5px;
+  gap: 6px;
+  font-size: 6.5px;
 }
 
 .original-a4 .survey-box .project-row .project-field strong {
@@ -662,12 +715,13 @@
 
 .cut i {
   display: block;
-  border-top: 1px dashed #686d69;
+  border-top: 2px dashed #353a37;
 }
 
 .cut-scissors {
-  font-size: 12px !important;
+  font-size: 16px !important;
   line-height: 1;
+  color: #202522;
 }
 
 .cut-scissors-right {
@@ -696,6 +750,47 @@
   font-size: 9px;
   letter-spacing: .1em;
 }
+
+/* Výrazné názvy tří dílů TVL. */
+.tvl-section.voucher .tvl-topline h2 { color: #168a45; }
+.tvl-section.investment .tvl-topline h2 { color: #d62f36; }
+.tvl-section.receipt .tvl-topline h2 { color: #2769b2; }
+
+.copy-topics-panel {
+  width: min(920px, 100%);
+  margin: 0 auto 16px;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, .9fr);
+  gap: 16px 24px;
+  background: #fff;
+  border: 2px solid #173f32;
+  box-shadow: 0 10px 30px #17231f18;
+}
+
+.copy-topics-panel h2 { margin: 0 0 8px; font: 26px Georgia, serif; }
+.copy-topics-panel p:not(.eyebrow) { margin: 0; color: #5b645f; line-height: 1.45; }
+.copy-topic-choices { display: grid; gap: 7px; }
+.copy-topic-choices label {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 9px;
+  border: 1px solid #c9cec8;
+  cursor: pointer;
+}
+.copy-topic-choices input { width: 18px; height: 18px; accent-color: #1e5b46; }
+.copy-topics-panel > button {
+  grid-column: 1 / -1;
+  border: 0;
+  padding: 13px;
+  background: #173f32;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+.copy-feedback { grid-column: 1 / -1; color: #1e5b46; }
 
 @media print {
   .screen-badge { display: none !important; }
@@ -772,4 +867,6 @@
   .account-result-row strong {
     grid-column: 2;
   }
+
+  .copy-topics-panel { grid-template-columns: 1fr; }
 }
