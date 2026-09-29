@@ -60,7 +60,7 @@ ARES je v současnosti pouze interní, zkušební krok navigace správce. Zobraz
 
 Jeden TVL se skládá ze tří propojených dílů:
 
-1. **POUKÁZKA** – jediná část, do které patří adresa, rodné číslo nebo osobní QR kód účastníka;
+1. **POUKÁZKA** – jediná část, do které patří adresa, osobní QR kód účastníka a samostatný řádek pro rodné číslo; ve variantě PP se tento řádek používá pro číslo bankovní transakce;
 2. **INVESTICE** – základ pracovní šablony správce a hlavní místo jeho práce;
 3. **DOKLAD** – kontrolní a účetní část bez osobních údajů.
 
@@ -85,9 +85,13 @@ Potvrzení tedy nevytváří náhled: následuje až po náhledu. Již potvrzen�
 
 POUKÁZKA zachovává větší výšku podle originálního listu. Pod jejími okny zůstává vysvětlující text, upozornění na neplatnost přepisovaného listu a samostatná čárkovaná střihová linka s nůžkami. POUKÁZKA, INVESTICE a DOKLAD se vždy tisknou společně na jedinou A4.
 
+V celém náhledu jsou názvy dílů výrazně barevné: POUKÁZKA zeleně, INVESTICE červeně a DOKLAD modře. Střihové linky jsou zesílené a mají nůžky na obou okrajích podle papírového originálu.
+
 ## Živé a ukončené projekty
 
 PN je živá jeden týden, od pondělí 00:00 do neděle 23:59:59,999. Po potvrzení se PN1 objeví ve sloupci **Živé průzkumy** a je dostupná účastníkům. Po konci týdne má přejít do sloupce **Ukončené průzkumy** a do historie účastníka. Rozhraní obou sloupců existuje, ale automatický časový přesun zatím není implementován a data se neukládají trvale.
+
+Další správce může z potvrzeného průzkumu převzít jeden, dva nebo všechny tři náměty okna C. Kopírují se pouze označené názvy a popisy; jejich vazba na společný součtový výsledek zůstává zachována ve všech použitých TVL.
 
 ## Současné testovací nasazení
 

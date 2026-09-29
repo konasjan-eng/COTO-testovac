@@ -9,7 +9,7 @@
 - **Pracovní komunikace** – zadání autora, zopakování pochopení Lin, související nápověda a modelování procesu patří do pracovního chatu. Veřejná aplikace nesmí obsahovat poznámkový sloupec ani náhražku odpovědi AI.
 - **Popisky správce** – najetí nebo zaměření ukazuje význam volby, její okamžitý přenos do TVL a případné uzamčení; jde o nápovědu uživateli COTO, nikoli o pracovní komunikaci s Lin.
 - **Návrat výsledku** – shodná témata se seskupují a součtový výsledek se vrací správci i do každého vloženého TVL.
-- **Kopie průzkumu** – pokud stejný průzkum převezme další správce, součtový výsledek se načte do všech původních i zkopírovaných listů COTO.
+- **Kopie průzkumu** – další správce může převzít jeden, dva nebo všechny tři náměty okna C; součtový výsledek se načte do všech původních i zkopírovaných listů COTO.
 - **Účet na propagaci** – účastník podle anonymního kódu vidí řádkový výsledek každého tématu ze svého TVL; osobní okno D se na účet nepřenáší.
 - **Tykání** – správce i účastník jsou v celé aplikaci oslovováni přímým kamarádským „ty“.
 - **TVL** – třídílný tisknutelný nosič komunikace, nikoli pouhá výstupní sestava.
@@ -26,4 +26,4 @@
 - **Opravené pořadí A** – časové razítko vzniká při otevření náhledu, tím ukončí editaci; POTVRDIT až následně převede PN1 mezi živé.
 - **Okna B–E** – B anonymizér se 17symbolovým kódem a čtyřmi volitelnými políčky účastníka, C projekty a hodnocení, D adresa, E zachované původní volební názvy a číslicová pole.
 - **Okno C** – tři nečíslovaná dlouhá pole podobná oknu B, každé s jediným čtvercem 1–9.
-- **POUKÁZKA** – větší první díl podle originálu, pod okny vlastní text a čárkovaná střihová linka s nůžkami; s INVESTICÍ a DOKLADEM se tiskne na jednu A4.
+- **POUKÁZKA** – větší první díl podle originálu; okno D má adresu s QR a pod nimi jediný společný řádek pro rodné číslo, ve variantě PP pro číslo bankovní transakce. Pod okny je vlastní text a výrazná čárkovaná střihová linka s nůžkami; s INVESTICÍ a DOKLADEM se tiskne na jednu A4.

@@ -271,6 +271,8 @@ function TvlSection({
     receipt: "DOKLAD",
   };
   const numbers = { voucher: "1.", investment: "2.", receipt: "3." };
+  const personalIdentifierLabel =
+    variant === "PP" ? "Číslo bankovní transakce" : "Rodné číslo";
 
   return (
     <section className={"tvl-section " + kind} aria-label={labels[kind]}>
@@ -386,17 +388,22 @@ function TvlSection({
           {kind === "voucher" && (
             <div className="personal-only window-d">
               <span className="window-letter">D</span>
-              <div className="address-lines">
-                <span>Jméno a příjmení účastníka {personal?.name || "................................"}</span>
-                <span>ulice / část obce {personal?.street || "........................................"}</span>
-                <span>obec / PSČ {personal?.city || "..............................................."}</span>
-                <span>národnost {personal?.nationality || "............................................"}</span>
-                <b>Rodné číslo　{personal?.identity || "□ □ □ □ □ □ / □ □ □ □"}</b>
+              <div className="personal-address">
+                <div className="address-lines">
+                  <span>Jméno a příjmení účastníka {personal?.name || "................................"}</span>
+                  <span>ulice / část obce {personal?.street || "........................................"}</span>
+                  <span>obec / PSČ {personal?.city || "..............................................."}</span>
+                  <span>národnost {personal?.nationality || "............................................"}</span>
+                </div>
+                <div className="qr">
+                  <span>OSOBNÍ</span>
+                  <b>QR</b>
+                  <span>účastníka</span>
+                </div>
               </div>
-              <div className="qr">
-                <span>OSOBNÍ</span>
-                <b>QR</b>
-                <span>účastníka</span>
+              <div className="personal-identifier-row">
+                <b>{personalIdentifierLabel}</b>
+                <span>{personal?.identity || "□ □ □ □ □ □ / □ □ □ □"}</span>
               </div>
             </div>
           )}
@@ -475,6 +482,9 @@ export default function Home() {
   const [receipt, setReceipt] = useState("");
   const [showAccountResults, setShowAccountResults] = useState(false);
   const [copiedSurveyCount, setCopiedSurveyCount] = useState(0);
+  const [copyPanelOpen, setCopyPanelOpen] = useState(false);
+  const [copySelection, setCopySelection] = useState([true, true, true]);
+  const [copyFeedback, setCopyFeedback] = useState("");
   const [activationStamp, setActivationStamp] = useState("");
   const [currentTime, setCurrentTime] = useState("");
   const [currentDate, setCurrentDate] = useState("");
@@ -624,6 +634,24 @@ export default function Home() {
       stamp.toLocaleString("cs-CZ", { fractionalSecondDigits: 3 }),
     );
     setShowAccountResults(true);
+  };
+
+  const copySelectedProjects = () => {
+    const selectedProjects = projects.filter((_, index) => copySelection[index]);
+    if (!selectedProjects.length) {
+      setCopyFeedback("Vyber aspoň jeden nápad, otázku nebo projekt.");
+      return;
+    }
+    const copiedText = selectedProjects
+      .map((project) => project.title + "\n" + project.detail)
+      .join("\n\n");
+    void navigator.clipboard?.writeText(copiedText);
+    setCopiedSurveyCount((count) => count + 1);
+    setCopyFeedback(
+      selectedProjects.length === 1
+        ? "Zkopíroval se jeden vybraný námět a zůstal propojený s výsledkem."
+        : `Zkopírovaly se ${selectedProjects.length} vybrané náměty a zůstaly propojené s výsledkem.`,
+    );
   };
 
   const sharedTvl = {
@@ -895,10 +923,10 @@ export default function Home() {
                     OTEVŘÍT JAKO ÚČASTNÍK
                   </button>
                   <button
-                    onClick={() => setCopiedSurveyCount((count) => count + 1)}
-                    title="Připojí další použití stejného průzkumu k návratu součtových výsledků"
+                    onClick={() => { setCopyPanelOpen(true); setCopyFeedback(""); setEntryStage("readonly"); }}
+                    title="Vybereš jeden, dva nebo všechny tři náměty a zachováš jejich spojení s výsledky"
                   >
-                    ZKOPÍROVAT PRO DALŠÍHO SPRÁVCE
+                    VYBRAT 1–3 TÉMATA PRO DALŠÍHO SPRÁVCE
                   </button>
                   {copiedSurveyCount > 0 && (
                     <small>
@@ -944,20 +972,38 @@ export default function Home() {
         <div className="readonly-toolbar">
           <strong>OBRAZOVKA 08 · CELÝ TVL</strong>
           <button onClick={() => setEntryStage("dashboard")}>ZPĚT NA PŘEHLED</button>
-          <button
-            onClick={() =>
-              navigator.clipboard?.writeText(
-                title + "\n" +
-                projects.map((project) =>
-                  project.title + ": " + project.detail,
-                ).join("\n"),
-              )
-            }
-          >
-            KOPÍROVAT CELÉ OKNO C
+          <button onClick={() => { setCopyPanelOpen((open) => !open); setCopyFeedback(""); }}>
+            VYBRAT TÉMATA KE KOPÍROVÁNÍ
           </button>
           <button onClick={() => window.print()}>TISKNOUT CELÝ TVL</button>
         </div>
+        {copyPanelOpen && (
+          <section className="copy-topics-panel" aria-label="Výběr témat pro dalšího správce">
+            <div>
+              <p className="eyebrow">KOPÍROVÁNÍ OKNA C</p>
+              <h2>Vyber jeden nebo více vhodných námětů</h2>
+              <p>Další správce převezme jen označené názvy a popisy. Jejich výsledky zůstanou propojené s použitými TVL.</p>
+            </div>
+            <div className="copy-topic-choices">
+              {projects.map((project, index) => (
+                <label key={project.title + index}>
+                  <input
+                    type="checkbox"
+                    checked={copySelection[index]}
+                    onChange={(event) => {
+                      const checked = event.target.checked;
+                      setCopySelection((current) => current.map((value, itemIndex) => itemIndex === index ? checked : value));
+                      setCopyFeedback("");
+                    }}
+                  />
+                  <span>{project.title || "Nevyplněný námět"}</span>
+                </label>
+              ))}
+            </div>
+            <button type="button" onClick={copySelectedProjects}>ZKOPÍROVAT VYBRANÉ PRO DALŠÍHO SPRÁVCE</button>
+            {copyFeedback && <strong className="copy-feedback" role="status">{copyFeedback}</strong>}
+          </section>
+        )}
         <div className="tvl-paper original-a4">
           <TvlSection kind="voucher" {...sharedTvl} participantScores={receipt ? scores : undefined} onInspect={setSelected} />
           <CutLine label="oddělit POUKÁZKU" />
