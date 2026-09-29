@@ -57,6 +57,46 @@ const emptyPersonal: PersonalData = {
   identity: "",
 };
 
+const PURPOSE_STORAGE_KEY = "coto-purpose-text-2026-09-29";
+
+const defaultPurposeText = `Cílem PRŮZKUMU NÁZORŮ aplikací COTO – v internetové i tištěné verzi je obnovení důvěry v hodnotu hlasu voliče.
+
+Aplikace COTO (Co/dáš a To/máš) mění formu průzkumů a zavedených volebních nástrojů na průkazný, anonymně kontrolovatelný proces – každým účastníkem průzkumu (!!!).
+
+Třídílný Volební List (TVL ….řeší vše……..tvl!!!) umožňuje jednoduchou komunikaci užitím čtyř variant aplikace COTO, každá zpracovává hlavní potřeby řešení a řízení společných i společenských témat. Shodný kód na trojici šablon + „časové razítko“ usnadňují vyhledávání svých TVL v množině správců a průzkumů, které můžeme podpořit svým hodnocením… aplikací v mobilu.
+
+Dobré průzkumy sdílením a kopírováním dobrých návrhů, projektů… posilují množinu lidí a obcí se stejnou problematikou… a donutí vládu problém řešit „zdola“, od nápadů jednotlivců.`;
+
+const purposeHighlights = [
+  ["PRŮZKUMU NÁZORŮ aplikací COTO", "purpose-red"],
+  ["průkazný, anonymně kontrolovatelný proces", "purpose-green"],
+  ["každým účastníkem průzkumu (!!!)", "purpose-red"],
+  ["obnovení důvěry", "purpose-blue"],
+  ["v hodnotu hlasu voliče", "purpose-blue"],
+  ["Třídílný Volební List", "purpose-red"],
+  ["Co/dáš a To/máš", "purpose-green"],
+  ["Shodný kód", "purpose-blue"],
+  ["časové razítko", "purpose-blue"],
+  ["Dobré průzkumy", "purpose-green"],
+  ["zdola", "purpose-red"],
+] as const;
+
+function renderPurposeText(text: string) {
+  const escaped = purposeHighlights
+    .map(([phrase]) => phrase)
+    .sort((a, b) => b.length - a.length)
+    .map((phrase) => phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const matcher = new RegExp(`(${escaped.join("|")})`, "gi");
+
+  return text.split(matcher).map((part, index) => {
+    const highlighted = purposeHighlights.find(
+      ([phrase]) => phrase.toLocaleLowerCase("cs-CZ") === part.toLocaleLowerCase("cs-CZ"),
+    );
+    if (!highlighted) return part;
+    return <strong className={highlighted[1]} key={part + index}>{part}</strong>;
+  });
+}
+
 function toIsoDate(date: Date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -443,6 +483,7 @@ export default function Home() {
   const [managerHint, setManagerHint] = useState(
     "Přejeď kurzorem přes volbu. Tady se ukáže její význam a místo přenosu do TVL.",
   );
+  const [purposeText, setPurposeText] = useState(defaultPurposeText);
 
   useEffect(() => {
     const showTime = () => {
@@ -461,6 +502,23 @@ export default function Home() {
     const timer = window.setInterval(showTime, 83);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    const savedPurpose = window.localStorage.getItem(PURPOSE_STORAGE_KEY);
+    if (!savedPurpose) return;
+    const restoreSavedPurpose = window.setTimeout(() => setPurposeText(savedPurpose), 0);
+    return () => window.clearTimeout(restoreSavedPurpose);
+  }, []);
+
+  const updatePurposeText = (nextText: string) => {
+    setPurposeText(nextText);
+    window.localStorage.setItem(PURPOSE_STORAGE_KEY, nextText);
+  };
+
+  const restorePurposeText = () => {
+    setPurposeText(defaultPurposeText);
+    window.localStorage.setItem(PURPOSE_STORAGE_KEY, defaultPurposeText);
+  };
 
   const chosenVariant = variantOptions.find((option) => option.code === variant) || variantOptions[0];
   const previewVariant = variantOptions.find((option) => option.code === hoveredVariant) || variantOptions[0];
@@ -631,50 +689,27 @@ export default function Home() {
           </button>
           <p className="eyebrow">PROJEKT COTO · OBRAZOVKA 03</p>
           <h1>Cíl a filosofie internetové aplikace COTO</h1>
-          <div className="purpose-copy">
-            <p>
-              Aplikace <strong className="purpose-blue">Co/dáš</strong> a{" "}
-              <strong className="purpose-green">To/máš</strong> (COTO) mění
-              zavedený volební systém na <mark>průběžný a obousměrný
-              kontrolovatelný proces</mark> každým účastníkem průzkumu.
-            </p>
-            <p>
-              Cílem internetové verze aplikace COTO je{" "}
-              <strong className="purpose-blue">obnovení důvěry v hodnotu Hlasu
-              voliče</strong> prostřednictvím virtuální – ověřené finanční
-              hodnoty <mark>1–3 Kč za informaci</mark>, potřebnou pro správce.
-            </p>
-            <p>
-              Správcem aplikace může být osoba nebo instituce s{" "}
-              <strong className="purpose-green">IČO zapsaným v systému ARES</strong>{" "}
-              (obec, firma nebo spolek).
-            </p>
-            <p>
-              Virtuální – internetovou finanční hodnotu „Hlasu voliče“ lze změnit
-              na <mark>reálnou finanční transakci</mark> mezi správcem a účastníkem.
-              Vytištěním vyplněných tiskopisů se hodnota informace mění na{" "}
-              <strong className="purpose-blue">účetní doklad s identitou správce</strong>.
-            </p>
-            <p>
-              Nástrojem pro průzkum názorů je{" "}
-              <strong className="purpose-red">Třídílný volební list (TVL)</strong>.
-              Tři téměř shodné šablony se liší názvem –{" "}
-              <strong className="purpose-blue">POUKÁZKA</strong>,{" "}
-              <strong className="purpose-green">INVESTICE</strong> a{" "}
-              <strong>DOKLAD</strong> – a adresou účastníka na prvním dílu TVL,
-              pro případ inkasa za pasivní účast.
-            </p>
-            <p className="purpose-added">
-              <b>TVL je Třídílný Volební List:</b> tři šablony propojené shodným
-              kódem a časovým razítkem. Tyto dva prvky anonymní kontroly jsou pro
-              aplikaci klíčové; u dvou posledních variant použití systému je
-              doplňují další tři kontrolní prvky.
-            </p>
-            <p>
-              Účastník si první díl listu TVL ponechá. Verifikační kód na trojici
-              šablon mu dovolí najít hodnotu Hlasu na zveřejněném účtu obce,
-              spolku nebo firmy.
-            </p>
+          <div className="purpose-workspace">
+            <div className="purpose-copy" aria-label="Výsledný text cíle a filosofie">
+              {purposeText.split(/\n\s*\n/).map((paragraph, index) => (
+                <p className={index === 2 ? "purpose-added" : undefined} key={index}>
+                  {renderPurposeText(paragraph)}
+                </p>
+              ))}
+            </div>
+            <aside className="purpose-editor" aria-label="Úprava textu cíle a filosofie">
+              <label htmlFor="purpose-text-editor">UPRAV TEXT</label>
+              <p>Přepiš slovo nebo větu. Změna se ihned ukáže vlevo a zůstane uložená v tomto Chrome.</p>
+              <textarea
+                id="purpose-text-editor"
+                value={purposeText}
+                onChange={(event) => updatePurposeText(event.target.value)}
+                spellCheck="true"
+              />
+              <button type="button" className="muted" onClick={restorePurposeText}>
+                VRÁTIT TEXT Z 29. 9. 2026
+              </button>
+            </aside>
           </div>
           <div className="purpose-actions">
             <span>Dokument Projekt COTO</span>
