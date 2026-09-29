@@ -91,8 +91,10 @@ test("originální logo a obrazovka cíle se nesmí znovu nahradit maketou", asy
   assert.ok(logo.byteLength > 1_000_000, "chybí dodané originální logo");
   assert.match(page, /coto-logo-original\.png/);
   assert.doesNotMatch(page, /coto-logo-video\.svg/);
-  for (const text of ["Cíl a filosofie internetové aplikace COTO", "průběžný a obousměrný", "TVL je Třídílný Volební List"]) assert.match(page, new RegExp(text));
-  assert.match(page, /shodným\s+kódem a časovým razítkem/);
+  for (const text of ["Cíl a filosofie internetové aplikace COTO", "obnovení důvěry", "průkazný, anonymně kontrolovatelný proces", "Třídílný Volební List"]) assert.match(page, new RegExp(text));
+  assert.match(page, /Shodný kód na trojici šablon/);
+  assert.match(page, /purpose-text-editor/);
+  assert.match(page, /localStorage\.setItem\(PURPOSE_STORAGE_KEY/);
 });
 
 test("okno C má tři nečíslovaná dlouhá pole a jedno hodnocení", async () => {
@@ -127,7 +129,6 @@ test("všechny opravované obrazovky mají nenápadné číslo", async () => {
 test("pracovní komunikace s Lin není vložena do veřejné aplikace", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   for (const text of ["OPRAVA K OBRAZOVCE", "coto-oprava-obrazovka-", "KOPÍROVAT TUTO", "KOPÍROVAT VŠE"]) assert.doesNotMatch(page, new RegExp(text));
-  assert.doesNotMatch(page, /window\.localStorage\.setItem/);
 });
 
 test("správce dostává popisky při pohybu kurzoru", async () => {

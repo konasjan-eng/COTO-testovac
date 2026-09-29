@@ -1,5 +1,11 @@
 # Vývojový deník COTO
 
+## 29. září 2026 – přepisovatelný Cíl a filosofie
+
+- Obrazovka 03 obsahuje nové znění dodané autorem projektu, s barevným zvýrazněním hlavních myšlenek.
+- Vedle výsledného textu je přímé editační pole. Přepis se okamžitě ukazuje v náhledu a ukládá se v použitém Chrome.
+- Tlačítko „VRÁTIT TEXT Z 29. 9. 2026“ obnoví dnešní výchozí znění.
+
 ## 28. září 2026 – originální ikona, tykání a kontrola výsledků
 
 - Stará oříznutá ikona byla přesně nahrazena znovu dodaným originálem 1254 × 1254 bez spodních nápisů.
