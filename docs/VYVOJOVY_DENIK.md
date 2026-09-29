@@ -5,6 +5,10 @@
 - Obrazovka 03 obsahuje nové znění dodané autorem projektu, s barevným zvýrazněním hlavních myšlenek.
 - Vedle výsledného textu je přímé editační pole. Přepis se okamžitě ukazuje v náhledu a ukládá se v použitém Chrome.
 - Tlačítko „VRÁTIT TEXT Z 29. 9. 2026“ obnoví dnešní výchozí znění.
+- V okně C zůstává jediné hodnocení účastníka vždy na konci stejného řádku jako název tématu.
+- Další správce si před kopírováním označí jeden, dva nebo všechny tři náměty.
+- Okno D bylo srovnáno s originálem: adresa a QR jsou nahoře, jediný identifikační řádek vede přes celou šířku dole; u PP nese číslo bankovní transakce.
+- Obnoveny výrazné barvy názvů dílů a zesílena střihová čára s nůžkami na obou krajích.
 
 ## 28. září 2026 – originální ikona, tykání a kontrola výsledků
 
