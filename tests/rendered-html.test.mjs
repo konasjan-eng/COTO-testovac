@@ -75,7 +75,7 @@ test("volba role vysvětluje účel COTO i podmínky správce", async () => {
 test("účastník vidí řádkové výsledky účtu na propagaci", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   const css = await readFile(new URL("../app/revision-2026-09-24.css", import.meta.url), "utf8");
-  for (const text of ["Řádkové výsledky účtu na propagaci", "KONTROLA ÚČASTNÍKA", "Tvoje body", "ZKONTROLOVAT ŘÁDKY ÚČTU NA PROPAGACI", "ZKOPÍROVAT PRO DALŠÍHO SPRÁVCE"]) assert.match(page, new RegExp(text));
+  for (const text of ["Řádkové výsledky účtu na propagaci", "KONTROLA ÚČASTNÍKA", "Tvoje body", "ZKONTROLOVAT ŘÁDKY ÚČTU NA PROPAGACI", "VYBRAT 1–3 TÉMATA PRO DALŠÍHO SPRÁVCE"]) assert.match(page, new RegExp(text));
   assert.match(css, /\.account-result-row/);
 });
 
@@ -108,6 +108,7 @@ test("okno C má tři nečíslovaná dlouhá pole a jedno hodnocení", async () 
   assert.match(css, /grid-template-columns: minmax\(0, 1fr\) 38px/);
   assert.match(css, /\.survey-box \.window-c \{[\s\S]*?gap: 4px/);
   assert.match(css, /border-bottom: 1px solid #555 !important/);
+  assert.match(css, /display: grid !important;[\s\S]*?grid-template-columns: minmax\(0, 1fr\) 38px/);
 });
 
 test("poukázka obsahuje okno D, text a střihovou linku v pevné A4", async () => {
@@ -117,6 +118,21 @@ test("poukázka obsahuje okno D, text a střihovou linku v pevné A4", async () 
   assert.match(page, /<CutLine label="oddělit POUKÁZKU"/);
   assert.match(page, /cut-scissors/);
   assert.match(css, /grid-template-rows: 55% 43%/);
+  assert.match(page, /className="personal-identifier-row"/);
+  assert.match(page, /Číslo bankovní transakce/);
+  assert.match(css, /border-top: 2px dashed #353a37/);
+  assert.match(css, /\.tvl-section\.voucher \.tvl-topline h2 \{ color: #168a45; \}/);
+  assert.match(css, /\.tvl-section\.investment \.tvl-topline h2 \{ color: #d62f36; \}/);
+  assert.match(css, /\.tvl-section\.receipt \.tvl-topline h2 \{ color: #2769b2; \}/);
+});
+
+test("další správce může zkopírovat jeden nebo více vybraných námětů", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /VYBRAT 1–3 TÉMATA PRO DALŠÍHO SPRÁVCE/);
+  assert.match(page, /copySelection/);
+  assert.match(page, /type="checkbox"/);
+  assert.match(page, /ZKOPÍROVAT VYBRANÉ PRO DALŠÍHO SPRÁVCE/);
+  assert.match(page, /projects\.filter\(\(_, index\) => copySelection\[index\]\)/);
 });
 
 test("všechny opravované obrazovky mají nenápadné číslo", async () => {
