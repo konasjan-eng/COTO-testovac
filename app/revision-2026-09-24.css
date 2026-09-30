@@ -368,6 +368,95 @@
   max-width: 980px !important;
 }
 
+.live-workbench {
+  padding-top: 18px !important;
+  border-top: 3px solid var(--video-gold) !important;
+  border-radius: 18px !important;
+}
+
+.screen7-logo {
+  display: block;
+  width: 112px;
+  height: 112px;
+  margin: 0 auto 15px;
+  object-fit: contain;
+  background: white;
+}
+
+.screen7-guide {
+  margin: 12px 0 14px;
+  padding: 10px 12px;
+  border: 1px solid #cbc6b9;
+  border-left: 4px solid var(--video-navy);
+  background: white;
+  color: #37413c;
+  font: 12px/1.45 Georgia, serif;
+  white-space: pre-line;
+}
+
+.timestamp-help,
+.printed-identity-screen-help {
+  margin: 12px 0 0;
+  padding: 9px 12px;
+  border: 1px solid #c8c4b8;
+  background: white;
+  color: #37413c;
+}
+
+.timestamp-help {
+  display: grid;
+  grid-template-columns: 145px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.timestamp-help strong {
+  color: var(--video-navy);
+  font-size: 15px;
+  letter-spacing: .06em;
+}
+
+.timestamp-help p,
+.printed-identity-screen-help {
+  font: 11px/1.4 Georgia, serif;
+}
+
+.timestamp-help p { margin: 0; }
+
+.role-organiser-list {
+  display: grid;
+  gap: 7px;
+  margin-top: 12px;
+  padding: 11px;
+  border: 1px solid #c8c4b8;
+  background: #fff;
+  text-align: left;
+}
+
+.role-organiser-list > strong {
+  color: var(--video-navy);
+  font-size: 10px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.role-organiser-list > button {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid #aeb9b3;
+  background: #f6faf7;
+  color: #26332c;
+  cursor: pointer;
+  text-align: left;
+}
+
+.role-organiser-list > button small { color: #627069; }
+.role-organiser-list > button em { color: #25834f; font-size: 20px; font-style: normal; }
+
 .live-selector-row {
   grid-template-columns: 1.05fr .8fr 1.25fr !important;
   gap: 10px !important;
@@ -406,41 +495,16 @@
   grid-template-columns: 48px 1fr;
 }
 
-.manager-hover-caption {
-  min-height: 58px;
-  display: grid;
-  grid-template-columns: 142px minmax(0, 1fr);
-  align-items: center;
-  gap: 10px;
-  margin: 11px 0 7px;
-  padding: 10px 12px;
-  border: 1px solid #d7b34e;
-  border-left: 5px solid var(--video-gold);
-  border-radius: 5px;
-  background: #fff8dc;
-  color: #39413d;
-  font: 12px/1.4 Georgia, serif;
-}
-
-.manager-hover-caption b {
-  color: var(--video-navy);
-  font: 9px/1.3 Arial, sans-serif;
-  letter-spacing: .09em;
-}
-
 /* Okno C – tři dlouhá okna jako B a jediné čtvercové hodnocení 1–9. */
 .identifier-label {
-  grid-template-columns: minmax(0, 1fr) 112px !important;
+  display: block !important;
+  margin-bottom: 4px;
+  font-weight: 800;
+  text-align: left;
 }
 
 .identifier.window-b {
-  grid-template-columns: minmax(0, 1fr) repeat(4, 25px) !important;
-}
-
-.identifier.window-b .identifier-main {
-  min-width: 0;
-  border-left: 0;
-  justify-content: flex-start;
+  grid-template-columns: repeat(21, minmax(0, 1fr)) !important;
 }
 
 .identifier.window-b .identifier-symbol {
@@ -451,8 +515,16 @@
   font: 800 10px Arial, sans-serif;
 }
 
+.identifier.window-b .identifier-symbol:first-child {
+  border-left: 0;
+}
+
+.identifier.window-b .identifier-symbol:nth-last-child(-n+4) {
+  background: #fffaf0;
+}
+
 .project-columns {
-  grid-template-columns: minmax(0, 1fr) 38px !important;
+  grid-template-columns: minmax(0, 1fr) 62px !important;
   margin-left: 0 !important;
 }
 
@@ -463,7 +535,7 @@
 
 .survey-box .project-row {
   display: grid !important;
-  grid-template-columns: minmax(0, 1fr) 38px !important;
+  grid-template-columns: minmax(0, 1fr) 62px !important;
   gap: 0 !important;
   min-height: 31px;
   padding: 0 !important;
@@ -504,7 +576,7 @@
 }
 
 .survey-box .project-row .participant-score {
-  width: 38px !important;
+  width: 62px !important;
   height: 31px !important;
   display: grid !important;
   place-items: center;
@@ -515,6 +587,78 @@
   background: white !important;
   font: 800 10px Arial, sans-serif !important;
   align-self: stretch;
+}
+
+.project-columns b {
+  overflow-wrap: anywhere;
+  font-size: 6.5px;
+  line-height: 1.05;
+}
+
+.survey-box .project-row.unused-project .project-field,
+.survey-box .project-row.unused-project .participant-score {
+  background: #f2f1ed !important;
+  color: #7e817f !important;
+}
+
+.running-date-time {
+  display: grid;
+  gap: 2px;
+}
+
+.running-date-time p {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 7px;
+  margin: 0;
+}
+
+.running-date-time strong { text-align: right; }
+
+.timestamp-box {
+  display: grid;
+  gap: 2px;
+  align-content: center;
+}
+
+.timestamp-heading {
+  color: var(--video-navy);
+  font-size: 11px;
+  letter-spacing: .08em;
+}
+
+.timestamp-box small {
+  font-size: 5.8px;
+  line-height: 1.15;
+}
+
+.timestamp-box b { font-size: 7px; }
+
+.printed-identity-help {
+  margin: 5px 0 0;
+  padding-top: 4px;
+  border-top: 1px solid #bfc5c1;
+  color: #42534a;
+  font-size: 7px;
+  line-height: 1.25;
+}
+
+.unused-project-toggle {
+  display: grid !important;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #c8c4b8;
+  background: white;
+}
+
+.unused-project-toggle input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: #25834f;
 }
 
 /* Okno D podle originálu: adresa s QR a pod nimi jediný řádek přes celou šířku. */
@@ -557,15 +701,15 @@
 }
 
 .original-a4 .project-columns {
-  grid-template-columns: minmax(0, 1fr) 29px !important;
+  grid-template-columns: minmax(0, 1fr) 46px !important;
 }
 
 .original-a4 .identifier-label {
-  grid-template-columns: minmax(0, 1fr) 76px !important;
+  font-size: 6px;
 }
 
 .original-a4 .identifier.window-b {
-  grid-template-columns: minmax(0, 1fr) repeat(4, 19px) !important;
+  grid-template-columns: repeat(21, minmax(0, 1fr)) !important;
 }
 
 .original-a4 .survey-box .window-c {
@@ -573,7 +717,7 @@
 }
 
 .original-a4 .survey-box .project-row {
-  grid-template-columns: minmax(0, 1fr) 29px !important;
+  grid-template-columns: minmax(0, 1fr) 46px !important;
   min-height: 23px;
 }
 
@@ -603,9 +747,14 @@
 }
 
 .original-a4 .survey-box .project-row .participant-score {
-  width: 29px !important;
+  width: 46px !important;
   font-size: 8px !important;
 }
+
+.original-a4 .project-columns b { font-size: 5px; }
+.original-a4 .timestamp-heading { font-size: 7px; }
+.original-a4 .timestamp-box small { font-size: 4px; }
+.original-a4 .timestamp-box b { font-size: 5px; }
 
 .participant-symbol-form {
   margin: 0 0 20px;

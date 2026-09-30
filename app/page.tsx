@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, type CSSProperties, type KeyboardEvent } from "react";
 
-type Project = { title: string; detail: string; value: number };
+type Project = { title: string; detail: string; unused: boolean };
 type SectionKind = "voucher" | "investment" | "receipt";
 type EntryStage =
   | "icon"
@@ -51,9 +51,9 @@ const screenSteps = [
 ];
 
 const initialProjects: Project[] = [
-  { title: "", detail: "", value: 1 },
-  { title: "", detail: "", value: 2 },
-  { title: "", detail: "", value: 3 },
+  { title: "", detail: "", unused: false },
+  { title: "", detail: "", unused: false },
+  { title: "", detail: "", unused: false },
 ];
 
 const emptyPersonal: PersonalData = {
@@ -76,10 +76,10 @@ const defaultScreenCopy: Record<number, string> = {
   4: "COTO vrací výsledky do nejmenších správních a společenských celků, kde téma vzniklo.",
   5: "Zadej IČO a samostatný účet na propagaci.",
   6: "Najetím kurzorem nebo prvním dotykem zobrazíš popis varianty. Kliknutím nebo druhým dotykem ji vybereš.",
-  7: "Vyber kód, hodnotu a týden. Potom vyplň tři řádky okna C.",
+  7: "Vyber kód, prioritu správce a týden. Potom vyplň jeden až tři návrhy; nepoužité řádky označ křížkem.",
   8: "Zkontroluj celý třídílný TVL na jedné A4. Rozměry můžeš doladit vpravo.",
   9: "Do řádku každého TVL se vrací pouze statistický součet.",
-  10: "Vyber správce, ohodnoť tři návrhy 1–9 body a odešli svůj TVL.",
+  10: "Vyber správce, ohodnoť každý použitý návrh 1–9 body a odešli svůj TVL.",
 };
 
 const defaultVoucherHelp =
@@ -98,6 +98,10 @@ type EditableCopy = {
   variantVL: string;
   variantPP: string;
   variantVT: string;
+  managerListLabel: string;
+  screen7Guide: string;
+  timestampPurpose: string;
+  printedIdentityHelp: string;
 };
 
 const defaultEditableCopy: EditableCopy = {
@@ -113,6 +117,10 @@ const defaultEditableCopy: EditableCopy = {
   variantVL: "Vyber lepší: porovnání dvou nebo více možností.",
   variantPP: "Podpora projektu: podpora konkrétního projektu.",
   variantVT: "Volební tombola: výběr lidí spojených s řešením.",
+  managerListLabel: "Seznam správců pro účastníka",
+  screen7Guide: "1. Vyber kód, prioritu celého průzkumu 1–3 body a týden živého hodnocení.\n2. Vyplň jeden až tři návrhy potřeb nebo řešení otázek.\n3. Nepoužité řádky označ křížkem.",
+  timestampPurpose: "Zamkne editaci a uloží průzkum do seznamů s výsledky v prostředí účtu na propagaci. Pomáhá také rychleji vyhledat aktivity účastníků.",
+  printedIdentityHelp: "U variant VL a VT vyplňují účastníci tištěné listy osobně po ztotožnění. První díl si ponechají, druhé dva vhodí do urny.",
 };
 
 type TvlLayout = {
@@ -309,6 +317,7 @@ function LiveScreenEditor({
       ["managerChoice", "Text v poli SPRÁVCE"],
       ["participantChoice", "Text v poli ÚČASTNÍK"],
       ["participantHelp", "Žlutá nápověda účastníka"],
+      ["managerListLabel", "Nadpis seznamu správců"],
     ],
     5: [
       ["aresHeading", "Společný nadpis obrazovky"],
@@ -321,6 +330,11 @@ function LiveScreenEditor({
       ["variantVL", "Žlutá nápověda VL"],
       ["variantPP", "Žlutá nápověda PP"],
       ["variantVT", "Žlutá nápověda VT"],
+    ],
+    7: [
+      ["screen7Guide", "Postup práce v obrazovce 07"],
+      ["timestampPurpose", "Úloha časového razítka"],
+      ["printedIdentityHelp", "Tištěné varianty VL a VT"],
     ],
   };
   const confirmWithEnter = (event: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -425,7 +439,10 @@ function TvlSection({
   activationStamp,
   currentDate,
   currentTime,
+  timestampPurpose,
+  printedIdentityHelp,
   voucherHelp,
+  showWindowGuides = false,
   showControls,
   onBack,
   onFinish,
@@ -447,7 +464,10 @@ function TvlSection({
   activationStamp?: string;
   currentDate: string;
   currentTime: string;
+  timestampPurpose: string;
+  printedIdentityHelp: string;
   voucherHelp?: string;
+  showWindowGuides?: boolean;
   showControls?: boolean;
   onBack?: () => void;
   onFinish?: () => void;
@@ -471,8 +491,8 @@ function TvlSection({
         </span>
         <h2><em>{numbers[kind]}</em> {labels[kind]}</h2>
         <span>
-          <b>Hodnota z účtu<br />správce</b>
-          <i>{surveyValue} Kč</i>
+          <b>Priorita průzkumu<br />správcem</b>
+          <i>{surveyValue} {surveyValue === 1 ? "bod" : "body"}</i>
         </span>
         <span className="validity">
           <b>Týden platnosti<br />tohoto listu</b>
@@ -484,7 +504,7 @@ function TvlSection({
       <div className="tvl-columns">
         <div className="tvl-left">
           <div className="choice-box window-e">
-            <span className="window-letter">E</span>
+            {showWindowGuides && <span className="window-letter">E</span>}
             <div>
               <span>Číslo volené strany</span>
               {["", ""].map((value, index) => <b key={index}>{value}</b>)}
@@ -496,11 +516,12 @@ function TvlSection({
           </div>
 
           <div className="identifier-label">
-            <span><mark>B</mark> Identifikátor TVL · 17 symbolů</span>
-            <span>4 volitelné symboly účastníka</span>
+            <span>{showWindowGuides && <mark>B</mark>}Volitelný kód účastníka</span>
           </div>
           <div className="identifier window-b">
-            <code className="identifier-main">{code.slice(0, 17)}</code>
+            {code.slice(0, 17).split("").map((symbol, index) => (
+              <span className="identifier-symbol identifier-generated" key={`generated-${index}`}>{symbol}</span>
+            ))}
             {Array.from({ length: 4 }, (_, index) => (
               <span className="identifier-symbol" key={index}>
                 {participantSymbols?.[index] || ""}
@@ -510,20 +531,19 @@ function TvlSection({
 
           <div className="admin-box window-a">
             <div className="stamp">
-              <span><mark>A</mark> Ověřený správce z ARES</span>
+              <span>{showWindowGuides && <mark>A</mark>}Ověřený správce z ARES</span>
               <i>{organiser.match(/\d{8}/)?.[0] || "IČO"}</i>
               <small>{organiser}</small>
               {managerLogo && <img className="manager-logo-in-window-a" src={managerLogo} alt="Logo ověřeného správce" />}
             </div>
             <div className="activation">
-              <div>
-                <span>Datum</span>
-                <strong>{currentDate}</strong>
-                <span>Běžící čas</span>
-                <strong>{currentTime}</strong>
+              <div className="running-date-time">
+                <p><span>Datum</span><strong>{currentDate}</strong></p>
+                <p><span>Běžící čas</span><strong>{currentTime}</strong></p>
               </div>
-              <div>
-                <span>Časové razítko ukončí a zamkne editaci</span>
+              <div className="timestamp-box">
+                <strong className="timestamp-heading">ČASOVÉ RAZÍTKO</strong>
+                <small>{timestampPurpose}</small>
                 <b>{activationStamp || "zatím nevytvořeno"}</b>
               </div>
             </div>
@@ -540,26 +560,25 @@ function TvlSection({
           <div className="survey-box">
             <h3>{title}</h3>
             <div className="project-list window-c">
-              <span className="window-letter">C</span>
+              {showWindowGuides && <span className="window-letter">C</span>}
               <div className="project-columns">
                 <span>Návrh, otázka nebo projekt</span>
-                <b>1–9</b>
+                <b>Hodnocení účastníkem 1–9</b>
               </div>
               {projects.map((project, index) => (
                 <button
                   key={index}
-                  className="project-row"
+                  className={"project-row " + (project.unused ? "unused-project" : "")}
                   onClick={() => onInspect(index)}
                   title={showControls
-                    ? "Správce: kliknutím otevři nadpis, popis a hodnotu tématu"
+                    ? "Správce: kliknutím otevři nadpis a popis tématu"
                     : "Kliknutím otevři celý popis"}
                   aria-label="Otevřít téma v okně C"
                 >
                   <span className="project-field">
                     <strong>
-                      {project.title || "Klikni a zapiš projekt nebo otázku"}
+                      {project.unused ? "× NEPOUŽITO" : project.title || "Klikni a zapiš projekt nebo otázku"}
                     </strong>
-                    <small>hodnota správce {project.value} Kč</small>
                   </span>
                   <span
                     className={
@@ -567,7 +586,7 @@ function TvlSection({
                       (participantScores?.[index] ? "returned" : "")
                     }
                   >
-                    {participantScores?.[index] || ""}
+                    {project.unused ? "×" : participantScores?.[index] || ""}
                   </span>
                 </button>
               ))}
@@ -576,7 +595,7 @@ function TvlSection({
 
           {kind === "voucher" && (
             <div className="personal-only window-d">
-              <span className="window-letter">D</span>
+              {showWindowGuides && <span className="window-letter">D</span>}
               <div className="personal-address">
                 <div className="address-lines">
                   <span>Jméno a příjmení účastníka {personal?.name || "................................"}</span>
@@ -601,10 +620,11 @@ function TvlSection({
             <div className="section-explanation">
               <b>Kvalita účastníka je zdrojem i cílem správce.</b>
               <ol>
-                <li>Správce vloží nejvýše tři projekty a každému určí prioritu 1–3 Kč.</li>
+                <li>Správce vloží jeden až tři návrhy a celému průzkumu určí prioritu 1–3 body.</li>
                 <li>Účastník každý projekt samostatně posílí hodnocením 1–9 bodů.</li>
                 <li>Potvrzená akce přejde mezi živé a po týdnu do výsledků.</li>
               </ol>
+              {(variant === "VL" || variant === "VT") && <p className="printed-identity-help">{printedIdentityHelp}</p>}
             </div>
           )}
 
@@ -680,9 +700,6 @@ export default function Home() {
   const [currentDate, setCurrentDate] = useState("");
   const [printCount] = useState(1);
   const [formError, setFormError] = useState("");
-  const [managerHint, setManagerHint] = useState(
-    "Přejeď kurzorem přes volbu. Tady se ukáže její význam a místo přenosu do TVL.",
-  );
   const [purposeText, setPurposeText] = useState(defaultPurposeText);
   const [screenCopy, setScreenCopy] = useState<Record<number, string>>(defaultScreenCopy);
   const [editableCopy, setEditableCopy] = useState<EditableCopy>(defaultEditableCopy);
@@ -849,14 +866,17 @@ export default function Home() {
   };
 
   const openStampedPreview = () => {
+    const activeProjects = projects.filter((project) => !project.unused);
     const missingProjects = projects
       .map((project, index) =>
-        project.title.trim() && project.detail.trim() ? "" : String(index),
+        project.unused || (project.title.trim() && project.detail.trim()) ? "" : String(index + 1),
       )
       .filter(Boolean);
-    if (!start || missingProjects.length) {
+    if (!start || !activeProjects.length || missingProjects.length) {
       setFormError(
-        "Doplň týden a nadpis i stručný popis všech tří témat v okně C.",
+        !activeProjects.length
+          ? "Vyplň aspoň jeden návrh. Nepoužité řádky označ křížkem."
+          : `Doplň týden a název i stručný popis aktivních návrhů${missingProjects.length ? `; zkontroluj řádek ${missingProjects.join(", ")}` : ""}.`,
       );
       return;
     }
@@ -888,13 +908,16 @@ export default function Home() {
   const confirm = () => {
     setPreview(false);
     setLocked(true);
-    setLive([{ title, period: validity.period, code, variant }]);
+    setLive((current) => [
+      ...current.filter((item) => item.code !== code),
+      { title, period: validity.period, code, variant },
+    ]);
     setEntryStage("dashboard");
   };
 
   const sendOpinion = () => {
-    if (scores.some((score) => score < 1 || score > 9)) {
-      window.alert("Přiděl všem třem projektům hodnocení od 1 do 9 bodů.");
+    if (projects.some((project, index) => !project.unused && (scores[index] < 1 || scores[index] > 9))) {
+      window.alert("Přiděl každému použitému návrhu hodnocení od 1 do 9 bodů.");
       return;
     }
     const stamp = new Date();
@@ -906,7 +929,7 @@ export default function Home() {
   };
 
   const copySelectedProjects = () => {
-    const selectedProjects = projects.filter((_, index) => copySelection[index]);
+    const selectedProjects = projects.filter((project, index) => copySelection[index] && !project.unused);
     if (!selectedProjects.length) {
       setCopyFeedback("Vyber aspoň jeden nápad, otázku nebo projekt.");
       return;
@@ -938,6 +961,8 @@ export default function Home() {
     activationStamp,
     currentDate,
     currentTime,
+    timestampPurpose: editableCopy.timestampPurpose,
+    printedIdentityHelp: editableCopy.printedIdentityHelp,
     voucherHelp,
   };
 
@@ -1043,6 +1068,14 @@ export default function Home() {
             Jako správce vytváříš a potvrzuješ průzkum. Jako účastník si vybereš
             správce, otevřeš jeho živou aktivitu a posílíš témata svým TVL.
           </p>
+          <section className="role-organiser-list" aria-label={editableCopy.managerListLabel}>
+            <strong aria-live="polite">{editableCopy.managerListLabel}</strong>
+            <button onClick={() => { setRole("participant"); setEntryStage("app"); }}>
+              <span>{organiser}</span>
+              <small>{live.length ? `${live.length} živá aktivita` : "zatím bez živé aktivity"}</small>
+              <em>→</em>
+            </button>
+          </section>
           <button className="muted" onClick={() => setEntryStage("purpose")}>ZPĚT</button>
         </section>
       </main>
@@ -1212,6 +1245,7 @@ export default function Home() {
                 <div>
                   <b>{item.title}</b>
                   <small>{item.period}</small>
+                  <small>Pořadí použité varianty: {item.variant}1</small>
                   <button onClick={() => setEntryStage("readonly")}>OTEVŘÍT JEN KE ČTENÍ A KOPÍROVÁNÍ</button>
                   <button onClick={() => { setRole("participant"); setParticipantOpen(true); setEntryStage("app"); }}>
                     OTEVŘÍT JAKO ÚČASTNÍK
@@ -1240,6 +1274,16 @@ export default function Home() {
               Po skončení týdne se aktivita přesune sem. Shodná témata se
               seskupí a součtový výsledek se vrátí do souvisejících TVL.
             </p>
+            {live.map((item) => (
+              <article className="scheduled-result" key={`ended-${item.code}`}>
+                <span className="live-dot" />
+                <div>
+                  <b>{item.variant}1 · po skončení týdne</b>
+                  <small>{item.code}</small>
+                  <small>Časové razítko zachová spojení s výsledky účtu na propagaci.</small>
+                </div>
+              </article>
+            ))}
           </div>
         </section>
         {receipt && (
@@ -1275,7 +1319,7 @@ export default function Home() {
         {copyPanelOpen && (
           <section className="copy-topics-panel" aria-label="Výběr témat pro dalšího správce">
             <div>
-              <p className="eyebrow">KOPÍROVÁNÍ OKNA C</p>
+              <p className="eyebrow">KOPÍROVÁNÍ TÉMAT</p>
               <h2>Vyber jeden nebo více vhodných námětů</h2>
               <p>Další správce převezme jen označené názvy a popisy. Jejich výsledky zůstanou propojené s použitými TVL.</p>
             </div>
@@ -1284,6 +1328,7 @@ export default function Home() {
                 <label key={project.title + index}>
                   <input
                     type="checkbox"
+                    disabled={project.unused}
                     checked={copySelection[index]}
                     onChange={(event) => {
                       const checked = event.target.checked;
@@ -1291,7 +1336,7 @@ export default function Home() {
                       setCopyFeedback("");
                     }}
                   />
-                  <span>{project.title || "Nevyplněný námět"}</span>
+                  <span>{project.unused ? "× Nepoužitý řádek" : project.title || "Nevyplněný námět"}</span>
                 </label>
               ))}
             </div>
@@ -1394,7 +1439,7 @@ export default function Home() {
                   <p className="participant-period">{validity.period}</p>
 
                   <fieldset className="personal-form">
-                    <legend>Okno D · pouze na POUKÁZCE</legend>
+                    <legend>Osobní údaje · pouze na POUKÁZCE</legend>
                     <label>
                       Jméno a příjmení
                       <input value={personal.name} onChange={(event) => setPersonal({ ...personal, name: event.target.value })} />
@@ -1418,7 +1463,7 @@ export default function Home() {
                   </fieldset>
 
                   <fieldset className="participant-symbol-form">
-                    <legend>Okno B · čtyři volitelné symboly účastníka</legend>
+                    <legend>Čtyři volitelné symboly účastníka</legend>
                     <p>Každé políčko přijme jeden tvůj symbol. Můžeš je nechat prázdná.</p>
                     <div>
                       {participantSymbols.map((symbol, index) => (
@@ -1439,13 +1484,13 @@ export default function Home() {
                   </fieldset>
 
                   <div className="participant-projects">
-                    {projects.map((project, index) => (
+                    {projects.map((project, index) => project.unused ? null : (
                       <article key={index}>
                         <button className="participant-detail" onClick={() => setSelected(index)}>
-                          <span>C</span>
+                          <span aria-hidden="true">•</span>
                           <div>
                             <b>{project.title || "Nevyplněné téma"}</b>
-                            <small>Kliknutím otevři celý popis a hodnotu správce</small>
+                            <small>Kliknutím otevři celý popis návrhu</small>
                           </div>
                         </button>
                         <label>
@@ -1460,7 +1505,7 @@ export default function Home() {
                               )
                             }
                           >
-                            <option value="0">zvolte 1–9</option>
+                            <option value="0">zvol 1–9</option>
                             {Array.from({ length: 9 }, (_, score) => (
                               <option key={score + 1} value={score + 1}>{score + 1} bodů</option>
                             ))}
@@ -1510,37 +1555,23 @@ export default function Home() {
         </>
       ) : (
         <>
-          <header className="intro live-intro">
-            <div>
-              <p className="eyebrow">OBRAZOVKA 07 · SPRÁVCE · PRACOVNÍ LIST</p>
-              <h1>Živá pracovní šablona INVESTICE</h1>
-            </div>
-            <p>
-              Najeď kurzorem na variantu, hodnotu nebo dobu platnosti a vyber nabídku.
-              Změna se ihned propíše do INVESTICE a později do stejného místa
-              POUKÁZKY a DOKLADU. Tři pole okna C otevři přímo v listu.
-            </p>
-          </header>
-
           <section className="live-workbench">
+            <img className="screen7-logo" src="/COTO-testovac/coto-logo-original.png" alt="Logo aplikace COTO" />
             <div className="live-selector-row">
               <div
                 className="field-selector"
-                onMouseEnter={() => {
-                  if (!locked) setSelectorOpen("variant");
-                  setManagerHint("Vyber způsob použití COTO. Kód a pořadí, například PN001, se ihned zapíší do POUKÁZKY, INVESTICE i DOKLADU.");
-                }}
+                onMouseEnter={() => { if (!locked) setSelectorOpen("variant"); }}
               >
                 <small>Kód a pořadí použití</small>
                 <button
+                  className="manager-help"
+                  data-help="Vyber způsob použití COTO. Kód a pořadí se ihned zapíší do všech tří dílů TVL."
                   disabled={locked}
                   onFocus={() => {
                     setSelectorOpen("variant");
-                    setManagerHint("Vyber způsob použití COTO. Kód a pořadí, například PN001, se ihned zapíší do POUKÁZKY, INVESTICE i DOKLADU.");
                   }}
                   onClick={() => setSelectorOpen(selectorOpen === "variant" ? null : "variant")}
                   aria-expanded={selectorOpen === "variant"}
-                  aria-describedby="manager-hover-caption"
                 >
                   <b>{variant}001</b>
                   <span>{chosenVariant.name}</span>
@@ -1564,24 +1595,21 @@ export default function Home() {
 
               <div
                 className="field-selector value-selector"
-                onMouseEnter={() => {
-                  if (!locked) setSelectorOpen("value");
-                  setManagerHint("Vyber hodnotu 1, 2 nebo 3 Kč za informaci. Zvolená částka se ihned ukáže v záhlaví všech tří dílů TVL.");
-                }}
+                onMouseEnter={() => { if (!locked) setSelectorOpen("value"); }}
               >
-                <small>Hodnota průzkumu pro správce</small>
+                <small>Priorita celého průzkumu správcem</small>
                 <button
+                  className="manager-help"
+                  data-help="Vyber prioritu celého průzkumu 1, 2 nebo 3 body. Volba se přenese do všech tří dílů TVL."
                   disabled={locked}
                   onFocus={() => {
                     setSelectorOpen("value");
-                    setManagerHint("Vyber hodnotu 1, 2 nebo 3 Kč za informaci. Zvolená částka se ihned ukáže v záhlaví všech tří dílů TVL.");
                   }}
                   onClick={() => setSelectorOpen(selectorOpen === "value" ? null : "value")}
                   aria-expanded={selectorOpen === "value"}
-                  aria-describedby="manager-hover-caption"
                 >
-                  <b>{surveyValue} Kč</b>
-                  <span>za informaci</span>
+                  <b>{surveyValue} {surveyValue === 1 ? "bod" : "body"}</b>
+                  <span>priorita správce</span>
                   <em>▾</em>
                 </button>
                 {selectorOpen === "value" && (
@@ -1592,7 +1620,7 @@ export default function Home() {
                         className={surveyValue === value ? "chosen" : ""}
                         onClick={() => chooseSurveyValue(value)}
                       >
-                        <b>{value} Kč</b><span>hodnota průzkumu</span>
+                        <b>{value} {value === 1 ? "bod" : "body"}</b><span>priorita celého průzkumu</span>
                       </button>
                     ))}
                   </div>
@@ -1601,21 +1629,18 @@ export default function Home() {
 
               <div
                 className="field-selector week-selector"
-                onMouseEnter={() => {
-                  if (!locked) setSelectorOpen("week");
-                  setManagerHint("Vyber týden platnosti od pondělí do neděle. Po kliknutí se začátek i konec ihned přenesou do TVL.");
-                }}
+                onMouseEnter={() => { if (!locked) setSelectorOpen("week"); }}
               >
                 <small>Datum a doba platnosti</small>
                 <button
+                  className="manager-help"
+                  data-help="Vyber týden živého hodnocení od pondělí do neděle. Začátek i konec se ihned přenesou do TVL."
                   disabled={locked}
                   onFocus={() => {
                     setSelectorOpen("week");
-                    setManagerHint("Vyber týden platnosti od pondělí do neděle. Po kliknutí se začátek i konec ihned přenesou do TVL.");
                   }}
                   onClick={() => setSelectorOpen(selectorOpen === "week" ? null : "week")}
                   aria-expanded={selectorOpen === "week"}
-                  aria-describedby="manager-hover-caption"
                 >
                   <b>{validity.period}</b><em>▾</em>
                 </button>
@@ -1635,25 +1660,11 @@ export default function Home() {
               </div>
             </div>
 
-            <p id="manager-hover-caption" className="manager-hover-caption" aria-live="polite">
-              <b>POPIS PRO SPRÁVCE</b>
-              <span>{managerHint}</span>
-            </p>
-
-            <p className="transfer-note">
-              <span>●</span> Ihned zobrazeno v listu: <b>{variant}001</b> ·{" "}
-              <b>{surveyValue} Kč</b> · <b>{validity.period}</b>. Nabídka zůstane
-              otevřená až do volby; stejné údaje se přenesou do všech tří dílů.
-            </p>
+            <p className="screen7-guide" aria-live="polite">{editableCopy.screen7Guide}</p>
 
             <div className="working-paper-wrap">
-              <div className="paper-label">
-                <span>ORIGINÁLNÍ DÍL 2 · INVESTICE</span>
-                <small>Zelené značky ukazují vyplňovaná místa</small>
-              </div>
               <div
                 className="tvl-paper working-investment"
-                onMouseEnter={() => setManagerHint("V pracovním dílu INVESTICE klikni na některé dlouhé pole okna C. Otevře se nadpis, popis a hodnota tématu správce.")}
               >
                 <TvlSection
                   kind="investment"
@@ -1663,31 +1674,31 @@ export default function Home() {
                   onFinish={openStampedPreview}
                   onInspect={setSelected}
                 />
-                {!locked && (
-                  <>
-                    <button className="sheet-marker marker-c1" title="Otevřít první nečíslované téma okna C" onMouseEnter={() => setManagerHint("Otevři první nečíslované téma okna C a vlož název i stručný popis.")} onClick={() => setSelected(0)} aria-label="Vyplnit první pole okna C">+</button>
-                    <button className="sheet-marker marker-c2" title="Otevřít druhé nečíslované téma okna C" onMouseEnter={() => setManagerHint("Otevři druhé nečíslované téma okna C a vlož název i stručný popis.")} onClick={() => setSelected(1)} aria-label="Vyplnit druhé pole okna C">+</button>
-                    <button className="sheet-marker marker-c3" title="Otevřít třetí nečíslované téma okna C" onMouseEnter={() => setManagerHint("Otevři třetí nečíslované téma okna C a vlož název i stručný popis.")} onClick={() => setSelected(2)} aria-label="Vyplnit třetí pole okna C">+</button>
-                  </>
-                )}
               </div>
             </div>
 
-            <p className="work-instruction" aria-live="polite">{screenCopy[7]}</p>
+            <section className="timestamp-help" aria-live="polite">
+              <strong>ČASOVÉ RAZÍTKO</strong>
+              <p>{editableCopy.timestampPurpose}</p>
+            </section>
+            {(variant === "VL" || variant === "VT") && (
+              <p className="printed-identity-screen-help" aria-live="polite">{editableCopy.printedIdentityHelp}</p>
+            )}
             {formError && <p className="form-error work-error">{formError}</p>}
             <div className="workbench-actions">
               <button
-                onMouseEnter={() => setManagerHint("Vrátí správce k výběru varianty bez potvrzení a uzamčení TVL.")}
+                className="manager-help"
+                data-help="Vrátí tě k výběru varianty bez potvrzení a uzamčení TVL."
                 onClick={() => setEntryStage("variants")}
               >
                 ZPĚT
               </button>
               <button
-                className="finish-work"
-                onMouseEnter={() => setManagerHint("Zkontroluje vyplnění tří témat, vytvoří časové razítko a otevře celý TVL před konečným potvrzením.")}
+                className="finish-work manager-help"
+                data-help="Vytvoří a zobrazí časové razítko, zamkne editaci a otevře celý TVL před potvrzením."
                 onClick={openStampedPreview}
               >
-                UKONČIT EDITACI A ZOBRAZIT CELÝ TVL
+                UKONČIT · VYTVOŘIT ČASOVÉ RAZÍTKO
               </button>
             </div>
           </section>
@@ -1699,8 +1710,17 @@ export default function Home() {
         <div className="modal-backdrop" onMouseDown={() => setSelected(null)}>
           <section className="modal" onMouseDown={(event) => event.stopPropagation()}>
             <button className="close" onClick={() => setSelected(null)}>×</button>
-            <p className="eyebrow">OKNO C · TÉMA</p>
+            <p className="eyebrow">TÉMA PRŮZKUMU</p>
             <h2>Projekt, námět nebo otázka</h2>
+            <label className="unused-project-toggle">
+              <input
+                type="checkbox"
+                disabled={locked}
+                checked={projects[selected].unused}
+                onChange={(event) => updateProject(selected, { unused: event.target.checked })}
+              />
+              <span>Nepoužitý řádek označit křížkem ×</span>
+            </label>
             <label
               className="manager-help help-right"
               data-help="Vlož krátký název tématu. Po uložení se objeví ve všech třech dílech TVL."
@@ -1708,7 +1728,7 @@ export default function Home() {
               Nadpis
               <input
                 autoFocus
-                disabled={locked}
+                disabled={locked || projects[selected].unused}
                 value={projects[selected].title}
                 onChange={(event) => updateProject(selected, { title: event.target.value })}
               />
@@ -1719,32 +1739,16 @@ export default function Home() {
             >
               Stručný popis
               <textarea
-                disabled={locked}
+                disabled={locked || projects[selected].unused}
                 rows={6}
                 value={projects[selected].detail}
                 onChange={(event) => updateProject(selected, { detail: event.target.value })}
               />
             </label>
-            <fieldset
-              className="priority-choice manager-help help-right"
-              data-help="Správce určí tématu hodnotu 1–3 Kč. Nejde o hodnocení účastníka 1–9."
-              disabled={locked}
-            >
-              <legend>Priorita správce z účtu na propagaci</legend>
-              {[1, 2, 3].map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  className={projects[selected].value === value ? "chosen" : ""}
-                  onClick={() => updateProject(selected, { value })}
-                >
-                  {value} Kč
-                </button>
-              ))}
-            </fieldset>
             <div className="modal-note">
-              Částka správce 1–3 Kč a hodnocení účastníka 1–9 bodů jsou dvě
-              různá pole. Uložený řádek se ihned přenese do všech tří dílů TVL.
+              Správce určuje prioritu celého průzkumu v horní nabídce. Účastník
+              hodnotí každý použitý návrh 1–9 body. Uložený řádek se ihned
+              přenese do všech tří dílů TVL.
             </div>
             <button
               className="save manager-help help-right"
@@ -1763,8 +1767,8 @@ export default function Home() {
             <div>
               <b>OBRAZOVKA 08 · CELÝ TVL · časové razítko {activationStamp}</b>
               <span>
-                Zkontroluj POUKÁZKU včetně okna D, identifikátor B, INVESTICI
-                a DOKLAD. Zpět razítko zruší; potvrzení TVL uzamkne.
+                Zkontroluj POUKÁZKU, INVESTICI a DOKLAD. Časové razítko už
+                uzamklo editaci; celý TVL můžeš vytisknout pro evidenci správce.
               </span>
             </div>
             <div>
@@ -1776,8 +1780,15 @@ export default function Home() {
                 ZPĚT K OPRAVÁM
               </button>
               <button
+                className="manager-help"
+                data-help="Vytiskne celý třídílný TVL na jednu A4 pro evidenci správce."
+                onClick={() => window.print()}
+              >
+                TISKNOUT CELÝ TVL PRO EVIDENCI
+              </button>
+              <button
                 className="confirm manager-help"
-                data-help="Uzamkne TVL a vloží průzkum mezi živé. Potom už jej správce neupravuje."
+                data-help="Přesune průzkum s kódem a pořadím varianty do seznamu živých; po skončení týdne přejde do ukončených."
                 onClick={confirm}
               >
                 POTVRDIT {variant}1
