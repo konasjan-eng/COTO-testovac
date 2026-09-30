@@ -75,7 +75,7 @@ test("volba role vysvětluje účel COTO i podmínky správce", async () => {
 test("účastník vidí řádkové výsledky účtu na propagaci", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   const css = await readFile(new URL("../app/revision-2026-09-24.css", import.meta.url), "utf8");
-  for (const text of ["Řádkové výsledky účtu na propagaci", "KONTROLA ÚČASTNÍKA", "Tvoje body", "ZKONTROLOVAT ŘÁDKY ÚČTU NA PROPAGACI", "VYBRAT 1–3 TÉMATA PRO DALŠÍHO SPRÁVCE"]) assert.match(page, new RegExp(text));
+  for (const text of ["Řádkové výsledky účtu na propagaci", "KONTROLA ÚČASTNÍKA", "Součet bodů", "pouze statistický součet", "ZKONTROLOVAT ŘÁDKY ÚČTU NA PROPAGACI", "VYBRAT 1–3 TÉMATA PRO DALŠÍHO SPRÁVCE"]) assert.match(page, new RegExp(text));
   assert.match(css, /\.account-result-row/);
 });
 

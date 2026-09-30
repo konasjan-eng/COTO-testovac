@@ -43,7 +43,7 @@
   aspect-ratio:210 / 297;
   overflow:hidden;
   display:grid;
-  grid-template-rows:38.5% 2% 27% 2% 30.5%;
+  grid-template-rows:var(--voucher-share,38.5%) 2% var(--investment-share,27%) 2% var(--receipt-share,30.5%);
   padding:2.7%;
   background:#fff;
 }
@@ -99,10 +99,11 @@
 .original-a4 .survey-box h3{font-size:11px;padding:3px}
 .original-a4 .survey-box .project-list{padding:0 5px 2px}
 .original-a4 .project-columns{margin-left:20px;grid-template-columns:1fr 29px;font-size:5.5px}
-.original-a4 .survey-box .project-row{grid-template-columns:20px minmax(0,1fr) 0 29px!important;min-height:22px}
-.original-a4 .survey-box .project-row strong{min-width:0;min-height:22px;font-size:7px;line-height:1.05;overflow:hidden}
-.original-a4 .survey-box .project-row .participant-score{width:29px;height:23px!important;font-size:8px!important}
-.original-a4 .personal-only{grid-template-columns:minmax(0,1fr) 82px;min-height:0;height:36%;margin-top:5px;overflow:hidden}
+.original-a4 .survey-box .project-row{grid-template-columns:20px minmax(0,1fr) 0 29px!important;min-height:var(--c-row-height,23px)}
+.original-a4 .survey-box .project-row strong{min-width:0;min-height:var(--c-row-height,23px);font-size:7px;line-height:1.05;overflow:hidden}
+.original-a4 .survey-box .project-row .participant-score{width:29px;height:var(--c-row-height,23px)!important;font-size:8px!important}
+.original-a4 .personal-only{grid-template-columns:minmax(0,1fr) 82px;min-height:0;height:var(--window-d-height,36%);margin-top:5px;overflow:hidden}
+.original-a4 .personal-identifier-row{height:var(--window-d-id-height,17px);min-height:var(--window-d-id-height,17px)}
 .original-a4 .address-lines{min-width:0;padding:4px 5px 0!important;overflow:hidden}
 .original-a4 .address-lines span{font-size:6.5px;line-height:1.25;white-space:nowrap;overflow:hidden}
 .original-a4 .address-lines b{margin:3px -5px 0;padding:3px 5px;font-size:7px;white-space:nowrap;overflow:hidden}
