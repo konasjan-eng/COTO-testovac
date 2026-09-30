@@ -28,7 +28,7 @@ test("úvod používá přesně znovu dodanou čtvercovou ikonu bez spodních n�
 
 test("obsahuje celý sjednaný průchod správce", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
-  for (const text of ["SPRÁVCE", "KONTROLA SPRÁVCE V ARES", "Čtyři varianty", "Průzkum názorů", "Vyber lepší", "Podpora projektu", "Volební tombola", "POUKÁZKA", "INVESTICE", "DOKLAD", "ZPĚT", "UKONČIT", "POTVRDIT", "Živé průzkumy", "Ukončené průzkumy", "OTEVŘÍT JEN KE ČTENÍ A KOPÍROVÁNÍ"]) assert.match(page, new RegExp(text));
+  for (const text of ["SPRÁVCE", "Ověření správce v ARES a účtu na propagaci", "Otevři nový průzkum a vyber variantu", "Průzkum názorů", "Vyber lepší", "Podpora projektu", "Volební tombola", "POUKÁZKA", "INVESTICE", "DOKLAD", "ZPĚT", "UKONČIT", "POTVRDIT", "Živé průzkumy", "Ukončené průzkumy", "OTEVŘÍT JEN KE ČTENÍ A KOPÍROVÁNÍ"]) assert.match(page, new RegExp(text, "i"));
 });
 
 test("vstupní proces se nesmí při dalších úpravách ztratit", async () => {
@@ -69,7 +69,7 @@ test("výsledek se vrací ke správci i do vložených TVL", async () => {
 
 test("volba role vysvětluje účel COTO i podmínky správce", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
-  for (const text of ["nejmenší správní a společenské celky", "Potřebuješ IČO a samostatný účet na propagaci", "do nich se vracejí výsledky průzkumů"]) assert.match(page, new RegExp(text));
+  for (const text of ["nejmenší správní a společenské celky", "IČO v systému ARES a samostatný Účet na propagaci", "anonymně svůj vyplněný a odeslaný tiskopis TVL"]) assert.match(page, new RegExp(text));
 });
 
 test("účastník vidí řádkové výsledky účtu na propagaci", async () => {
