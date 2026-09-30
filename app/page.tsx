@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type KeyboardEvent } from "react";
 
 type Project = { title: string; detail: string; value: number };
 type SectionKind = "voucher" | "investment" | "receipt";
@@ -30,6 +30,13 @@ const variantOptions: { code: VariantCode; name: string; description: string }[]
   { code: "VT", name: "Volební tombola", description: "Výběr lidí spojených s řešením" },
 ];
 
+const variantHelpKeys: Record<VariantCode, keyof EditableCopy> = {
+  PN: "variantPN",
+  VL: "variantVL",
+  PP: "variantPP",
+  VT: "variantVT",
+};
+
 const screenSteps = [
   "Ikona COTO",
   "Originální logo",
@@ -58,7 +65,8 @@ const emptyPersonal: PersonalData = {
 };
 
 const PURPOSE_STORAGE_KEY = "coto-purpose-text-2026-09-29";
-const SCREEN_COPY_STORAGE_KEY = "coto-screen-copy-2026-09-30";
+const SCREEN_COPY_STORAGE_KEY = "coto-screen-copy-2026-09-30-v2";
+const EDITABLE_COPY_STORAGE_KEY = "coto-editable-copy-2026-09-30";
 const TVL_LAYOUT_STORAGE_KEY = "coto-tvl-layout-2026-09-30";
 
 const defaultScreenCopy: Record<number, string> = {
@@ -66,8 +74,8 @@ const defaultScreenCopy: Record<number, string> = {
   2: "Klikni na originální logo a přečti si cíl a filosofii projektu.",
   3: "Text cíle a filosofie můžeš upravit vpravo; změna se ihned ukáže vlevo.",
   4: "COTO vrací výsledky do nejmenších správních a společenských celků, kde téma vzniklo.",
-  5: "Zadej IČO a samostatný účet na propagaci. Údaje se přenesou do okna A.",
-  6: "Přejeď přes variantu a kliknutím otevři živou vyplňovací šablonu.",
+  5: "Zadej IČO a samostatný účet na propagaci.",
+  6: "Najetím kurzorem nebo prvním dotykem zobrazíš popis varianty. Kliknutím nebo druhým dotykem ji vybereš.",
   7: "Vyber kód, hodnotu a týden. Potom vyplň tři řádky okna C.",
   8: "Zkontroluj celý třídílný TVL na jedné A4. Rozměry můžeš doladit vpravo.",
   9: "Do řádku každého TVL se vrací pouze statistický součet.",
@@ -76,6 +84,36 @@ const defaultScreenCopy: Record<number, string> = {
 
 const defaultVoucherHelp =
   "Toto místo pod dílem POUKÁZKA je vyhrazené pro nápovědu tiskové verze COTO pro účastníka. Text doplníme po kontrole šablon.";
+
+type EditableCopy = {
+  roleSummary: string;
+  managerChoice: string;
+  participantChoice: string;
+  participantHelp: string;
+  aresHeading: string;
+  aresInstructions: string;
+  verifiedManager: string;
+  copySurveyLabel: string;
+  variantPN: string;
+  variantVL: string;
+  variantPP: string;
+  variantVT: string;
+};
+
+const defaultEditableCopy: EditableCopy = {
+  roleSummary: "COTO je nástroj pro nejmenší správní a společenské celky – obce, spolky, školy nebo firmy, ale i pro osoby s vlastním IČO a samostatným účtem na propagaci. Na účtu správce ve výsledcích průzkumů najde každý účastník anonymně svůj vyplněný a odeslaný tiskopis TVL.",
+  managerChoice: "IČO v systému ARES a samostatný Účet na propagaci ti potvrdí schopnost nabízet řešení otázek a potřebných projektů.",
+  participantChoice: "Vyber v seznamu správce a průzkumy vhodné pro tvou podporu.",
+  participantHelp: "Řešení podpoříš odesláním svého hodnocení. Poslat přátelům odkaz na šikovné projekty tě asi napadne. Velikost podpory stejného průzkumu donutí správce jednat – a také mu umožní vhodná řešení realizovat s doložitelnou podporou fyzických účastníků průzkumu. Anonymizér v trojici šablon listu TVL řeší vše… tvl… neke…",
+  aresHeading: "Ověření správce v ARES a účtu na propagaci v bankovním prostředí",
+  aresInstructions: "Zadej IČO a samostatný účet na propagaci.\n\n1. Kontrola IČO správce v ARES a v bankovní identitě proběhne automaticky.\n2. Na chybné či neexistující IČO nebo účet upozorní hláška.\n3. Takto ověřenému správci se jeho identita zobrazí ihned v otevřené pracovní šabloně. Správce může pod identitu v okně A doplnit logo své firmy; obec vloží lvíčka.",
+  verifiedManager: "Ověřený správce",
+  copySurveyLabel: "Vlož kód jiného průzkumu stejné varianty",
+  variantPN: "Průzkum názorů: náměty, otázky a jejich podpora.",
+  variantVL: "Vyber lepší: porovnání dvou nebo více možností.",
+  variantPP: "Podpora projektu: podpora konkrétního projektu.",
+  variantVT: "Volební tombola: výběr lidí spojených s řešením.",
+};
 
 type TvlLayout = {
   voucher: number;
@@ -242,6 +280,8 @@ function LiveScreenEditor({
   current,
   note,
   onNote,
+  editableCopy,
+  onEditableCopy,
   purposeText,
   onPurposeText,
   onRestorePurpose,
@@ -253,6 +293,8 @@ function LiveScreenEditor({
   current: number;
   note: string;
   onNote: (value: string) => void;
+  editableCopy: EditableCopy;
+  onEditableCopy: (key: keyof EditableCopy, value: string) => void;
   purposeText: string;
   onPurposeText: (value: string) => void;
   onRestorePurpose: () => void;
@@ -261,6 +303,33 @@ function LiveScreenEditor({
   layout: TvlLayout;
   onLayout: (key: keyof TvlLayout, value: number) => void;
 }) {
+  const editableFields: Partial<Record<number, Array<[keyof EditableCopy, string]>>> = {
+    4: [
+      ["roleSummary", "Žluté úvodní pole"],
+      ["managerChoice", "Text v poli SPRÁVCE"],
+      ["participantChoice", "Text v poli ÚČASTNÍK"],
+      ["participantHelp", "Žlutá nápověda účastníka"],
+    ],
+    5: [
+      ["aresHeading", "Společný nadpis obrazovky"],
+      ["aresInstructions", "Pokyny k ověření"],
+    ],
+    6: [
+      ["verifiedManager", "Řádek ověřeného správce"],
+      ["copySurveyLabel", "Pokyn pro kód jiného průzkumu"],
+      ["variantPN", "Žlutá nápověda PN"],
+      ["variantVL", "Žlutá nápověda VL"],
+      ["variantPP", "Žlutá nápověda PP"],
+      ["variantVT", "Žlutá nápověda VT"],
+    ],
+  };
+  const confirmWithEnter = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      event.currentTarget.blur();
+    }
+  };
+
   return (
     <aside className="live-screen-editor" aria-label={`Opravy obrazovky ${current}`}>
       <header>
@@ -273,10 +342,22 @@ function LiveScreenEditor({
           <span className={index + 1 === current ? "active" : ""} key={index}>{String(index + 1).padStart(2, "0")}</span>
         ))}
       </div>
-      <label>
-        Text pokynu na levé obrazovce
-        <textarea value={note} onChange={(event) => onNote(event.target.value)} />
-      </label>
+      {!editableFields[current] && (
+        <label>
+          Text přímo v levé obrazovce
+          <textarea value={note} onKeyDown={confirmWithEnter} onChange={(event) => onNote(event.target.value)} />
+        </label>
+      )}
+      {editableFields[current]?.map(([key, label]) => (
+        <label key={key}>
+          {label}
+          <textarea
+            value={editableCopy[key]}
+            onKeyDown={confirmWithEnter}
+            onChange={(event) => onEditableCopy(key, event.target.value)}
+          />
+        </label>
+      ))}
       {current === 3 && (
         <>
           <label>
@@ -302,13 +383,9 @@ function LiveScreenEditor({
           </div>
         </>
       )}
-      <p>Změny se ukládají v tomto Chrome a ihned se ukazují vlevo.</p>
+      <p>Text se při psaní ihned mění na svém místě vlevo. Enter potvrdí; Shift+Enter vloží nový řádek.</p>
     </aside>
   );
-}
-
-function LiveScreenNote({ text }: { text: string }) {
-  return <p className="live-screen-note" aria-live="polite">{text}</p>;
 }
 
 function ScreenBadge({ current }: { current: number }) {
@@ -335,6 +412,7 @@ function TvlSection({
   kind,
   code,
   organiser,
+  managerLogo,
   variant,
   surveyValue,
   title,
@@ -356,6 +434,7 @@ function TvlSection({
   kind: SectionKind;
   code: string;
   organiser: string;
+  managerLogo?: string;
   variant: VariantCode;
   surveyValue: number;
   title: string;
@@ -434,6 +513,7 @@ function TvlSection({
               <span><mark>A</mark> Ověřený správce z ARES</span>
               <i>{organiser.match(/\d{8}/)?.[0] || "IČO"}</i>
               <small>{organiser}</small>
+              {managerLogo && <img className="manager-logo-in-window-a" src={managerLogo} alt="Logo ověřeného správce" />}
             </div>
             <div className="activation">
               <div>
@@ -565,11 +645,15 @@ export default function Home() {
   const [role, setRole] = useState<"manager" | "participant">("manager");
   const [variant, setVariant] = useState<VariantCode>("PN");
   const [hoveredVariant, setHoveredVariant] = useState<VariantCode>("PN");
+  const [touchPreviewVariant, setTouchPreviewVariant] = useState<VariantCode | null>(null);
   const [projects, setProjects] = useState<Project[]>(initialProjects);
   const [organiser, setOrganiser] = useState("Jan Koňas · správce COTO · IČO 12226491");
+  const [managerLogo, setManagerLogo] = useState("");
   const [ico, setIco] = useState("12226491");
   const [account, setAccount] = useState("4310751369/0800");
   const [aresVerified, setAresVerified] = useState(false);
+  const [copySurveyMode, setCopySurveyMode] = useState(false);
+  const [copiedSurveyCode, setCopiedSurveyCode] = useState("");
   const [start, setStart] = useState(weeks[0]?.start || "");
   const [surveyValue, setSurveyValue] = useState(1);
   const [selected, setSelected] = useState<number | null>(null);
@@ -601,6 +685,7 @@ export default function Home() {
   );
   const [purposeText, setPurposeText] = useState(defaultPurposeText);
   const [screenCopy, setScreenCopy] = useState<Record<number, string>>(defaultScreenCopy);
+  const [editableCopy, setEditableCopy] = useState<EditableCopy>(defaultEditableCopy);
   const [voucherHelp, setVoucherHelp] = useState(defaultVoucherHelp);
   const [tvlLayout, setTvlLayout] = useState<TvlLayout>(defaultTvlLayout);
 
@@ -623,18 +708,23 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    try {
-      const savedCopy = window.localStorage.getItem(SCREEN_COPY_STORAGE_KEY);
-      if (savedCopy) setScreenCopy({ ...defaultScreenCopy, ...JSON.parse(savedCopy) });
-      const savedLayout = window.localStorage.getItem(TVL_LAYOUT_STORAGE_KEY);
-      if (savedLayout) {
-        const parsed = JSON.parse(savedLayout);
-        setTvlLayout({ ...defaultTvlLayout, ...parsed.layout });
-        setVoucherHelp(parsed.voucherHelp || defaultVoucherHelp);
+    const restoreSavedWork = window.setTimeout(() => {
+      try {
+        const savedCopy = window.localStorage.getItem(SCREEN_COPY_STORAGE_KEY);
+        if (savedCopy) setScreenCopy({ ...defaultScreenCopy, ...JSON.parse(savedCopy) });
+        const savedEditableCopy = window.localStorage.getItem(EDITABLE_COPY_STORAGE_KEY);
+        if (savedEditableCopy) setEditableCopy({ ...defaultEditableCopy, ...JSON.parse(savedEditableCopy) });
+        const savedLayout = window.localStorage.getItem(TVL_LAYOUT_STORAGE_KEY);
+        if (savedLayout) {
+          const parsed = JSON.parse(savedLayout);
+          setTvlLayout({ ...defaultTvlLayout, ...parsed.layout });
+          setVoucherHelp(parsed.voucherHelp || defaultVoucherHelp);
+        }
+      } catch {
+        // Poškozené místní nastavení nesmí zastavit živou šablonu.
       }
-    } catch {
-      // Poškozené místní nastavení nesmí zastavit živou šablonu.
-    }
+    }, 0);
+    return () => window.clearTimeout(restoreSavedWork);
   }, []);
 
   useEffect(() => {
@@ -658,6 +748,14 @@ export default function Home() {
     setScreenCopy((current) => {
       const next = { ...current, [screen]: value };
       window.localStorage.setItem(SCREEN_COPY_STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const updateEditableCopy = (key: keyof EditableCopy, value: string) => {
+    setEditableCopy((current) => {
+      const next = { ...current, [key]: value };
+      window.localStorage.setItem(EDITABLE_COPY_STORAGE_KEY, JSON.stringify(next));
       return next;
     });
   };
@@ -690,6 +788,8 @@ export default function Home() {
       current={current}
       note={screenCopy[current] || ""}
       onNote={(value) => updateScreenCopy(current, value)}
+      editableCopy={editableCopy}
+      onEditableCopy={updateEditableCopy}
       purposeText={purposeText}
       onPurposeText={updatePurposeText}
       onRestorePurpose={restorePurposeText}
@@ -701,7 +801,6 @@ export default function Home() {
   );
 
   const chosenVariant = variantOptions.find((option) => option.code === variant) || variantOptions[0];
-  const previewVariant = variantOptions.find((option) => option.code === hoveredVariant) || variantOptions[0];
   const title = variant + "1 · " + chosenVariant.name;
 
   const validity = useMemo(() => {
@@ -827,6 +926,7 @@ export default function Home() {
   const sharedTvl = {
     code,
     organiser,
+    managerLogo,
     variant,
     surveyValue,
     title,
@@ -846,7 +946,7 @@ export default function Home() {
       <main className="entry-screen with-live-editor">
         <ScreenBadge current={1} />
         {renderEditor(1)}
-        <LiveScreenNote text={screenCopy[1]} />
+        <p className="screen-inline-copy entry-copy" aria-live="polite">{screenCopy[1]}</p>
         <button
           className="coto-entry-icon video-look original-icon"
           onClick={() => setEntryStage("logo")}
@@ -863,7 +963,7 @@ export default function Home() {
       <main className="entry-screen with-live-editor">
         <ScreenBadge current={2} />
         {renderEditor(2)}
-        <LiveScreenNote text={screenCopy[2]} />
+        <p className="screen-inline-copy entry-copy" aria-live="polite">{screenCopy[2]}</p>
         <button
           className="coto-entry-logo coto-entry-logo-image"
           onClick={() => setEntryStage("purpose")}
@@ -883,7 +983,6 @@ export default function Home() {
       <main className="entry-screen with-live-editor">
         <ScreenBadge current={3} />
         {renderEditor(3)}
-        <LiveScreenNote text={screenCopy[3]} />
         <section className="entry-panel purpose-panel" id="dokument-projekt-coto">
           <button
             className="purpose-close"
@@ -893,6 +992,7 @@ export default function Home() {
             ×
           </button>
           <p className="eyebrow">PROJEKT COTO · OBRAZOVKA 03</p>
+          <p className="screen-inline-copy" aria-live="polite">{screenCopy[3]}</p>
           <h1>Cíl a filosofie internetové aplikace COTO</h1>
           <div className="purpose-workspace">
             <div className="purpose-copy" aria-label="Výsledný text cíle a filosofie">
@@ -917,14 +1017,9 @@ export default function Home() {
       <main className="entry-screen with-live-editor">
         <ScreenBadge current={4} />
         {renderEditor(4)}
-        <LiveScreenNote text={screenCopy[4]} />
         <section className="entry-panel role-panel">
           <img className="entry-mini-logo" src="/COTO-testovac/coto-logo-original.png" alt="Logo COTO" />
-          <p className="role-summary">
-            COTO je nástroj pro nejmenší správní a společenské celky – obce,
-            spolky, školy nebo firmy. Právě do nich se vracejí výsledky průzkumů,
-            aby vedly k řešení tam, kde téma vzniklo.
-          </p>
+          <p className="role-summary" aria-live="polite">{editableCopy.roleSummary}</p>
           <h1>Vyber si</h1>
           <div className="role-buttons">
             <button
@@ -933,11 +1028,15 @@ export default function Home() {
               onClick={() => { setRole("manager"); setEntryStage("ares"); }}
             >
               <strong>SPRÁVCE</strong>
-              <small>Potřebuješ IČO a samostatný účet na propagaci.</small>
+              <small aria-live="polite">{editableCopy.managerChoice}</small>
             </button>
-            <button onClick={() => { setRole("participant"); setEntryStage("app"); }}>
+            <button
+              className="manager-help"
+              data-help={editableCopy.participantHelp}
+              onClick={() => { setRole("participant"); setEntryStage("app"); }}
+            >
               <strong>ÚČASTNÍK</strong>
-              <small>Vybereš živý průzkum a zkontroluješ řádkové výsledky.</small>
+              <small aria-live="polite">{editableCopy.participantChoice}</small>
             </button>
           </div>
           <p>
@@ -955,15 +1054,10 @@ export default function Home() {
       <main className="entry-screen with-live-editor">
         <ScreenBadge current={5} />
         {renderEditor(5)}
-        <LiveScreenNote text={screenCopy[5]} />
         <section className="entry-panel manager-entry">
           <img className="entry-mini-logo" src="/COTO-testovac/coto-logo-original.png" alt="Logo COTO" />
-          <p className="eyebrow">KONTROLA SPRÁVCE V ARES</p>
-          <h1>Ověření správce</h1>
-          <p>
-            Zadej IČO a samostatný účet na propagaci. V této zkušební verzi si
-            ověříš správný průchod a přenos do okna A.
-          </p>
+          <h1 aria-live="polite">{editableCopy.aresHeading}</h1>
+          <p className="ares-instructions" aria-live="polite">{editableCopy.aresInstructions}</p>
           <label
             className="manager-help help-right"
             data-help="Osm číslic IČO určí správce a později se přenese do okna A všech tří dílů."
@@ -1007,12 +1101,33 @@ export default function Home() {
           ) : (
             <>
               <p className="ares-ok">Ověřeno: identita správce je připravena pro okno A.</p>
+              <label className="manager-logo-upload">
+                Logo firmy nebo obce pod identitu v okně A
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = () => setManagerLogo(String(reader.result || ""));
+                    reader.readAsDataURL(file);
+                  }}
+                />
+              </label>
               <button
                 className="manager-help help-right"
                 data-help="Otevře čtyři způsoby použití COTO. Zvolený kód se přenese do záhlaví TVL."
-                onClick={() => setEntryStage("variants")}
+                onClick={() => { setCopySurveyMode(false); setCopiedSurveyCode(""); setEntryStage("variants"); }}
               >
-                POKRAČOVAT K VARIANTÁM
+                OTEVŘI NOVÝ PRŮZKUM A VYBER VARIANTU
+              </button>
+              <button
+                className="manager-help help-right"
+                data-help="Otevře stejné čtyři varianty a dovolí vložit kód dřívějšího průzkumu."
+                onClick={() => { setCopySurveyMode(true); setEntryStage("variants"); }}
+              >
+                OTEVŘI VARIANTY A VLOŽ KÓD JINÉHO PRŮZKUMU
               </button>
             </>
           )}
@@ -1028,27 +1143,34 @@ export default function Home() {
       <main className="entry-screen with-live-editor">
         <ScreenBadge current={6} />
         {renderEditor(6)}
-        <LiveScreenNote text={screenCopy[6]} />
         <section className="entry-panel variant-panel">
-          <p className="verified-manager">Ověřený správce: <b>{organiser}</b></p>
-          <p className="eyebrow">VÝBĚR VARIANTY COTO</p>
-          <h1>Čtyři varianty</h1>
-          <p className="variant-preview">
-            V pracovním listu se právě zobrazí:{" "}
-            <strong>{previewVariant.code}1 · {previewVariant.name}</strong>
-          </p>
+          <img className="entry-mini-logo" src="/COTO-testovac/coto-logo-original.png" alt="Logo COTO" />
+          <p className="verified-manager" aria-live="polite">{editableCopy.verifiedManager}: <b>{organiser}</b></p>
+          {copySurveyMode && (
+            <label className="copy-survey-code">
+              <span aria-live="polite">{editableCopy.copySurveyLabel}</span>
+              <input value={copiedSurveyCode} onChange={(event) => setCopiedSurveyCode(event.target.value.toUpperCase())} placeholder="např. PN20260930COTO001" />
+            </label>
+          )}
           {variantOptions.map((option) => (
             <button
               key={option.code}
               className={"variant-choice manager-help help-right " + (hoveredVariant === option.code ? "active" : "")}
-              data-help={option.description + ". Kliknutím otevři živou pracovní šablonu a kód " + option.code + "001 se ihned zapíše do TVL."}
+              data-help={editableCopy[variantHelpKeys[option.code]]}
               onMouseEnter={() => setHoveredVariant(option.code)}
               onFocus={() => setHoveredVariant(option.code)}
+              onTouchStart={(event) => {
+                if (touchPreviewVariant !== option.code) {
+                  event.preventDefault();
+                  setTouchPreviewVariant(option.code);
+                  setHoveredVariant(option.code);
+                }
+              }}
               onClick={() => { chooseVariant(option.code); setEntryStage("app"); }}
             >
               <b>{option.code}</b>
               <span>{option.name}<small>{option.description}</small></span>
-              <em>OTEVŘÍT ŽIVOU ŠABLONU</em>
+              <em aria-label="Potvrdit výběr">➜</em>
             </button>
           ))}
           <button className="muted" onClick={() => setEntryStage("ares")}>ZPĚT</button>
@@ -1062,7 +1184,6 @@ export default function Home() {
       <main className="dashboard-screen with-live-editor">
         <ScreenBadge current={9} />
         {renderEditor(9)}
-        <LiveScreenNote text={screenCopy[9]} />
         <header className="dashboard-logo">
           <div className="dashboard-title">
             <small>OBRAZOVKA 09 · PŘEHLED SPRÁVCE</small>
@@ -1073,6 +1194,7 @@ export default function Home() {
             <small>Ověřená identita správce · ARES</small>
           </div>
         </header>
+        <p className="screen-inline-copy dashboard-inline-copy" aria-live="polite">{screenCopy[9]}</p>
         <button
           className="new-survey manager-help"
           data-help="Založí nový průzkum a vrátí správce k výběru varianty."
@@ -1141,9 +1263,9 @@ export default function Home() {
       <main className="readonly-screen with-live-editor">
         <ScreenBadge current={8} />
         {renderEditor(8)}
-        <LiveScreenNote text={screenCopy[8]} />
         <div className="readonly-toolbar">
           <strong>OBRAZOVKA 08 · CELÝ TVL</strong>
+          <p className="screen-inline-copy" aria-live="polite">{screenCopy[8]}</p>
           <button onClick={() => setEntryStage("dashboard")}>ZPĚT NA PŘEHLED</button>
           <button onClick={() => { setCopyPanelOpen((open) => !open); setCopyFeedback(""); }}>
             VYBRAT TÉMATA KE KOPÍROVÁNÍ
@@ -1214,7 +1336,6 @@ export default function Home() {
     <main className="application-screen with-live-editor">
       <ScreenBadge current={role === "participant" ? 10 : 7} />
       {renderEditor(role === "participant" ? 10 : 7)}
-      <LiveScreenNote text={screenCopy[role === "participant" ? 10 : 7]} />
       <nav className="topbar">
         <div>
           <button className="topbar-home" onClick={() => setEntryStage("icon")} aria-label="Zobrazit titulní stránku COTO">
@@ -1239,11 +1360,7 @@ export default function Home() {
               <p className="eyebrow">OBRAZOVKA 10 · ÚČASTNÍK · VYPLŇOVACÍ PRŮCHOD</p>
               <h1>Vyber si správce.<br />Otevři jeho aktivitu.</h1>
             </div>
-            <p>
-              Otevři úplné popisy C1–C3, přiděl každému 1–9 bodů a
-              odešli svůj TVL. Potom dostaneš identifikátor pro návrat k
-              výsledku.
-            </p>
+            <p aria-live="polite">{screenCopy[10]}</p>
           </header>
 
           <section className="participant-shell">
@@ -1556,11 +1673,7 @@ export default function Home() {
               </div>
             </div>
 
-            <p className="work-instruction">
-              Klikni na některé ze tří polí okna C, napiš nadpis a stručný popis a
-              vyber prioritu správce 1–3 Kč. Po vyplnění všech tří řádků
-              ukonči editaci v okně A.
-            </p>
+            <p className="work-instruction" aria-live="polite">{screenCopy[7]}</p>
             {formError && <p className="form-error work-error">{formError}</p>}
             <div className="workbench-actions">
               <button
