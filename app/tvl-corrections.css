@@ -129,16 +129,25 @@
     height:287mm;
     max-height:287mm;
     padding:0;
+    position:relative;
     display:grid;
-    grid-template-rows:4mm 106mm 6mm 78mm 6mm 87mm;
+    grid-template-rows:var(--voucher-share,38.5%) 2% var(--investment-share,27%) 2% var(--receipt-share,30.5%);
     overflow:hidden;
+  }
+  .printed-sheet.original-a4>.printed-number{
+    position:absolute;
+    top:1mm;
+    right:2mm;
+    z-index:5;
+    height:auto;
+    pointer-events:none;
   }
   .printed-sheet.original-a4>.cut-copy{display:none!important}
   .printed-sheet.original-a4>.tvl-section{height:100%;min-height:0;overflow:hidden;display:flex;flex-direction:column}
   .printed-sheet.original-a4>.cut{height:auto!important;min-height:0;overflow:hidden}
   .printed-sheet.original-a4 .admin-box{height:calc(100% - 64px);min-height:0}
   .printed-sheet.original-a4 .survey-box{max-height:64%}
-  .printed-sheet.original-a4 .personal-only{height:36%;min-height:0}
+  .printed-sheet.original-a4 .personal-only{height:var(--window-d-height,36%);min-height:0}
   .printed-sheet.original-a4 .voucher-instructions,
   .printed-sheet.original-a4 .section-explanation,
   .printed-sheet.original-a4 .invalid-warning{display:block!important}
