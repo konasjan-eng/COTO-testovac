@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 
 type Project = { title: string; detail: string; value: number };
 type SectionKind = "voucher" | "investment" | "receipt";
@@ -58,6 +58,40 @@ const emptyPersonal: PersonalData = {
 };
 
 const PURPOSE_STORAGE_KEY = "coto-purpose-text-2026-09-29";
+const SCREEN_COPY_STORAGE_KEY = "coto-screen-copy-2026-09-30";
+const TVL_LAYOUT_STORAGE_KEY = "coto-tvl-layout-2026-09-30";
+
+const defaultScreenCopy: Record<number, string> = {
+  1: "Klikni na ikonu a otevři COTO.",
+  2: "Klikni na originální logo a přečti si cíl a filosofii projektu.",
+  3: "Text cíle a filosofie můžeš upravit vpravo; změna se ihned ukáže vlevo.",
+  4: "COTO vrací výsledky do nejmenších správních a společenských celků, kde téma vzniklo.",
+  5: "Zadej IČO a samostatný účet na propagaci. Údaje se přenesou do okna A.",
+  6: "Přejeď přes variantu a kliknutím otevři živou vyplňovací šablonu.",
+  7: "Vyber kód, hodnotu a týden. Potom vyplň tři řádky okna C.",
+  8: "Zkontroluj celý třídílný TVL na jedné A4. Rozměry můžeš doladit vpravo.",
+  9: "Do řádku každého TVL se vrací pouze statistický součet.",
+  10: "Vyber správce, ohodnoť tři návrhy 1–9 body a odešli svůj TVL.",
+};
+
+const defaultVoucherHelp =
+  "Toto místo pod dílem POUKÁZKA je vyhrazené pro nápovědu tiskové verze COTO pro účastníka. Text doplníme po kontrole šablon.";
+
+type TvlLayout = {
+  voucher: number;
+  investment: number;
+  cRow: number;
+  windowD: number;
+  identityRow: number;
+};
+
+const defaultTvlLayout: TvlLayout = {
+  voucher: 38.5,
+  investment: 27,
+  cRow: 23,
+  windowD: 36,
+  identityRow: 17,
+};
 
 const defaultPurposeText = `Cílem PRŮZKUMU NÁZORŮ aplikací COTO – v internetové i tištěné verzi je obnovení důvěry v hodnotu hlasu voliče.
 
@@ -146,7 +180,8 @@ function ResultsJourney({
       </div>
       <p>
         Shodné projekty se spojují napříč správci. Součtový výsledek se vrací
-        správci i do každého původního nebo zkopírovaného TVL. Právě je
+        správci i do každého původního nebo zkopírovaného TVL. Vrací se pouze
+        statistický součet, ne názvy témat ani osobní údaje. Právě je
         propojeno {linkedTvlCount} {linkedTvlCount === 1 ? "použité TVL" : "použitých TVL"};
         na všech se načte shodný výsledek a ukáže, na které úrovni má vzniklý
         tlak dostat řešení.
@@ -163,16 +198,15 @@ function ResultsJourney({
 function PromotionAccountResults({
   account,
   identifier,
-  projects,
   scores,
   linkedTvlCount,
 }: {
   account: string;
   identifier: string;
-  projects: Project[];
   scores: number[];
   linkedTvlCount: number;
 }) {
+  const scoreTotal = scores.reduce((sum, score) => sum + score, 0);
   return (
     <section className="promotion-account" aria-label="Řádkové výsledky účtu na propagaci">
       <header>
@@ -183,18 +217,18 @@ function PromotionAccountResults({
         <code>{account}</code>
       </header>
       <p>
-        Pod svým anonymním identifikátorem tu najdeš řádek každého tématu ze
-        svého TVL. Osobní údaje z okna D se sem nepřenášejí.
+        Pod anonymním identifikátorem tu najdeš pouze statistický součet za
+        každý použitý TVL. Názvy témat ani osobní údaje z okna D se sem nepřenášejí.
       </p>
       <div className="account-result-head" aria-hidden="true">
-        <span>TVL</span><span>Téma</span><span>Správce</span><span>Tvoje body</span>
+        <span>TVL</span><span>Propojení</span><span>Účet správce</span><span>Součet bodů</span>
       </div>
-      {projects.map((project, index) => (
-        <div className="account-result-row" key={project.title + index}>
-          <code>{identifier}</code>
-          <b>{project.title || "Nevyplněné téma"}</b>
-          <span>{project.value} Kč</span>
-          <strong>{scores[index] || "–"}</strong>
+      {Array.from({ length: linkedTvlCount }, (_, index) => (
+        <div className="account-result-row" key={index}>
+          <code>{index === 0 ? identifier : `propojený TVL ${index + 1}`}</code>
+          <b>{index === 0 ? "původní list" : "kopie jiného správce"}</b>
+          <span>{account}</span>
+          <strong>{index === 0 ? scoreTotal || "–" : "čeká na součet"}</strong>
         </div>
       ))}
       <small>
@@ -202,6 +236,79 @@ function PromotionAccountResults({
       </small>
     </section>
   );
+}
+
+function LiveScreenEditor({
+  current,
+  note,
+  onNote,
+  purposeText,
+  onPurposeText,
+  onRestorePurpose,
+  voucherHelp,
+  onVoucherHelp,
+  layout,
+  onLayout,
+}: {
+  current: number;
+  note: string;
+  onNote: (value: string) => void;
+  purposeText: string;
+  onPurposeText: (value: string) => void;
+  onRestorePurpose: () => void;
+  voucherHelp: string;
+  onVoucherHelp: (value: string) => void;
+  layout: TvlLayout;
+  onLayout: (key: keyof TvlLayout, value: number) => void;
+}) {
+  return (
+    <aside className="live-screen-editor" aria-label={`Opravy obrazovky ${current}`}>
+      <header>
+        <span>OPRAVY OBRAZOVKY</span>
+        <strong>{String(current).padStart(2, "0")}</strong>
+        <b>{screenSteps[current - 1]}</b>
+      </header>
+      <div className="editor-screen-list" aria-label="Číslování obrazovek">
+        {screenSteps.map((_, index) => (
+          <span className={index + 1 === current ? "active" : ""} key={index}>{String(index + 1).padStart(2, "0")}</span>
+        ))}
+      </div>
+      <label>
+        Text pokynu na levé obrazovce
+        <textarea value={note} onChange={(event) => onNote(event.target.value)} />
+      </label>
+      {current === 3 && (
+        <>
+          <label>
+            Cíl a filosofie
+            <textarea id="purpose-text-editor" className="long-editor" value={purposeText} onChange={(event) => onPurposeText(event.target.value)} />
+          </label>
+          <button type="button" onClick={onRestorePurpose}>VRÁTIT TEXT Z 29. 9. 2026</button>
+        </>
+      )}
+      {current === 8 && (
+        <>
+          <label>
+            Text pod dílem POUKÁZKA
+            <textarea value={voucherHelp} onChange={(event) => onVoucherHelp(event.target.value)} />
+          </label>
+          <div className="layout-controls">
+            <b>POSUN LINEK A OKEN NA A4</b>
+            <label>Výška POUKÁZKY <output>{layout.voucher}%</output><input type="range" min="34" max="44" step="0.5" value={layout.voucher} onChange={(e) => onLayout("voucher", Number(e.target.value))} /></label>
+            <label>Výška INVESTICE <output>{layout.investment}%</output><input type="range" min="23" max="32" step="0.5" value={layout.investment} onChange={(e) => onLayout("investment", Number(e.target.value))} /></label>
+            <label>Výška řádku C <output>{layout.cRow}px</output><input type="range" min="18" max="31" value={layout.cRow} onChange={(e) => onLayout("cRow", Number(e.target.value))} /></label>
+            <label>Výška okna D <output>{layout.windowD}%</output><input type="range" min="28" max="46" value={layout.windowD} onChange={(e) => onLayout("windowD", Number(e.target.value))} /></label>
+            <label>Řádek identifikátoru D <output>{layout.identityRow}px</output><input type="range" min="13" max="25" value={layout.identityRow} onChange={(e) => onLayout("identityRow", Number(e.target.value))} /></label>
+          </div>
+        </>
+      )}
+      <p>Změny se ukládají v tomto Chrome a ihned se ukazují vlevo.</p>
+    </aside>
+  );
+}
+
+function LiveScreenNote({ text }: { text: string }) {
+  return <p className="live-screen-note" aria-live="polite">{text}</p>;
 }
 
 function ScreenBadge({ current }: { current: number }) {
@@ -240,6 +347,7 @@ function TvlSection({
   activationStamp,
   currentDate,
   currentTime,
+  voucherHelp,
   showControls,
   onBack,
   onFinish,
@@ -260,6 +368,7 @@ function TvlSection({
   activationStamp?: string;
   currentDate: string;
   currentTime: string;
+  voucherHelp?: string;
   showControls?: boolean;
   onBack?: () => void;
   onFinish?: () => void;
@@ -434,10 +543,7 @@ function TvlSection({
       {kind === "voucher" && (
         <div className="voucher-footer">
           <div className="voucher-instructions">
-            <b>Pasivní účastník</b> doplní adresu pro papírové použití.{" "}
-            <strong>Aktivní účastník</strong> používá shodný identifikátor a
-            časové razítko ve všech třech dílech; osobní údaje zůstávají pouze
-            v okně D POUKÁZKY.
+            {voucherHelp || defaultVoucherHelp}
           </div>
           <div className="invalid-warning">
             PŘI PŘEPISOVÁNÍ A ŠKRTÁNÍ JE TIŠTĚNÝ LIST NEPLATNÝ!
@@ -494,6 +600,9 @@ export default function Home() {
     "Přejeď kurzorem přes volbu. Tady se ukáže její význam a místo přenosu do TVL.",
   );
   const [purposeText, setPurposeText] = useState(defaultPurposeText);
+  const [screenCopy, setScreenCopy] = useState<Record<number, string>>(defaultScreenCopy);
+  const [voucherHelp, setVoucherHelp] = useState(defaultVoucherHelp);
+  const [tvlLayout, setTvlLayout] = useState<TvlLayout>(defaultTvlLayout);
 
   useEffect(() => {
     const showTime = () => {
@@ -514,6 +623,21 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    try {
+      const savedCopy = window.localStorage.getItem(SCREEN_COPY_STORAGE_KEY);
+      if (savedCopy) setScreenCopy({ ...defaultScreenCopy, ...JSON.parse(savedCopy) });
+      const savedLayout = window.localStorage.getItem(TVL_LAYOUT_STORAGE_KEY);
+      if (savedLayout) {
+        const parsed = JSON.parse(savedLayout);
+        setTvlLayout({ ...defaultTvlLayout, ...parsed.layout });
+        setVoucherHelp(parsed.voucherHelp || defaultVoucherHelp);
+      }
+    } catch {
+      // Poškozené místní nastavení nesmí zastavit živou šablonu.
+    }
+  }, []);
+
+  useEffect(() => {
     const savedPurpose = window.localStorage.getItem(PURPOSE_STORAGE_KEY);
     if (!savedPurpose) return;
     const restoreSavedPurpose = window.setTimeout(() => setPurposeText(savedPurpose), 0);
@@ -529,6 +653,52 @@ export default function Home() {
     setPurposeText(defaultPurposeText);
     window.localStorage.setItem(PURPOSE_STORAGE_KEY, defaultPurposeText);
   };
+
+  const updateScreenCopy = (screen: number, value: string) => {
+    setScreenCopy((current) => {
+      const next = { ...current, [screen]: value };
+      window.localStorage.setItem(SCREEN_COPY_STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const updateVoucherHelp = (value: string) => {
+    setVoucherHelp(value);
+    window.localStorage.setItem(TVL_LAYOUT_STORAGE_KEY, JSON.stringify({ layout: tvlLayout, voucherHelp: value }));
+  };
+
+  const updateTvlLayout = (key: keyof TvlLayout, value: number) => {
+    setTvlLayout((current) => {
+      const next = { ...current, [key]: value };
+      window.localStorage.setItem(TVL_LAYOUT_STORAGE_KEY, JSON.stringify({ layout: next, voucherHelp }));
+      return next;
+    });
+  };
+
+  const receiptShare = Math.max(20, 96 - tvlLayout.voucher - tvlLayout.investment);
+  const tvlLayoutStyle = {
+    "--voucher-share": `${tvlLayout.voucher}%`,
+    "--investment-share": `${tvlLayout.investment}%`,
+    "--receipt-share": `${receiptShare}%`,
+    "--c-row-height": `${tvlLayout.cRow}px`,
+    "--window-d-height": `${tvlLayout.windowD}%`,
+    "--window-d-id-height": `${tvlLayout.identityRow}px`,
+  } as CSSProperties;
+
+  const renderEditor = (current: number) => (
+    <LiveScreenEditor
+      current={current}
+      note={screenCopy[current] || ""}
+      onNote={(value) => updateScreenCopy(current, value)}
+      purposeText={purposeText}
+      onPurposeText={updatePurposeText}
+      onRestorePurpose={restorePurposeText}
+      voucherHelp={voucherHelp}
+      onVoucherHelp={updateVoucherHelp}
+      layout={tvlLayout}
+      onLayout={updateTvlLayout}
+    />
+  );
 
   const chosenVariant = variantOptions.find((option) => option.code === variant) || variantOptions[0];
   const previewVariant = variantOptions.find((option) => option.code === hoveredVariant) || variantOptions[0];
@@ -668,12 +838,15 @@ export default function Home() {
     activationStamp,
     currentDate,
     currentTime,
+    voucherHelp,
   };
 
   if (entryStage === "icon") {
     return (
-      <main className="entry-screen">
+      <main className="entry-screen with-live-editor">
         <ScreenBadge current={1} />
+        {renderEditor(1)}
+        <LiveScreenNote text={screenCopy[1]} />
         <button
           className="coto-entry-icon video-look original-icon"
           onClick={() => setEntryStage("logo")}
@@ -687,8 +860,10 @@ export default function Home() {
 
   if (entryStage === "logo") {
     return (
-      <main className="entry-screen">
+      <main className="entry-screen with-live-editor">
         <ScreenBadge current={2} />
+        {renderEditor(2)}
+        <LiveScreenNote text={screenCopy[2]} />
         <button
           className="coto-entry-logo coto-entry-logo-image"
           onClick={() => setEntryStage("purpose")}
@@ -705,8 +880,10 @@ export default function Home() {
 
   if (entryStage === "purpose") {
     return (
-      <main className="entry-screen">
+      <main className="entry-screen with-live-editor">
         <ScreenBadge current={3} />
+        {renderEditor(3)}
+        <LiveScreenNote text={screenCopy[3]} />
         <section className="entry-panel purpose-panel" id="dokument-projekt-coto">
           <button
             className="purpose-close"
@@ -725,19 +902,6 @@ export default function Home() {
                 </p>
               ))}
             </div>
-            <aside className="purpose-editor" aria-label="Úprava textu cíle a filosofie">
-              <label htmlFor="purpose-text-editor">UPRAV TEXT</label>
-              <p>Přepiš slovo nebo větu. Změna se ihned ukáže vlevo a zůstane uložená v tomto Chrome.</p>
-              <textarea
-                id="purpose-text-editor"
-                value={purposeText}
-                onChange={(event) => updatePurposeText(event.target.value)}
-                spellCheck="true"
-              />
-              <button type="button" className="muted" onClick={restorePurposeText}>
-                VRÁTIT TEXT Z 29. 9. 2026
-              </button>
-            </aside>
           </div>
           <div className="purpose-actions">
             <span>Dokument Projekt COTO</span>
@@ -750,8 +914,10 @@ export default function Home() {
 
   if (entryStage === "roles") {
     return (
-      <main className="entry-screen">
+      <main className="entry-screen with-live-editor">
         <ScreenBadge current={4} />
+        {renderEditor(4)}
+        <LiveScreenNote text={screenCopy[4]} />
         <section className="entry-panel role-panel">
           <img className="entry-mini-logo" src="/COTO-testovac/coto-logo-original.png" alt="Logo COTO" />
           <p className="role-summary">
@@ -786,8 +952,10 @@ export default function Home() {
 
   if (entryStage === "ares") {
     return (
-      <main className="entry-screen">
+      <main className="entry-screen with-live-editor">
         <ScreenBadge current={5} />
+        {renderEditor(5)}
+        <LiveScreenNote text={screenCopy[5]} />
         <section className="entry-panel manager-entry">
           <img className="entry-mini-logo" src="/COTO-testovac/coto-logo-original.png" alt="Logo COTO" />
           <p className="eyebrow">KONTROLA SPRÁVCE V ARES</p>
@@ -857,8 +1025,10 @@ export default function Home() {
 
   if (entryStage === "variants") {
     return (
-      <main className="entry-screen">
+      <main className="entry-screen with-live-editor">
         <ScreenBadge current={6} />
+        {renderEditor(6)}
+        <LiveScreenNote text={screenCopy[6]} />
         <section className="entry-panel variant-panel">
           <p className="verified-manager">Ověřený správce: <b>{organiser}</b></p>
           <p className="eyebrow">VÝBĚR VARIANTY COTO</p>
@@ -889,8 +1059,10 @@ export default function Home() {
 
   if (entryStage === "dashboard") {
     return (
-      <main className="dashboard-screen">
+      <main className="dashboard-screen with-live-editor">
         <ScreenBadge current={9} />
+        {renderEditor(9)}
+        <LiveScreenNote text={screenCopy[9]} />
         <header className="dashboard-logo">
           <div className="dashboard-title">
             <small>OBRAZOVKA 09 · PŘEHLED SPRÁVCE</small>
@@ -952,7 +1124,6 @@ export default function Home() {
           <PromotionAccountResults
             account={account}
             identifier={receipt.split(" · ")[0]}
-            projects={projects}
             scores={scores}
             linkedTvlCount={copiedSurveyCount + 1}
           />
@@ -967,8 +1138,10 @@ export default function Home() {
 
   if (entryStage === "readonly") {
     return (
-      <main className="readonly-screen">
+      <main className="readonly-screen with-live-editor">
         <ScreenBadge current={8} />
+        {renderEditor(8)}
+        <LiveScreenNote text={screenCopy[8]} />
         <div className="readonly-toolbar">
           <strong>OBRAZOVKA 08 · CELÝ TVL</strong>
           <button onClick={() => setEntryStage("dashboard")}>ZPĚT NA PŘEHLED</button>
@@ -1004,7 +1177,7 @@ export default function Home() {
             {copyFeedback && <strong className="copy-feedback" role="status">{copyFeedback}</strong>}
           </section>
         )}
-        <div className="tvl-paper original-a4">
+        <div className="tvl-paper original-a4" style={tvlLayoutStyle}>
           <TvlSection kind="voucher" {...sharedTvl} participantScores={receipt ? scores : undefined} onInspect={setSelected} />
           <CutLine label="oddělit POUKÁZKU" />
           <TvlSection kind="investment" {...sharedTvl} participantScores={receipt ? scores : undefined} onInspect={setSelected} />
@@ -1015,7 +1188,6 @@ export default function Home() {
           <PromotionAccountResults
             account={account}
             identifier={receipt.split(" · ")[0]}
-            projects={projects}
             scores={scores}
             linkedTvlCount={copiedSurveyCount + 1}
           />
@@ -1025,7 +1197,7 @@ export default function Home() {
           linkedTvlCount={copiedSurveyCount + 1}
         />
         <div className="print-batch" aria-hidden="true">
-          <div className="tvl-paper printed-sheet original-a4">
+          <div className="tvl-paper printed-sheet original-a4" style={tvlLayoutStyle}>
             <div className="printed-number">TVL {variant}1 · celý třídílný list</div>
             <TvlSection kind="voucher" {...sharedTvl} participantScores={receipt ? scores : undefined} onInspect={() => {}} />
             <CutLine label="oddělit POUKÁZKU" />
@@ -1039,8 +1211,10 @@ export default function Home() {
   }
 
   return (
-    <main className="application-screen">
+    <main className="application-screen with-live-editor">
       <ScreenBadge current={role === "participant" ? 10 : 7} />
+      {renderEditor(role === "participant" ? 10 : 7)}
+      <LiveScreenNote text={screenCopy[role === "participant" ? 10 : 7]} />
       <nav className="topbar">
         <div>
           <button className="topbar-home" onClick={() => setEntryStage("icon")} aria-label="Zobrazit titulní stránku COTO">
@@ -1200,7 +1374,6 @@ export default function Home() {
                     <PromotionAccountResults
                       account={account}
                       identifier={receipt.split(" · ")[0]}
-                      projects={projects}
                       scores={scores}
                       linkedTvlCount={copiedSurveyCount + 1}
                     />
@@ -1499,7 +1672,7 @@ export default function Home() {
             </div>
           </div>
           <div className="preview-scroll">
-            <div className="tvl-paper original-a4">
+            <div className="tvl-paper original-a4" style={tvlLayoutStyle}>
               <TvlSection kind="voucher" {...sharedTvl} onInspect={setSelected} />
               <CutLine label="oddělit POUKÁZKU" />
               <TvlSection kind="investment" {...sharedTvl} onInspect={setSelected} />
@@ -1523,7 +1696,7 @@ export default function Home() {
             participantSymbols: role === "participant" ? participantSymbols : ["", "", "", ""],
           };
           return (
-            <div className="tvl-paper printed-sheet original-a4" key={printCode}>
+            <div className="tvl-paper printed-sheet original-a4" style={tvlLayoutStyle} key={printCode}>
               <div className="printed-number">TVL {variant}1 · pořadové číslo {copyIndex + 1}</div>
               <TvlSection kind="voucher" {...printShared} onInspect={() => {}} />
               <CutLine label="oddělit POUKÁZKU" />
