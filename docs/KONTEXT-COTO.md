@@ -93,6 +93,8 @@ PN je živá jeden týden, od pondělí 00:00 do neděle 23:59:59,999. Po potvrz
 
 Další správce může z potvrzeného průzkumu převzít jeden, dva nebo všechny tři náměty okna C. Kopírují se pouze označené názvy a popisy; jejich vazba na společný součtový výsledek zůstává zachována ve všech použitých TVL.
 
+U každého průzkumu se správci i účastníkovi červeně zobrazuje orientační údaj **Kopírováno 0×** a jeho průběžná hodnota. Není to výsledek hlasování ani přesný statistický součet; slouží jako upozornění na zájem o průzkum a pobídka k jeho převzetí pod identitou jiného správce. Když jiný správce na údaj klikne, otevře se seznam variant se zvýrazněnou shodnou variantou. Jejím výběrem vznikne čistá pracovní šablona se zápisem **Variace**, který zachová původní kód a přesné časové razítko kopie. Po potvrzení kopie do seznamu se orientační počet zvýší.
+
 ## Současné testovací nasazení
 
 Aplikace se sestavuje jako statický export s cestou `/COTO-testovac` a slouží jako testovací verze. GitHub Actions při pull requestu do `main` spouští povinný build **Build application**. Po sloučení do `main` stejný workflow vytvoří statický výstup a nasadí jej na GitHub Pages. Samostatná automatika u způsobilého pull requestu pouze zapne GitHub auto-merge metodou `merge`; samotné sloučení musí počkat na úspěšný povinný build a nesmí proběhnout při konfliktu nebo neúspěšné kontrole.
