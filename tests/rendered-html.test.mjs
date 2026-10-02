@@ -46,14 +46,15 @@ test("logo COTO v horní liště vrací na titulní obrázek", async () => {
 
 test("živá pracovní šablona se nesmí znovu přeskočit", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
-  for (const text of ["Logo aplikace COTO", "Kód a pořadí použití", "Priorita celého průzkumu správcem", "Datum a doba platnosti", "Nepoužité řádky označ křížkem", "UKONČIT · VYTVOŘIT ČASOVÉ RAZÍTKO"]) assert.match(page, new RegExp(text));
+  for (const text of ["Logo aplikace COTO", "Průzkum názorů a řešení", "Hodnota zkušeností správce", "Týden průzkumu pro kódy VL a VT", "Nepoužité řádky označ křížkem", "UKONČIT · VYTVOŘIT ČASOVÉ RAZÍTKO"]) assert.match(page, new RegExp(text));
 });
 
 test("celý TVL zachovává identifikátor B, osobní okno D a jednu A4", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   const css = await readFile(new URL("../app/revision-2026-09-24.css", import.meta.url), "utf8");
   assert.match(page, /Volitelný kód účastníka/);
-  assert.match(page, /code\.slice\(0, 17\)\.split/);
+  assert.match(page, /identifierCode\.split\(""\)/);
+  assert.match(page, /padEnd\(17, " "\)\.slice\(0, 17\)/);
   assert.match(page, /Array\.from\(\{ length: 4 \}/);
   assert.match(page, /className="identifier-symbol"/);
   assert.match(css, /grid-template-columns: repeat\(21, minmax\(0, 1fr\)\)/);
@@ -82,7 +83,7 @@ test("účastník vidí řádkové výsledky účtu na propagaci", async () => {
 
 test("pokyny používají přímé tykání", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
-  for (const text of ["Vyber si správce", "Otevři jeho aktivitu", "Tvoje hodnocení", "Zadej IČO", "Vyber prioritu"]) assert.match(page, new RegExp(text));
+  for (const text of ["Vyber si správce", "Otevři jeho aktivitu", "Tvoje hodnocení", "Zadej IČO", "Nejdřív vyber průzkum"]) assert.match(page, new RegExp(text));
   assert.doesNotMatch(page, /zadejte|doplňte|vyberte|otevřete|najeďte|klikněte|přidělte|můžete|zkontrolujte|vaše hodnocení/i);
 });
 
@@ -137,6 +138,21 @@ test("další správce může zkopírovat jeden nebo více vybraných námětů"
   assert.match(page, /projects\.filter\(\(project, index\) => copySelection\[index\] && !project\.unused\)/);
 });
 
+test("celý průzkum má samostatný průběžný počet kopií pro správce i účastníka", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const css = await readFile(new URL("../app/revision-2026-09-24.css", import.meta.url), "utf8");
+  assert.match(page, /wholeSurveyCopyCounts/);
+  assert.match(page, /Kopírováno \{wholeSurveyCopyCounts\[item\.code\] \|\| 0\}×/);
+  assert.match(page, /Kopírováno \{wholeSurveyCopyCounts\[code\] \|\| 0\}×/);
+  assert.match(page, /\[sourceCode\]: \(current\[sourceCode\] \|\| 0\) \+ 1/);
+  assert.match(page, /Kód \$\{sourceCode\} patří do jiné varianty/);
+  assert.match(page, /startWholeSurveyCopy/);
+  assert.match(page, /Variace/);
+  assert.match(page, /lastWholeSurveyCopyAt/);
+  assert.match(page, /Jde jen o orientační počet/);
+  assert.match(css, /color: #b42318/);
+});
+
 test("všechny opravované obrazovky mají nenápadné číslo", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   assert.match(page, /className="screen-badge"/);
@@ -152,7 +168,7 @@ test("pracovní komunikace s Lin není vložena do veřejné aplikace", async ()
 test("správce dostává popisky při pohybu kurzoru", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   const css = await readFile(new URL("../app/revision-2026-09-24.css", import.meta.url), "utf8");
-  for (const text of ["Kód a pořadí", "Vyber způsob použití COTO", "zamkne editaci", "Vrátí tě k výběru varianty"]) assert.match(page, new RegExp(text, "i"));
+  for (const text of ["Označení kódu se zobrazí až po výběru", "1 = 20–39 let", "VL = Vyber lepší", "zamkne editaci", "Vrátí tě k výběru varianty"]) assert.match(page, new RegExp(text, "i"));
   assert.match(page, /data-help=/);
   assert.match(css, /\.manager-help:hover::after/);
   assert.doesNotMatch(page, /className="manager-hover-caption"/);
@@ -166,6 +182,24 @@ test("obrazovka 07 zachovává živou práci správce bez veřejných značek ok
   assert.match(page, /projects\.filter\(\(project\) => !project\.unused\)/);
   assert.match(page, /setLive\(\(current\) => \[/);
   assert.doesNotMatch(page, /className="sheet-marker/);
+});
+
+test("obrazovka 07 odkrývá kód, zkušenost a týden postupně", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  for (const state of ["screen7CodeChosen", "experienceChosen", "weekChosen"]) assert.match(page, new RegExp(state));
+  assert.match(page, /screen7CodeChosen \? `\$\{variant\}001` : "VYBER"/);
+  assert.match(page, /disabled=\{locked \|\| !screen7CodeChosen\}/);
+  assert.match(page, /disabled=\{locked \|\| !screen7CodeChosen \|\| !experienceChosen\}/);
+  assert.match(page, /setScreen7CodeChosen\(true\)[\s\S]*?setExperienceChosen\(false\)[\s\S]*?setWeekChosen\(false\)/);
+  assert.match(page, /setExperienceChosen\(true\)[\s\S]*?setWeekChosen\(false\)/);
+  assert.match(page, /setWeekChosen\(true\)/);
+});
+
+test("hodnota zkušeností má věkové skupiny a v TVL jen číslici", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  for (const text of ["20–39 let", "40–59 let", "60–89 let", "V tiskopisu se zobrazí pouze zvolená číslice 1–3"]) assert.match(page, new RegExp(text));
+  assert.match(page, /<b>Hodnota zkušeností<br \/>správce<\/b>\s*<i>\{surveyValue\}<\/i>/);
+  assert.doesNotMatch(page, /<i>\{surveyValue\} \{surveyValue === 1 \? "bod" : "body"\}<\/i>/);
 });
 
 test("účastník má už ve volbě role seznam správců", async () => {
