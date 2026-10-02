@@ -76,7 +76,7 @@ const defaultScreenCopy: Record<number, string> = {
   4: "COTO vrací výsledky do nejmenších správních a společenských celků, kde téma vzniklo.",
   5: "Zadej IČO a samostatný účet na propagaci.",
   6: "Najetím kurzorem nebo prvním dotykem zobrazíš popis varianty. Kliknutím nebo druhým dotykem ji vybereš.",
-  7: "Vyber kód, prioritu správce a týden. Potom vyplň jeden až tři návrhy; nepoužité řádky označ křížkem.",
+  7: "Nejdřív vyber průzkum, potom hodnotu zkušeností správce a nakonec týden. Pak vyplň jeden až tři návrhy; nepoužité řádky označ křížkem.",
   8: "Zkontroluj celý třídílný TVL na jedné A4. Rozměry můžeš doladit vpravo.",
   9: "Do řádku každého TVL se vrací pouze statistický součet.",
   10: "Vyber správce, ohodnoť každý použitý návrh 1–9 body a odešli svůj TVL.",
@@ -99,6 +99,13 @@ type EditableCopy = {
   variantPP: string;
   variantVT: string;
   managerListLabel: string;
+  surveyChoiceLabel: string;
+  surveyChoiceHelp: string;
+  managerExperienceLabel: string;
+  managerExperienceHelp: string;
+  surveyWeekLabel: string;
+  surveyWeekHelp: string;
+  copyCountHelp: string;
   screen7Guide: string;
   timestampPurpose: string;
   printedIdentityHelp: string;
@@ -118,7 +125,14 @@ const defaultEditableCopy: EditableCopy = {
   variantPP: "Podpora projektu: podpora konkrétního projektu.",
   variantVT: "Volební tombola: výběr lidí spojených s řešením.",
   managerListLabel: "Seznam správců pro účastníka",
-  screen7Guide: "1. Vyber kód, prioritu celého průzkumu 1–3 body a týden živého hodnocení.\n2. Vyplň jeden až tři návrhy potřeb nebo řešení otázek.\n3. Nepoužité řádky označ křížkem.",
+  surveyChoiceLabel: "Průzkum názorů a řešení",
+  surveyChoiceHelp: "Nejdřív otevři nabídku a vyber PN, VL, PP nebo VT. Označení kódu se zobrazí až po výběru.",
+  managerExperienceLabel: "Hodnota zkušeností správce",
+  managerExperienceHelp: "1 = 20–39 let, 2 = 40–59 let, 3 = 60–89 let. V tiskopisu se zobrazí pouze zvolená číslice 1–3.",
+  surveyWeekLabel: "Týden průzkumu pro kódy VL a VT",
+  surveyWeekHelp: "VL = Vyber lepší = referendum pod jiným názvem. VT = Volební tombola = průzkum emocí před volbami. Průzkum trvá od pondělí do neděle do 24:00. Nejdřív vyber kód, potom týden.",
+  copyCountHelp: "Jde jen o orientační počet, který upozorňuje na zájem o průzkum. Jinému správci kliknutí otevře seznam variant. Stejná varianta se zvýrazní a po výběru zapíše do čisté pracovní šablony Variaci: původní kód a časové razítko kopie.",
+  screen7Guide: "1. Nejdřív vyber průzkum; označení kódu se ukáže až potom.\n2. Vyber hodnotu zkušeností správce 1–3 a následně týden průzkumu.\n3. Vyplň jeden až tři návrhy potřeb nebo řešení otázek; nepoužité řádky označ křížkem.",
   timestampPurpose: "Zamkne editaci a uloží průzkum do seznamů s výsledky v prostředí účtu na propagaci. Pomáhá také rychleji vyhledat aktivity účastníků.",
   printedIdentityHelp: "U variant VL a VT vyplňují účastníci tištěné listy osobně po ztotožnění. První díl si ponechají, druhé dva vhodí do urny.",
 };
@@ -332,10 +346,18 @@ function LiveScreenEditor({
       ["variantVT", "Žlutá nápověda VT"],
     ],
     7: [
+      ["surveyChoiceLabel", "Nadpis první volby"],
+      ["surveyChoiceHelp", "Nápověda první volby"],
+      ["managerExperienceLabel", "Nadpis prostřední volby"],
+      ["managerExperienceHelp", "Nápověda zkušeností 1–3"],
+      ["surveyWeekLabel", "Nadpis volby týdne"],
+      ["surveyWeekHelp", "Nápověda VL, VT a týdne"],
       ["screen7Guide", "Postup práce v obrazovce 07"],
       ["timestampPurpose", "Úloha časového razítka"],
       ["printedIdentityHelp", "Tištěné varianty VL a VT"],
     ],
+    9: [["copyCountHelp", "Nápověda počtu kopií"]],
+    10: [["copyCountHelp", "Nápověda počtu kopií"]],
   };
   const confirmWithEnter = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Enter" && !event.shiftKey) {
@@ -437,12 +459,15 @@ function TvlSection({
   participantSymbols,
   personal,
   activationStamp,
+  variationSourceCode,
+  variationCopyStamp,
   currentDate,
   currentTime,
   timestampPurpose,
   printedIdentityHelp,
   voucherHelp,
   showWindowGuides = false,
+  codeVisible = true,
   showControls,
   onBack,
   onFinish,
@@ -462,12 +487,15 @@ function TvlSection({
   participantSymbols?: string[];
   personal?: PersonalData;
   activationStamp?: string;
+  variationSourceCode?: string;
+  variationCopyStamp?: string;
   currentDate: string;
   currentTime: string;
   timestampPurpose: string;
   printedIdentityHelp: string;
   voucherHelp?: string;
   showWindowGuides?: boolean;
+  codeVisible?: boolean;
   showControls?: boolean;
   onBack?: () => void;
   onFinish?: () => void;
@@ -481,18 +509,19 @@ function TvlSection({
   const numbers = { voucher: "1.", investment: "2.", receipt: "3." };
   const personalIdentifierLabel =
     variant === "PP" ? "Číslo bankovní transakce" : "Rodné číslo";
+  const identifierCode = (codeVisible ? code : "").padEnd(17, " ").slice(0, 17);
 
   return (
     <section className={"tvl-section " + kind} aria-label={labels[kind]}>
       <div className="tvl-topline">
         <span>
           <b>Kód varianty<br />COTO</b>
-          <i>{variant}001</i>
+          <i>{codeVisible ? `${variant}001` : "—"}</i>
         </span>
         <h2><em>{numbers[kind]}</em> {labels[kind]}</h2>
         <span>
-          <b>Priorita průzkumu<br />správcem</b>
-          <i>{surveyValue} {surveyValue === 1 ? "bod" : "body"}</i>
+          <b>Hodnota zkušeností<br />správce</b>
+          <i>{surveyValue}</i>
         </span>
         <span className="validity">
           <b>Týden platnosti<br />tohoto listu</b>
@@ -519,7 +548,7 @@ function TvlSection({
             <span>{showWindowGuides && <mark>B</mark>}Volitelný kód účastníka</span>
           </div>
           <div className="identifier window-b">
-            {code.slice(0, 17).split("").map((symbol, index) => (
+            {identifierCode.split("").map((symbol, index) => (
               <span className="identifier-symbol identifier-generated" key={`generated-${index}`}>{symbol}</span>
             ))}
             {Array.from({ length: 4 }, (_, index) => (
@@ -546,6 +575,13 @@ function TvlSection({
                 <small>{timestampPurpose}</small>
                 <b>{activationStamp || "zatím nevytvořeno"}</b>
               </div>
+              {variationSourceCode && (
+                <div className="variation-record">
+                  <strong>VARIACE</strong>
+                  <span>{variationSourceCode}</span>
+                  <b>{variationCopyStamp || "časové razítko vznikne výběrem varianty"}</b>
+                </div>
+              )}
             </div>
             {kind === "investment" && showControls && (
               <div className="window-a-actions">
@@ -558,7 +594,7 @@ function TvlSection({
 
         <div className="tvl-right">
           <div className="survey-box">
-            <h3>{title}</h3>
+            <h3>{codeVisible ? title : "Průzkum zatím nevybrán"}</h3>
             <div className="project-list window-c">
               {showWindowGuides && <span className="window-letter">C</span>}
               <div className="project-columns">
@@ -620,7 +656,7 @@ function TvlSection({
             <div className="section-explanation">
               <b>Kvalita účastníka je zdrojem i cílem správce.</b>
               <ol>
-                <li>Správce vloží jeden až tři návrhy a celému průzkumu určí prioritu 1–3 body.</li>
+                <li>Správce vloží jeden až tři návrhy a číslicí 1–3 označí hodnotu svých zkušeností.</li>
                 <li>Účastník každý projekt samostatně posílí hodnocením 1–9 bodů.</li>
                 <li>Potvrzená akce přejde mezi živé a po týdnu do výsledků.</li>
               </ol>
@@ -676,6 +712,9 @@ export default function Home() {
   const [copiedSurveyCode, setCopiedSurveyCode] = useState("");
   const [start, setStart] = useState(weeks[0]?.start || "");
   const [surveyValue, setSurveyValue] = useState(1);
+  const [screen7CodeChosen, setScreen7CodeChosen] = useState(false);
+  const [experienceChosen, setExperienceChosen] = useState(false);
+  const [weekChosen, setWeekChosen] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
   const [selectorOpen, setSelectorOpen] = useState<
     "variant" | "value" | "week" | null
@@ -692,6 +731,10 @@ export default function Home() {
   const [receipt, setReceipt] = useState("");
   const [showAccountResults, setShowAccountResults] = useState(false);
   const [copiedSurveyCount, setCopiedSurveyCount] = useState(0);
+  const [wholeSurveyCopyCounts, setWholeSurveyCopyCounts] = useState<Record<string, number>>({});
+  const [lastWholeSurveyCopyAt, setLastWholeSurveyCopyAt] = useState<Record<string, string>>({});
+  const [variationSourceCode, setVariationSourceCode] = useState("");
+  const [variationCopyStamp, setVariationCopyStamp] = useState("");
   const [copyPanelOpen, setCopyPanelOpen] = useState(false);
   const [copySelection, setCopySelection] = useState([true, true, true]);
   const [copyFeedback, setCopyFeedback] = useState("");
@@ -847,20 +890,81 @@ export default function Home() {
   };
 
   const chooseVariant = (nextVariant: VariantCode) => {
+    if (copySurveyMode && copiedSurveyCode.trim() && !copiedSurveyCode.trim().toUpperCase().startsWith(nextVariant)) {
+      setFormError("Variace musí zůstat ve stejné variantě jako původní průzkum.");
+      return;
+    }
     setVariant(nextVariant);
     setHoveredVariant(nextVariant);
+    setScreen7CodeChosen(true);
+    setExperienceChosen(false);
+    setWeekChosen(false);
     setSelectorOpen(null);
     setFormError("");
   };
 
+  const openWorkingVariant = (nextVariant: VariantCode) => {
+    const sourceCode = copiedSurveyCode.trim().toUpperCase();
+    if (copySurveyMode && !sourceCode) {
+      setFormError("Vlož kód průzkumu, který chceš celý převzít.");
+      return;
+    }
+    if (copySurveyMode && !sourceCode.startsWith(nextVariant)) {
+      setFormError(`Kód ${sourceCode} patří do jiné varianty. Vyber stejnou variantu jako na začátku kódu.`);
+      return;
+    }
+    if (copySurveyMode) {
+      const now = new Date();
+      setCopiedSurveyCode(sourceCode);
+      setVariationSourceCode(sourceCode);
+      setVariationCopyStamp(now.toLocaleString("cs-CZ", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        fractionalSecondDigits: 3,
+      }));
+    } else {
+      setVariationSourceCode("");
+      setVariationCopyStamp("");
+    }
+    setVariant(nextVariant);
+    setHoveredVariant(nextVariant);
+    setScreen7CodeChosen(copySurveyMode);
+    setExperienceChosen(false);
+    setWeekChosen(false);
+    setSelectorOpen(null);
+    setFormError("");
+    setEntryStage("app");
+  };
+
+  const startWholeSurveyCopy = (item: { code: string; variant: VariantCode }) => {
+    setCopySurveyMode(true);
+    setCopiedSurveyCode(item.code);
+    setVariant(item.variant);
+    setHoveredVariant(item.variant);
+    setVariationSourceCode(item.code);
+    setVariationCopyStamp(lastWholeSurveyCopyAt[item.code] || "");
+    setLocked(false);
+    setPreview(false);
+    setActivationStamp("");
+    setFormError("");
+    setEntryStage("variants");
+  };
+
   const chooseWeek = (nextStart: string) => {
     setStart(nextStart);
+    setWeekChosen(true);
     setSelectorOpen(null);
     setFormError("");
   };
 
   const chooseSurveyValue = (nextValue: number) => {
     setSurveyValue(nextValue);
+    setExperienceChosen(true);
+    setWeekChosen(false);
     setSelectorOpen(null);
     setFormError("");
   };
@@ -872,11 +976,17 @@ export default function Home() {
         project.unused || (project.title.trim() && project.detail.trim()) ? "" : String(index + 1),
       )
       .filter(Boolean);
-    if (!start || !activeProjects.length || missingProjects.length) {
+    if (!screen7CodeChosen || !experienceChosen || !weekChosen || !activeProjects.length || missingProjects.length) {
       setFormError(
-        !activeProjects.length
-          ? "Vyplň aspoň jeden návrh. Nepoužité řádky označ křížkem."
-          : `Doplň týden a název i stručný popis aktivních návrhů${missingProjects.length ? `; zkontroluj řádek ${missingProjects.join(", ")}` : ""}.`,
+        !screen7CodeChosen
+          ? "Nejdřív vyber průzkum. Teprve potom se zobrazí jeho kód."
+          : !experienceChosen
+            ? "Vyber hodnotu zkušeností správce 1, 2 nebo 3."
+            : !weekChosen
+              ? "Vyber týden průzkumu od pondělí do neděle."
+              : !activeProjects.length
+                ? "Vyplň aspoň jeden návrh. Nepoužité řádky označ křížkem."
+                : `Doplň název i stručný popis aktivních návrhů${missingProjects.length ? `; zkontroluj řádek ${missingProjects.join(", ")}` : ""}.`,
       );
       return;
     }
@@ -912,6 +1022,19 @@ export default function Home() {
       ...current.filter((item) => item.code !== code),
       { title, period: validity.period, code, variant },
     ]);
+    if (copySurveyMode && copiedSurveyCode.trim()) {
+      const sourceCode = copiedSurveyCode.trim().toUpperCase();
+      setWholeSurveyCopyCounts((current) => ({
+        ...current,
+        [sourceCode]: (current[sourceCode] || 0) + 1,
+      }));
+      setLastWholeSurveyCopyAt((current) => ({
+        ...current,
+        [sourceCode]: variationCopyStamp || activationStamp,
+      }));
+    }
+    setCopySurveyMode(false);
+    setCopiedSurveyCode("");
     setEntryStage("dashboard");
   };
 
@@ -953,17 +1076,20 @@ export default function Home() {
     variant,
     surveyValue,
     title,
-    validFrom: validity.from,
-    validTo: validity.to,
+    validFrom: weekChosen ? validity.from : "",
+    validTo: weekChosen ? validity.to : "",
     projects,
     participantSymbols,
     personal,
     activationStamp,
+    variationSourceCode,
+    variationCopyStamp,
     currentDate,
     currentTime,
     timestampPurpose: editableCopy.timestampPurpose,
     printedIdentityHelp: editableCopy.printedIdentityHelp,
     voucherHelp,
+    codeVisible: screen7CodeChosen,
   };
 
   if (entryStage === "icon") {
@@ -1151,7 +1277,7 @@ export default function Home() {
               <button
                 className="manager-help help-right"
                 data-help="Otevře čtyři způsoby použití COTO. Zvolený kód se přenese do záhlaví TVL."
-                onClick={() => { setCopySurveyMode(false); setCopiedSurveyCode(""); setEntryStage("variants"); }}
+                onClick={() => { setCopySurveyMode(false); setCopiedSurveyCode(""); setVariationSourceCode(""); setVariationCopyStamp(""); setEntryStage("variants"); }}
               >
                 OTEVŘI NOVÝ PRŮZKUM A VYBER VARIANTU
               </button>
@@ -1180,10 +1306,16 @@ export default function Home() {
           <img className="entry-mini-logo" src="/COTO-testovac/coto-logo-original.png" alt="Logo COTO" />
           <p className="verified-manager" aria-live="polite">{editableCopy.verifiedManager}: <b>{organiser}</b></p>
           {copySurveyMode && (
-            <label className="copy-survey-code">
-              <span aria-live="polite">{editableCopy.copySurveyLabel}</span>
-              <input value={copiedSurveyCode} onChange={(event) => setCopiedSurveyCode(event.target.value.toUpperCase())} placeholder="např. PN20260930COTO001" />
-            </label>
+            <div className="variation-source-choice">
+              <label className="copy-survey-code">
+                <span aria-live="polite">{editableCopy.copySurveyLabel}</span>
+                <input value={copiedSurveyCode} onChange={(event) => setCopiedSurveyCode(event.target.value.toUpperCase())} placeholder="např. PN20260930COTO001" />
+              </label>
+              <p>
+                <b>Variace:</b> {copiedSurveyCode || "vlož kód"}
+                <span>Poslední kopie: {lastWholeSurveyCopyAt[copiedSurveyCode.trim().toUpperCase()] || "zatím žádná"}</span>
+              </p>
+            </div>
           )}
           {variantOptions.map((option) => (
             <button
@@ -1199,13 +1331,14 @@ export default function Home() {
                   setHoveredVariant(option.code);
                 }
               }}
-              onClick={() => { chooseVariant(option.code); setEntryStage("app"); }}
+              onClick={() => openWorkingVariant(option.code)}
             >
               <b>{option.code}</b>
               <span>{option.name}<small>{option.description}</small></span>
               <em aria-label="Potvrdit výběr">➜</em>
             </button>
           ))}
+          {formError && <p className="form-error">{formError}</p>}
           <button className="muted" onClick={() => setEntryStage("ares")}>ZPĚT</button>
         </section>
       </main>
@@ -1231,7 +1364,7 @@ export default function Home() {
         <button
           className="new-survey manager-help"
           data-help="Založí nový průzkum a vrátí správce k výběru varianty."
-          onClick={() => { setLocked(false); setActivationStamp(""); setEntryStage("variants"); }}
+          onClick={() => { setLocked(false); setActivationStamp(""); setCopySurveyMode(false); setCopiedSurveyCode(""); setVariationSourceCode(""); setVariationCopyStamp(""); setEntryStage("variants"); }}
         >
           + NOVÝ PRŮZKUM
         </button>
@@ -1244,7 +1377,16 @@ export default function Home() {
                 <span className="live-dot" />
                 <div>
                   <b>{item.title}</b>
-                  <small>{item.period}</small>
+                  <span className="survey-list-status">
+                    <small>Živý týden: {item.period}</small>
+                    <button
+                      className="survey-copy-count manager-help help-right"
+                      data-help={editableCopy.copyCountHelp}
+                      onClick={() => startWholeSurveyCopy(item)}
+                    >
+                      Kopírováno {wholeSurveyCopyCounts[item.code] || 0}×
+                    </button>
+                  </span>
                   <small>Pořadí použité varianty: {item.variant}1</small>
                   <button onClick={() => setEntryStage("readonly")}>OTEVŘÍT JEN KE ČTENÍ A KOPÍROVÁNÍ</button>
                   <button onClick={() => { setRole("participant"); setParticipantOpen(true); setEntryStage("app"); }}>
@@ -1315,6 +1457,19 @@ export default function Home() {
             VYBRAT TÉMATA KE KOPÍROVÁNÍ
           </button>
           <button onClick={() => window.print()}>TISKNOUT CELÝ TVL</button>
+          {role === "manager" ? (
+            <button
+              className="survey-copy-count manager-help help-right"
+              data-help={editableCopy.copyCountHelp}
+              onClick={() => startWholeSurveyCopy({ code, variant })}
+            >
+              Kopírováno {wholeSurveyCopyCounts[code] || 0}×
+            </button>
+          ) : (
+            <strong className="survey-copy-count manager-help" data-help={editableCopy.copyCountHelp}>
+              Kopírováno {wholeSurveyCopyCounts[code] || 0}×
+            </strong>
+          )}
         </div>
         {copyPanelOpen && (
           <section className="copy-topics-panel" aria-label="Výběr témat pro dalšího správce">
@@ -1436,7 +1591,12 @@ export default function Home() {
                     </div>
                     <code>{code}</code>
                   </div>
-                  <p className="participant-period">{validity.period}</p>
+                  <div className="participant-period-row">
+                    <p className="participant-period">Živý týden: {validity.period}</p>
+                    <strong className="survey-copy-count manager-help" data-help={editableCopy.copyCountHelp}>
+                      Kopírováno {wholeSurveyCopyCounts[code] || 0}×
+                    </strong>
+                  </div>
 
                   <fieldset className="personal-form">
                     <legend>Osobní údaje · pouze na POUKÁZCE</legend>
@@ -1560,21 +1720,21 @@ export default function Home() {
             <div className="live-selector-row">
               <div
                 className="field-selector"
-                onMouseEnter={() => { if (!locked) setSelectorOpen("variant"); }}
+                onMouseEnter={() => { if (!locked && !copySurveyMode) setSelectorOpen("variant"); }}
               >
-                <small>Kód a pořadí použití</small>
+                <small aria-live="polite">{editableCopy.surveyChoiceLabel}</small>
                 <button
                   className="manager-help"
-                  data-help="Vyber způsob použití COTO. Kód a pořadí se ihned zapíší do všech tří dílů TVL."
-                  disabled={locked}
+                  data-help={editableCopy.surveyChoiceHelp}
+                  disabled={locked || copySurveyMode}
                   onFocus={() => {
-                    setSelectorOpen("variant");
+                    if (!copySurveyMode) setSelectorOpen("variant");
                   }}
                   onClick={() => setSelectorOpen(selectorOpen === "variant" ? null : "variant")}
                   aria-expanded={selectorOpen === "variant"}
                 >
-                  <b>{variant}001</b>
-                  <span>{chosenVariant.name}</span>
+                  <b>{screen7CodeChosen ? `${variant}001` : "VYBER"}</b>
+                  <span>{screen7CodeChosen ? chosenVariant.name : "kód z nabídky"}</span>
                   <em>▾</em>
                 </button>
                 {selectorOpen === "variant" && (
@@ -1582,7 +1742,7 @@ export default function Home() {
                     {variantOptions.map((option) => (
                       <button
                         key={option.code}
-                        className={variant === option.code ? "chosen" : ""}
+                        className={screen7CodeChosen && variant === option.code ? "chosen" : ""}
                         onClick={() => chooseVariant(option.code)}
                       >
                         <b>{option.code}001</b>
@@ -1595,32 +1755,38 @@ export default function Home() {
 
               <div
                 className="field-selector value-selector"
-                onMouseEnter={() => { if (!locked) setSelectorOpen("value"); }}
+                onMouseEnter={() => { if (!locked && screen7CodeChosen) setSelectorOpen("value"); }}
               >
-                <small>Priorita celého průzkumu správcem</small>
+                <small aria-live="polite">{editableCopy.managerExperienceLabel}</small>
                 <button
                   className="manager-help"
-                  data-help="Vyber prioritu celého průzkumu 1, 2 nebo 3 body. Volba se přenese do všech tří dílů TVL."
-                  disabled={locked}
+                  data-help={editableCopy.managerExperienceHelp}
+                  disabled={locked || !screen7CodeChosen}
                   onFocus={() => {
-                    setSelectorOpen("value");
+                    if (screen7CodeChosen) setSelectorOpen("value");
                   }}
                   onClick={() => setSelectorOpen(selectorOpen === "value" ? null : "value")}
                   aria-expanded={selectorOpen === "value"}
                 >
-                  <b>{surveyValue} {surveyValue === 1 ? "bod" : "body"}</b>
-                  <span>priorita správce</span>
+                  <b>{experienceChosen ? surveyValue : "1–3"}</b>
+                  <span>{experienceChosen
+                    ? surveyValue === 1 ? "20–39 let" : surveyValue === 2 ? "40–59 let" : "60–89 let"
+                    : "nejdřív vyber kód"}</span>
                   <em>▾</em>
                 </button>
                 {selectorOpen === "value" && (
                   <div className="selector-menu value-menu" role="listbox">
-                    {[1, 2, 3].map((value) => (
+                    {[
+                      { value: 1, age: "20–39 let" },
+                      { value: 2, age: "40–59 let" },
+                      { value: 3, age: "60–89 let" },
+                    ].map((option) => (
                       <button
-                        key={value}
-                        className={surveyValue === value ? "chosen" : ""}
-                        onClick={() => chooseSurveyValue(value)}
+                        key={option.value}
+                        className={experienceChosen && surveyValue === option.value ? "chosen" : ""}
+                        onClick={() => chooseSurveyValue(option.value)}
                       >
-                        <b>{value} {value === 1 ? "bod" : "body"}</b><span>priorita celého průzkumu</span>
+                        <b>{option.value}</b><span>{option.age}</span>
                       </button>
                     ))}
                   </div>
@@ -1629,27 +1795,33 @@ export default function Home() {
 
               <div
                 className="field-selector week-selector"
-                onMouseEnter={() => { if (!locked) setSelectorOpen("week"); }}
+                onMouseEnter={() => { if (!locked && screen7CodeChosen && experienceChosen) setSelectorOpen("week"); }}
               >
-                <small>Datum a doba platnosti</small>
+                <small aria-live="polite">{editableCopy.surveyWeekLabel}</small>
                 <button
                   className="manager-help"
-                  data-help="Vyber týden živého hodnocení od pondělí do neděle. Začátek i konec se ihned přenesou do TVL."
-                  disabled={locked}
+                  data-help={editableCopy.surveyWeekHelp}
+                  disabled={locked || !screen7CodeChosen || !experienceChosen}
                   onFocus={() => {
-                    setSelectorOpen("week");
+                    if (screen7CodeChosen && experienceChosen) setSelectorOpen("week");
                   }}
                   onClick={() => setSelectorOpen(selectorOpen === "week" ? null : "week")}
                   aria-expanded={selectorOpen === "week"}
                 >
-                  <b>{validity.period}</b><em>▾</em>
+                  <b>{!screen7CodeChosen
+                    ? "Nejdřív vyber kód"
+                    : !experienceChosen
+                      ? "Potom vyber zkušenost"
+                      : weekChosen
+                        ? validity.period
+                        : "Vyber týden Po–Ne"}</b><em>▾</em>
                 </button>
                 {selectorOpen === "week" && (
                   <div className="selector-menu week-menu" role="listbox">
                     {weeks.map((week) => (
                       <button
                         key={week.start}
-                        className={start === week.start ? "chosen" : ""}
+                        className={weekChosen && start === week.start ? "chosen" : ""}
                         onClick={() => chooseWeek(week.start)}
                       >
                         {week.label}
@@ -1659,6 +1831,14 @@ export default function Home() {
                 )}
               </div>
             </div>
+
+            {variationSourceCode && (
+              <p className="working-variation manager-help" data-help={editableCopy.copyCountHelp}>
+                <b>Variace</b>
+                <span>{variationSourceCode}</span>
+                <strong>{variationCopyStamp}</strong>
+              </p>
+            )}
 
             <p className="screen7-guide" aria-live="polite">{editableCopy.screen7Guide}</p>
 
@@ -1746,9 +1926,9 @@ export default function Home() {
               />
             </label>
             <div className="modal-note">
-              Správce určuje prioritu celého průzkumu v horní nabídce. Účastník
-              hodnotí každý použitý návrh 1–9 body. Uložený řádek se ihned
-              přenese do všech tří dílů TVL.
+              Správce označí hodnotu svých zkušeností číslicí 1–3 v horní
+              nabídce. Účastník hodnotí každý použitý návrh 1–9 body. Uložený
+              řádek se ihned přenese do všech tří dílů TVL.
             </div>
             <button
               className="save manager-help help-right"
