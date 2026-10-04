@@ -1,0 +1,255 @@
+/* Jediné závazné rozložení celého třídílného TVL na A4 – 4. 10. 2026. */
+.tvl-paper.original-a4 {
+  grid-template-rows:
+    var(--voucher-share, 34%)
+    2%
+    var(--investment-share, 31%)
+    2%
+    var(--receipt-share, 31%) !important;
+}
+
+/* Horní řádek má jednořádkové názvy a všechna políčka na stejné základně. */
+.original-a4 .tvl-topline {
+  align-items: end;
+  grid-template-columns: 1.05fr 1.45fr 1.2fr 2.1fr;
+}
+
+.original-a4 .tvl-topline > span {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: 12px 23px;
+  align-items: end;
+}
+
+.original-a4 .tvl-topline > span > b {
+  max-width: none;
+  overflow: hidden;
+  font-size: 6.5px;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.original-a4 .tvl-topline > span > i {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+.original-a4 .tvl-topline .validity {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 12px 23px;
+  gap: 0 4px;
+}
+
+.original-a4 .tvl-topline .validity b {
+  grid-column: 1 / -1;
+}
+
+.original-a4 .tvl-topline .validity i {
+  min-width: 0;
+}
+
+/* Okna A, B a C mají ve všech třech dílech stejnou hustotu. */
+.original-a4 .voucher .tvl-right,
+.original-a4 .investment .tvl-right,
+.original-a4 .receipt .tvl-right {
+  display: grid;
+  grid-template-rows: 63% 35% !important;
+  gap: 2% !important;
+  overflow: hidden;
+}
+
+.original-a4 .voucher .survey-box,
+.original-a4 .investment .survey-box,
+.original-a4 .receipt .survey-box,
+.original-a4 .voucher .personal-only,
+.original-a4 .investment .section-explanation,
+.original-a4 .receipt .section-explanation {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  margin-top: 0;
+}
+
+.original-a4 .voucher-footer {
+  flex: 0 0 14%;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.original-a4 .voucher-footer .voucher-instructions {
+  display: block;
+  padding: 3px 1px 1px;
+  font-size: 6px;
+  line-height: 1.12;
+}
+
+.original-a4 .voucher-footer .invalid-warning {
+  padding-top: 1px;
+  font-size: 7px;
+  line-height: 1;
+}
+
+/* Tři témata zůstávají; hodnocení je jediné pole na konci téhož řádku. */
+.original-a4 .project-columns,
+.original-a4 .survey-box .project-row {
+  grid-template-columns: minmax(0, 1fr) 34px !important;
+}
+
+.original-a4 .survey-box .window-c {
+  gap: 3px;
+}
+
+.original-a4 .survey-box .project-row,
+.original-a4 .survey-box .project-row .project-field,
+.original-a4 .survey-box .project-row .participant-score {
+  min-height: var(--c-row-height, 26px) !important;
+  height: var(--c-row-height, 26px) !important;
+}
+
+.original-a4 .survey-box .project-row .participant-score {
+  width: 34px !important;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.share-live-link {
+  border: 1px solid #c8b56f;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: #fffaf0;
+  color: #18294d;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .04em;
+}
+
+.share-feedback {
+  position: sticky;
+  top: 74px;
+  z-index: 19;
+  margin: 0;
+  padding: 8px 18px;
+  background: #fff1bf;
+  color: #4d421c;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mobile-print-help {
+  display: block;
+  color: #56635d;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.workbench-actions {
+  grid-template-columns: minmax(90px, .45fr) minmax(190px, 1fr) minmax(250px, 1.35fr);
+}
+
+.workbench-actions .print-working-tvl {
+  border-color: #18294d;
+  background: #fff;
+  color: #18294d;
+}
+
+@media (max-width: 900px) {
+  .topbar-actions {
+    margin-left: auto;
+  }
+
+  .share-live-link {
+    max-width: 150px;
+    padding: 7px 9px;
+    white-space: normal;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 5mm;
+  }
+
+  html,
+  body {
+    width: 210mm;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  body > main > * {
+    display: none !important;
+  }
+
+  body > main > .print-batch {
+    display: block !important;
+    width: 200mm;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .printed-sheet.original-a4 {
+    box-sizing: border-box;
+    width: 200mm !important;
+    height: 287mm !important;
+    min-height: 287mm !important;
+    max-height: 287mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    aspect-ratio: auto !important;
+    overflow: hidden !important;
+    display: grid !important;
+    grid-template-rows:
+      var(--voucher-share, 34%)
+      2%
+      var(--investment-share, 31%)
+      2%
+      var(--receipt-share, 31%) !important;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .printed-sheet.original-a4:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  .printed-sheet.original-a4 > .printed-number {
+    position: absolute;
+    top: 1mm;
+    right: 2mm;
+    z-index: 5;
+    display: block !important;
+  }
+
+  .printed-sheet.original-a4 > .tvl-section {
+    display: flex !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .printed-sheet.original-a4 > .cut {
+    display: grid !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .printed-sheet.original-a4 .voucher-footer,
+  .printed-sheet.original-a4 .voucher-instructions,
+  .printed-sheet.original-a4 .voucher-footer .invalid-warning,
+  .printed-sheet.original-a4 .section-explanation {
+    display: block !important;
+  }
+}

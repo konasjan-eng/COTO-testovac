@@ -68,6 +68,7 @@ const PURPOSE_STORAGE_KEY = "coto-purpose-text-2026-09-29";
 const SCREEN_COPY_STORAGE_KEY = "coto-screen-copy-2026-09-30-v2";
 const EDITABLE_COPY_STORAGE_KEY = "coto-editable-copy-2026-09-30";
 const TVL_LAYOUT_STORAGE_KEY = "coto-tvl-layout-2026-09-30";
+const TVL_LAYOUT_VERSION = 2;
 
 const defaultScreenCopy: Record<number, string> = {
   1: "Klikni na ikonu a otevři COTO.",
@@ -146,10 +147,10 @@ type TvlLayout = {
 };
 
 const defaultTvlLayout: TvlLayout = {
-  voucher: 38.5,
-  investment: 27,
-  cRow: 23,
-  windowD: 36,
+  voucher: 34,
+  investment: 31,
+  cRow: 26,
+  windowD: 35,
   identityRow: 17,
 };
 
@@ -515,16 +516,16 @@ function TvlSection({
     <section className={"tvl-section " + kind} aria-label={labels[kind]}>
       <div className="tvl-topline">
         <span>
-          <b>Kód varianty<br />COTO</b>
+          <b>Kód varianty COTO</b>
           <i>{codeVisible ? `${variant}001` : "—"}</i>
         </span>
         <h2><em>{numbers[kind]}</em> {labels[kind]}</h2>
         <span>
-          <b>Hodnota zkušeností<br />správce</b>
+          <b>Hodnota zkušeností správce</b>
           <i>{surveyValue}</i>
         </span>
         <span className="validity">
-          <b>Týden platnosti<br />tohoto listu</b>
+          <b>Týden platnosti listu</b>
           <i>{validFrom}</i>
           <i>{validTo}</i>
         </span>
@@ -738,6 +739,7 @@ export default function Home() {
   const [copyPanelOpen, setCopyPanelOpen] = useState(false);
   const [copySelection, setCopySelection] = useState([true, true, true]);
   const [copyFeedback, setCopyFeedback] = useState("");
+  const [shareFeedback, setShareFeedback] = useState("");
   const [activationStamp, setActivationStamp] = useState("");
   const [currentTime, setCurrentTime] = useState("");
   const [currentDate, setCurrentDate] = useState("");
@@ -777,7 +779,9 @@ export default function Home() {
         const savedLayout = window.localStorage.getItem(TVL_LAYOUT_STORAGE_KEY);
         if (savedLayout) {
           const parsed = JSON.parse(savedLayout);
-          setTvlLayout({ ...defaultTvlLayout, ...parsed.layout });
+          setTvlLayout(parsed.version === TVL_LAYOUT_VERSION
+            ? { ...defaultTvlLayout, ...parsed.layout }
+            : defaultTvlLayout);
           setVoucherHelp(parsed.voucherHelp || defaultVoucherHelp);
         }
       } catch {
@@ -822,15 +826,37 @@ export default function Home() {
 
   const updateVoucherHelp = (value: string) => {
     setVoucherHelp(value);
-    window.localStorage.setItem(TVL_LAYOUT_STORAGE_KEY, JSON.stringify({ layout: tvlLayout, voucherHelp: value }));
+    window.localStorage.setItem(TVL_LAYOUT_STORAGE_KEY, JSON.stringify({ version: TVL_LAYOUT_VERSION, layout: tvlLayout, voucherHelp: value }));
   };
 
   const updateTvlLayout = (key: keyof TvlLayout, value: number) => {
     setTvlLayout((current) => {
       const next = { ...current, [key]: value };
-      window.localStorage.setItem(TVL_LAYOUT_STORAGE_KEY, JSON.stringify({ layout: next, voucherHelp }));
+      window.localStorage.setItem(TVL_LAYOUT_STORAGE_KEY, JSON.stringify({ version: TVL_LAYOUT_VERSION, layout: next, voucherHelp }));
       return next;
     });
+  };
+
+  const shareLiveApp = async () => {
+    const url = window.location.origin + window.location.pathname;
+    const shareData = {
+      title: "COTO – živá aplikace",
+      text: "Otevři COTO – živou aplikaci pro průzkum názorů.",
+      url,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        setShareFeedback("Nabídka pro odeslání odkazu je otevřená.");
+      } else {
+        await navigator.clipboard.writeText(url);
+        setShareFeedback("Odkaz na živou aplikaci je zkopírovaný.");
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      setShareFeedback("Odkaz zkopíruj z adresního řádku Chrome.");
+    }
   };
 
   const receiptShare = Math.max(20, 96 - tvlLayout.voucher - tvlLayout.investment);
@@ -1456,7 +1482,7 @@ export default function Home() {
           <button onClick={() => { setCopyPanelOpen((open) => !open); setCopyFeedback(""); }}>
             VYBRAT TÉMATA KE KOPÍROVÁNÍ
           </button>
-          <button onClick={() => window.print()}>TISKNOUT CELÝ TVL</button>
+          <button onClick={() => window.print()}>TISKNOUT CELÝ TVL NA JEDNU A4</button>
           {role === "manager" ? (
             <button
               className="survey-copy-count manager-help help-right"
@@ -1547,11 +1573,15 @@ export default function Home() {
           <button className={role === "manager" ? "active" : ""} onClick={() => setRole("manager")}>Správce</button>
           <button className={role === "participant" ? "active" : ""} onClick={() => setRole("participant")}>Účastník</button>
         </div>
-        <div className="status">
-          <i className={locked ? "locked" : "draft"} />
-          {locked ? "Uzamčeno · živý projekt" : "Živá pracovní šablona"}
+        <div className="topbar-actions">
+          <button className="share-live-link" onClick={shareLiveApp}>🌐 COTO – ŽIVÁ APLIKACE</button>
+          <div className="status">
+            <i className={locked ? "locked" : "draft"} />
+            {locked ? "Uzamčeno · živý projekt" : "Živá pracovní šablona"}
+          </div>
         </div>
       </nav>
+      {shareFeedback && <p className="share-feedback" role="status">{shareFeedback}</p>}
 
       {role === "participant" ? (
         <>
@@ -1685,7 +1715,8 @@ export default function Home() {
                         Tento kód spojuje tvůj DOKLAD s pozdějším součtovým
                         výsledkem, aniž by se do něj přeneslo okno D.
                       </p>
-                      <button onClick={() => window.print()}>TISK MÉHO CELÉHO TVL NA JEDNU A4</button>
+                      <button onClick={() => window.print()}>TISK / ULOŽIT CELÝ TVL NA JEDNU A4</button>
+                      <small className="mobile-print-help">V telefonu vyber u tisku „Uložit jako PDF“ a soubor potom přilož ke zprávě SMS nebo MMS.</small>
                       <button onClick={() => setEntryStage("readonly")}>ZOBRAZIT VÝSLEDEK VRÁCENÝ DO TVL</button>
                       <button onClick={() => setShowAccountResults((shown) => !shown)}>
                         {showAccountResults ? "SKRÝT ŘÁDKY ÚČTU NA PROPAGACI" : "ZKONTROLOVAT ŘÁDKY ÚČTU NA PROPAGACI"}
@@ -1872,6 +1903,13 @@ export default function Home() {
                 onClick={() => setEntryStage("variants")}
               >
                 ZPĚT
+              </button>
+              <button
+                className="print-working-tvl manager-help"
+                data-help="Vytiskne právě vyplněný třídílný TVL na jednu A4. V telefonu můžeš výstup uložit jako PDF."
+                onClick={() => window.print()}
+              >
+                TISKNOUT CELÝ TVL NA JEDNU A4
               </button>
               <button
                 className="finish-work manager-help"

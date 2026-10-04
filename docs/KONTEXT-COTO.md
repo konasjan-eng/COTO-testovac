@@ -83,7 +83,9 @@ Otevření celého náhledu vytvoří přesné časové razítko, zapíše je do
 
 Potvrzení tedy nevytváří náhled: následuje až po náhledu. Již potvrzený průzkum nesmí správce měnit; z přehledu jej otevírá jen ke čtení a kopírování.
 
-POUKÁZKA zachovává větší výšku podle originálního listu. Pod jejími okny zůstává vysvětlující text, upozornění na neplatnost přepisovaného listu a samostatná čárkovaná střihová linka s nůžkami. POUKÁZKA, INVESTICE a DOKLAD se vždy tisknou společně na jedinou A4.
+POUKÁZKA nesmí být proti dalším dílům nelogicky roztažená. Její okna A, B a C mají stejnou hustotu a zarovnání jako v INVESTICI a DOKLADU; navíc obsahuje pouze nezbytné okno D. Pod jejími okny zůstává vysvětlující text, upozornění na neplatnost přepisovaného listu a samostatná čárkovaná střihová linka s nůžkami. POUKÁZKA, INVESTICE a DOKLAD se vždy tisknou společně na jedinou A4.
+
+Vyplněný nebo zobrazený TVL má přímo dostupné tlačítko tisku. Na telefonu může účastník zvolit u tisku uložení do PDF a tento soubor přiložit ke zprávě SMS nebo MMS. Tlačítko s globusem sdílí veřejný odkaz **COTO – živá aplikace**; na telefonu otevře systémovou nabídku sdílení a na počítači bez této nabídky zkopíruje odkaz.
 
 V celém náhledu jsou názvy dílů výrazně barevné: POUKÁZKA zeleně, INVESTICE červeně a DOKLAD modře. Střihové linky jsou zesílené a mají nůžky na obou okrajích podle papírového originálu.
 

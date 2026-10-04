@@ -117,6 +117,7 @@ test("okno C má tři nečíslovaná dlouhá pole a jedno hodnocení", async () 
 test("poukázka obsahuje okno D, text a střihovou linku v pevné A4", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   const css = await readFile(new URL("../app/revision-2026-09-24.css", import.meta.url), "utf8");
+  const printCss = await readFile(new URL("../app/print-a4-2026-10-04.css", import.meta.url), "utf8");
   assert.match(page, /className="voucher-footer"/);
   assert.match(page, /<CutLine label="oddělit POUKÁZKU"/);
   assert.match(page, /cut-scissors/);
@@ -127,6 +128,10 @@ test("poukázka obsahuje okno D, text a střihovou linku v pevné A4", async () 
   assert.match(css, /\.tvl-section\.voucher \.tvl-topline h2 \{ color: #168a45; \}/);
   assert.match(css, /\.tvl-section\.investment \.tvl-topline h2 \{ color: #d62f36; \}/);
   assert.match(css, /\.tvl-section\.receipt \.tvl-topline h2 \{ color: #2769b2; \}/);
+  assert.match(printCss, /var\(--voucher-share, 34%\)/);
+  assert.match(printCss, /var\(--investment-share, 31%\)/);
+  assert.match(printCss, /var\(--receipt-share, 31%\)/);
+  assert.doesNotMatch(printCss, /grid-template-rows:\s*4mm\s+106mm\s+6mm\s+78mm\s+6mm\s+87mm/);
 });
 
 test("další správce může zkopírovat jeden nebo více vybraných námětů", async () => {
@@ -198,8 +203,17 @@ test("obrazovka 07 odkrývá kód, zkušenost a týden postupně", async () => {
 test("hodnota zkušeností má věkové skupiny a v TVL jen číslici", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   for (const text of ["20–39 let", "40–59 let", "60–89 let", "V tiskopisu se zobrazí pouze zvolená číslice 1–3"]) assert.match(page, new RegExp(text));
-  assert.match(page, /<b>Hodnota zkušeností<br \/>správce<\/b>\s*<i>\{surveyValue\}<\/i>/);
+  assert.match(page, /<b>Hodnota zkušeností správce<\/b>\s*<i>\{surveyValue\}<\/i>/);
   assert.doesNotMatch(page, /<i>\{surveyValue\} \{surveyValue === 1 \? "bod" : "body"\}<\/i>/);
+});
+
+test("vyplněný TVL lze vytisknout a odkaz na živou aplikaci sdílet", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const layout = await readFile(new URL("../app/layout.tsx", import.meta.url), "utf8");
+  for (const text of ["🌐 COTO – ŽIVÁ APLIKACE", "TISKNOUT CELÝ TVL NA JEDNU A4", "TISK / ULOŽIT CELÝ TVL NA JEDNU A4", "Uložit jako PDF", "SMS nebo MMS"]) assert.match(page, new RegExp(text));
+  assert.match(page, /navigator\.share/);
+  assert.match(page, /navigator\.clipboard\.writeText/);
+  assert.match(layout, /print-a4-2026-10-04\.css/);
 });
 
 test("účastník má už ve volbě role seznam správců", async () => {
