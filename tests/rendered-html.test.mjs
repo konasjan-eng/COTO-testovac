@@ -87,6 +87,22 @@ test("pokyny používají přímé tykání", async () => {
   assert.doesNotMatch(page, /zadejte|doplňte|vyberte|otevřete|najeďte|klikněte|přidělte|můžete|zkontrolujte|vaše hodnocení/i);
 });
 
+test("správce se ověřuje v živém ARES a chybná data vždy dostanou hlášku", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  for (const text of [
+    "ARES_SUBJECT_URL",
+    "hasValidIcoChecksum",
+    "hasValidCzechAccount",
+    "OVĚŘUJI IČO V ARES",
+    "nebylo v systému ARES nalezeno",
+    "Spojení se systémem ARES se nezdařilo",
+    "platný český formát a kontrolní součet",
+    "Majitele účtu potvrdí bankovní prostředí",
+  ]) assert.match(page, new RegExp(text));
+  assert.match(page, /fetch\(`\$\{ARES_SUBJECT_URL\}\/\$\{normalizedIco\}`/);
+  assert.doesNotMatch(page, /setOrganiser\("Jan Koňas · správce COTO · IČO " \+ ico\)/);
+});
+
 test("originální logo a obrazovka cíle se nesmí znovu nahradit maketou", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   const logo = await readFile(new URL("../public/coto-logo-original.png", import.meta.url));
@@ -132,6 +148,10 @@ test("poukázka obsahuje okno D, text a střihovou linku v pevné A4", async () 
   assert.match(printCss, /var\(--investment-share, 27%\)/);
   assert.match(printCss, /var\(--receipt-share, 30\.5%\)/);
   assert.match(printCss, /\.original-a4 \.voucher \.tvl-columns \{[\s\S]*?flex: 0 0 62% !important/);
+  assert.match(printCss, /height: 277mm !important/);
+  assert.match(printCss, /margin: 5mm auto !important/);
+  assert.match(printCss, /grid-template-rows:\s*32%\s*2%\s*32%\s*2%\s*32% !important/);
+  assert.match(printCss, /break-inside: avoid-page !important/);
   assert.doesNotMatch(printCss, /grid-template-rows:\s*4mm\s+106mm\s+6mm\s+78mm\s+6mm\s+87mm/);
 });
 

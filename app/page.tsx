@@ -23,6 +23,45 @@ type PersonalData = {
   identity: string;
 };
 
+type AresSubject = {
+  ico?: string;
+  obchodniJmeno?: string;
+  sidlo?: { textovaAdresa?: string };
+};
+
+type ManagerVerificationStatus = "idle" | "checking" | "success" | "error";
+
+const ARES_SUBJECT_URL =
+  "https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty";
+
+const OLD_ARES_INSTRUCTIONS =
+  "Zadej IČO a samostatný účet na propagaci.\n\n1. Kontrola IČO správce v ARES a v bankovní identitě proběhne automaticky.\n2. Na chybné či neexistující IČO nebo účet upozorní hláška.\n3. Takto ověřenému správci se jeho identita zobrazí ihned v otevřené pracovní šabloně. Správce může pod identitu v okně A doplnit logo své firmy; obec vloží lvíčka.";
+
+function hasValidIcoChecksum(value: string) {
+  if (!/^\d{8}$/.test(value)) return false;
+  const sum = value
+    .slice(0, 7)
+    .split("")
+    .reduce((total, digit, index) => total + Number(digit) * (8 - index), 0);
+  return Number(value[7]) === (11 - (sum % 11)) % 10;
+}
+
+function hasValidCzechAccount(value: string) {
+  const normalized = value.replace(/\s/g, "");
+  const match = normalized.match(/^(?:(\d{1,6})-)?(\d{2,10})\/(\d{4})$/);
+  if (!match) return false;
+
+  const [, prefix = "", number] = match;
+  const isValidPart = (part: string, weights: number[]) => {
+    const digits = part.padStart(weights.length, "0").split("").map(Number);
+    return digits.reduce((sum, digit, index) => sum + digit * weights[index], 0) % 11 === 0;
+  };
+
+  const prefixValid =
+    !prefix || isValidPart(prefix, [10, 5, 8, 4, 2, 1]);
+  return prefixValid && isValidPart(number, [6, 3, 7, 9, 10, 5, 8, 4, 2, 1]);
+}
+
 const variantOptions: { code: VariantCode; name: string; description: string }[] = [
   { code: "PN", name: "Průzkum názorů", description: "Náměty, otázky a jejich podpora" },
   { code: "VL", name: "Vyber lepší", description: "Porovnání dvou nebo více možností" },
@@ -121,7 +160,7 @@ const defaultEditableCopy: EditableCopy = {
   participantChoice: "Vyber v seznamu správce a průzkumy vhodné pro tvou podporu.",
   participantHelp: "Řešení podpoříš odesláním svého hodnocení. Poslat přátelům odkaz na šikovné projekty tě asi napadne. Velikost podpory stejného průzkumu donutí správce jednat – a také mu umožní vhodná řešení realizovat s doložitelnou podporou fyzických účastníků průzkumu. Anonymizér v trojici šablon listu TVL řeší vše… tvl… neke…",
   aresHeading: "Ověření správce v ARES a účtu na propagaci v bankovním prostředí",
-  aresInstructions: "Zadej IČO a samostatný účet na propagaci.\n\n1. Kontrola IČO správce v ARES a v bankovní identitě proběhne automaticky.\n2. Na chybné či neexistující IČO nebo účet upozorní hláška.\n3. Takto ověřenému správci se jeho identita zobrazí ihned v otevřené pracovní šabloně. Správce může pod identitu v okně A doplnit logo své firmy; obec vloží lvíčka.",
+  aresInstructions: "Zadej IČO a samostatný účet na propagaci.\n\n1. IČO se automaticky zkontroluje ve veřejném systému ARES.\n2. Účet na propagaci se zkontroluje podle českého formátu a bankovního kontrolního součtu. Jeho majitele potvrdí bankovní prostředí při připojení účtu.\n3. Na chybné nebo neexistující IČO či neplatné číslo účtu upozorní hláška.\n4. Ověřená identita správce se ihned přenese do okna A. Správce může pod ni doplnit logo své firmy; obec vloží lvíčka.",
   verifiedManager: "Ověřený správce",
   copySurveyLabel: "Vlož kód jiného průzkumu stejné varianty",
   variantPN: "Průzkum názorů: náměty, otázky a jejich podpora.",
@@ -714,6 +753,10 @@ export default function Home() {
   const [ico, setIco] = useState("12226491");
   const [account, setAccount] = useState("4310751369/0800");
   const [aresVerified, setAresVerified] = useState(false);
+  const [managerVerificationStatus, setManagerVerificationStatus] =
+    useState<ManagerVerificationStatus>("idle");
+  const [verifiedManagerName, setVerifiedManagerName] = useState("");
+  const [verifiedManagerAddress, setVerifiedManagerAddress] = useState("");
   const [copySurveyMode, setCopySurveyMode] = useState(false);
   const [copiedSurveyCode, setCopiedSurveyCode] = useState("");
   const [start, setStart] = useState(weeks[0]?.start || "");
@@ -780,7 +823,13 @@ export default function Home() {
         const savedCopy = window.localStorage.getItem(SCREEN_COPY_STORAGE_KEY);
         if (savedCopy) setScreenCopy({ ...defaultScreenCopy, ...JSON.parse(savedCopy) });
         const savedEditableCopy = window.localStorage.getItem(EDITABLE_COPY_STORAGE_KEY);
-        if (savedEditableCopy) setEditableCopy({ ...defaultEditableCopy, ...JSON.parse(savedEditableCopy) });
+        if (savedEditableCopy) {
+          const parsedCopy = JSON.parse(savedEditableCopy) as Partial<EditableCopy>;
+          const migratedCopy = parsedCopy.aresInstructions === OLD_ARES_INSTRUCTIONS
+            ? { ...parsedCopy, aresInstructions: defaultEditableCopy.aresInstructions }
+            : parsedCopy;
+          setEditableCopy({ ...defaultEditableCopy, ...migratedCopy });
+        }
         const savedLayout = window.localStorage.getItem(TVL_LAYOUT_STORAGE_KEY);
         if (savedLayout) {
           const parsed = JSON.parse(savedLayout);
@@ -865,6 +914,78 @@ export default function Home() {
   };
 
   const receiptShare = Math.max(20, 96 - tvlLayout.voucher - tvlLayout.investment);
+
+  const verifyManager = async () => {
+    const normalizedIco = ico.replace(/\D/g, "");
+    const normalizedAccount = account.replace(/\s/g, "");
+
+    setAresVerified(false);
+    setVerifiedManagerName("");
+    setVerifiedManagerAddress("");
+
+    if (!/^\d{8}$/.test(normalizedIco)) {
+      setManagerVerificationStatus("error");
+      setFormError("IČO musí mít přesně osm číslic.");
+      return;
+    }
+    if (!hasValidIcoChecksum(normalizedIco)) {
+      setManagerVerificationStatus("error");
+      setFormError("IČO nemá platný kontrolní součet. Oprav číslice a zkus ověření znovu.");
+      return;
+    }
+    if (!hasValidCzechAccount(normalizedAccount)) {
+      setManagerVerificationStatus("error");
+      setFormError("Účet na propagaci nemá platný český formát nebo kontrolní součet. Použij tvar předčíslí-číslo/čtyřmístný kód banky, případně číslo/čtyřmístný kód banky.");
+      return;
+    }
+
+    setManagerVerificationStatus("checking");
+    setFormError("");
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 12000);
+
+    try {
+      const response = await fetch(`${ARES_SUBJECT_URL}/${normalizedIco}`, {
+        headers: { Accept: "application/json" },
+        signal: controller.signal,
+      });
+
+      if (response.status === 404) {
+        setManagerVerificationStatus("error");
+        setFormError(`IČO ${normalizedIco} nebylo v systému ARES nalezeno.`);
+        return;
+      }
+      if (!response.ok) {
+        throw new Error(`ARES odpověděl stavem ${response.status}`);
+      }
+
+      const subject = (await response.json()) as AresSubject;
+      const returnedIco = String(subject.ico || "").padStart(8, "0");
+      if (!subject.obchodniJmeno || returnedIco !== normalizedIco) {
+        setManagerVerificationStatus("error");
+        setFormError(`ARES nepotvrdil identitu pro IČO ${normalizedIco}.`);
+        return;
+      }
+
+      setIco(normalizedIco);
+      setAccount(normalizedAccount);
+      setVerifiedManagerName(subject.obchodniJmeno);
+      setVerifiedManagerAddress(subject.sidlo?.textovaAdresa || "Adresa v ARES není uvedena");
+      setOrganiser(`${subject.obchodniJmeno} · IČO ${normalizedIco}`);
+      setAresVerified(true);
+      setManagerVerificationStatus("success");
+      setFormError("");
+    } catch (error) {
+      setManagerVerificationStatus("error");
+      setFormError(
+        error instanceof DOMException && error.name === "AbortError"
+          ? "ARES neodpověděl včas. Zkontroluj připojení a zkus ověření znovu."
+          : "Spojení se systémem ARES se nezdařilo. Zkus ověření znovu; bez potvrzení se pracovní šablona neotevře.",
+      );
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  };
   const tvlLayoutStyle = {
     "--voucher-share": `${tvlLayout.voucher}%`,
     "--investment-share": `${tvlLayout.investment}%`,
@@ -1259,38 +1380,46 @@ export default function Home() {
               onChange={(event) => {
                 setIco(event.target.value.replace(/\D/g, "").slice(0, 8));
                 setAresVerified(false);
+                setManagerVerificationStatus("idle");
+                setFormError("");
               }}
             />
           </label>
           <label
             className="manager-help help-right"
-            data-help="Účet správce určuje zdroj hodnoty 1–3 Kč za informaci; ve zkoušce se peníze neposílají."
+            data-help="Číslo účtu se zkontroluje podle českého formátu a bankovního kontrolního součtu. Majitele účtu potvrdí bankovní prostředí při připojení účtu."
           >
             Účet na propagaci
             <input
               value={account}
-              onChange={(event) => { setAccount(event.target.value); setAresVerified(false); }}
+              onChange={(event) => {
+                setAccount(event.target.value);
+                setAresVerified(false);
+                setManagerVerificationStatus("idle");
+                setFormError("");
+              }}
             />
           </label>
           {!aresVerified ? (
             <button
               className="manager-help help-right"
-              data-help="Zkontroluje osm číslic IČO a připraví identitu správce pro okno A."
-              onClick={() => {
-                if (ico.length !== 8 || !account.trim()) {
-                  setFormError("Doplň osm číslic IČO a samostatný účet na propagaci.");
-                  return;
-                }
-                setOrganiser("Jan Koňas · správce COTO · IČO " + ico);
-                setAresVerified(true);
-                setFormError("");
-              }}
+              data-help="Zkontroluje IČO přímo v ARES a číslo účtu podle českých bankovních pravidel."
+              onClick={verifyManager}
+              disabled={managerVerificationStatus === "checking"}
             >
-              OVĚŘIT IDENTITU SPRÁVCE
+              {managerVerificationStatus === "checking"
+                ? "OVĚŘUJI IČO V ARES…"
+                : "OVĚŘIT IDENTITU SPRÁVCE"}
             </button>
           ) : (
             <>
-              <p className="ares-ok">Ověřeno: identita správce je připravena pro okno A.</p>
+              <div className="ares-ok" role="status" aria-live="polite">
+                <strong>Ověřeno v ARES: {verifiedManagerName}</strong>
+                <span>IČO {ico}</span>
+                <span>{verifiedManagerAddress}</span>
+                <span>Účet {account}: platný český formát a kontrolní součet.</span>
+                <small>Majitele účtu potvrdí bankovní prostředí při připojení účtu.</small>
+              </div>
               <label className="manager-logo-upload">
                 Logo firmy nebo obce pod identitu v okně A
                 <input
@@ -1320,6 +1449,11 @@ export default function Home() {
                 OTEVŘI VARIANTY A VLOŽ KÓD JINÉHO PRŮZKUMU
               </button>
             </>
+          )}
+          {managerVerificationStatus === "checking" && (
+            <p className="ares-checking" role="status" aria-live="polite">
+              Ověřuji IČO {ico} ve veřejném systému ARES…
+            </p>
           )}
           {formError && <p className="form-error">{formError}</p>}
           <button className="muted" onClick={() => setEntryStage("roles")}>ZPĚT</button>
