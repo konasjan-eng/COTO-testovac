@@ -61,6 +61,52 @@
   min-width: 0;
 }
 
+/* Stejné srovnání platí i v živé pracovní INVESTICI. Náhled celého TVL
+   používá .original-a4 a zůstává beze změny. */
+.working-investment .tvl-topline {
+  height: 36px;
+  min-height: 36px;
+  margin-bottom: 9px;
+  align-items: end;
+  grid-template-columns: 1.05fr 1.45fr 1.2fr 2.1fr;
+}
+
+.working-investment .tvl-topline > span {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: 12px 23px;
+  align-items: end;
+}
+
+.working-investment .tvl-topline > span > b {
+  max-width: none;
+  overflow: hidden;
+  font-size: 6.5px;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.working-investment .tvl-topline > span > i {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+.working-investment .tvl-topline .validity {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 12px 23px;
+  gap: 0 4px;
+}
+
+.working-investment .tvl-topline .validity b {
+  grid-column: 1 / -1;
+}
+
+.working-investment .tvl-topline .validity i {
+  min-width: 0;
+}
+
 /* Okna A, B a C mají ve všech třech dílech stejnou hustotu. */
 .original-a4 .voucher .tvl-right,
 .original-a4 .investment .tvl-right,
@@ -282,7 +328,7 @@
 @media print {
   @page {
     size: A4 portrait;
-    margin: 5mm;
+    margin: 0;
   }
 
   html,
@@ -301,31 +347,31 @@
 
   body > main > .print-batch {
     display: block !important;
-    width: 200mm;
-    max-width: 200mm;
+    width: 210mm;
+    max-width: 210mm;
     margin: 0 !important;
     padding: 0 !important;
   }
 
   .printed-sheet.original-a4 {
     box-sizing: border-box;
-    width: 200mm !important;
-    height: 277mm !important;
-    min-height: 277mm !important;
-    max-height: 277mm !important;
-    margin: 5mm auto !important;
-    padding: 0 !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    min-height: 297mm !important;
+    max-height: 297mm !important;
+    margin: 0 !important;
+    padding: 5mm !important;
     border: 0 !important;
     box-shadow: none !important;
     aspect-ratio: auto !important;
     overflow: hidden !important;
     display: grid !important;
     grid-template-rows:
-      32%
-      2%
-      32%
-      2%
-      32% !important;
+      minmax(0, 1fr)
+      5mm
+      minmax(0, 1fr)
+      5mm
+      minmax(0, 1fr) !important;
     break-inside: avoid-page !important;
     page-break-inside: avoid !important;
     -webkit-print-color-adjust: exact;
