@@ -1,15 +1,19 @@
 /* Jediné závazné rozložení celého třídílného TVL na A4 – 4. 10. 2026. */
 .tvl-paper.original-a4 {
+  position: relative;
   grid-template-rows:
-    var(--voucher-share, 34%)
+    var(--voucher-share, 38.5%)
     2%
-    var(--investment-share, 31%)
+    var(--investment-share, 27%)
     2%
-    var(--receipt-share, 31%) !important;
+    var(--receipt-share, 30.5%) !important;
 }
 
 /* Horní řádek má jednořádkové názvy a všechna políčka na stejné základně. */
 .original-a4 .tvl-topline {
+  flex: 0 0 36px !important;
+  height: 36px;
+  min-height: 36px;
   align-items: end;
   grid-template-columns: 1.05fr 1.45fr 1.2fr 2.1fr;
 }
@@ -27,6 +31,13 @@
   font-size: 6.5px;
   line-height: 1;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.original-a4 .tvl-topline h2 {
+  align-self: end;
+  min-width: 0;
+  padding-bottom: 2px;
   white-space: nowrap;
 }
 
@@ -60,6 +71,12 @@
   overflow: hidden;
 }
 
+/* Horní formulářová část POUKÁZKY má stejnou výšku jako další dva díly.
+   Vyšší podíl POUKÁZKY patří jen textu, který končí před střihovou linkou. */
+.original-a4 .voucher .tvl-columns {
+  flex: 0 0 62% !important;
+}
+
 .original-a4 .voucher .survey-box,
 .original-a4 .investment .survey-box,
 .original-a4 .receipt .survey-box,
@@ -74,7 +91,8 @@
 }
 
 .original-a4 .voucher-footer {
-  flex: 0 0 14%;
+  flex: 1 1 auto;
+  min-height: 0;
   grid-template-rows: minmax(0, 1fr) auto;
 }
 
@@ -86,6 +104,14 @@
 }
 
 .original-a4 .voucher-footer .invalid-warning {
+  padding-top: 1px;
+  font-size: 7px;
+  line-height: 1;
+}
+
+.original-a4 .receipt .invalid-warning {
+  flex: 0 0 7%;
+  min-height: 0;
   padding-top: 1px;
   font-size: 7px;
   line-height: 1;
@@ -110,6 +136,87 @@
 
 .original-a4 .survey-box .project-row .participant-score {
   width: 34px !important;
+}
+
+/* Časové razítko je hlavní identifikátor a musí zůstat čitelné i na papíře. */
+.original-a4 .timestamp-box b {
+  color: #132d62;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+
+/* Všechna tři výběrová pole začínají i končí ve stejné výšce. */
+.live-selector-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  align-items: end;
+}
+
+.field-selector {
+  display: grid;
+  grid-template-rows: 17px 60px;
+  align-items: end;
+}
+
+.field-selector > small {
+  min-width: 0;
+  margin: 0 0 5px;
+  overflow: hidden;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.field-selector > button {
+  height: 60px;
+  min-height: 60px !important;
+}
+
+.value-menu,
+.week-menu {
+  background: #fff;
+}
+
+.week-menu .week-option-help::after {
+  top: calc(100% + 3px);
+  right: 0;
+  left: auto;
+  width: min(360px, 80vw);
+  transform: translateY(-2px);
+}
+
+.week-menu .week-option-help:hover::after,
+.week-menu .week-option-help:focus-visible::after {
+  transform: translateY(0);
+}
+
+.print-count-control {
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  min-width: 118px;
+  color: inherit;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.print-count-control input {
+  width: 100%;
+  min-height: 34px;
+  padding: 5px 8px;
+  border: 1px solid #ffffff66;
+  background: #fff;
+  color: #17231f;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.readonly-toolbar .print-count-control {
+  color: #fff;
 }
 
 .topbar-actions {
@@ -211,11 +318,11 @@
     overflow: hidden !important;
     display: grid !important;
     grid-template-rows:
-      var(--voucher-share, 34%)
+      var(--voucher-share, 38.5%)
       2%
-      var(--investment-share, 31%)
+      var(--investment-share, 27%)
       2%
-      var(--receipt-share, 31%) !important;
+      var(--receipt-share, 30.5%) !important;
     page-break-after: always;
     break-after: page;
   }
