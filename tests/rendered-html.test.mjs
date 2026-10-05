@@ -200,6 +200,15 @@ test("obrazovka 07 odkrývá kód, zkušenost a týden postupně", async () => {
   assert.match(page, /setWeekChosen\(true\)/);
 });
 
+test("horní nabídky živé šablony zůstávají po kliknutí otevřené", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  assert.doesNotMatch(page, /onMouseEnter=\{\(\) => \{[^}]*setSelectorOpen\("(?:variant|value|week)"\)/);
+  assert.doesNotMatch(page, /onFocus=\{\(\) => \{[^}]*setSelectorOpen\("(?:variant|value|week)"\)/);
+  for (const selector of ["variant", "value", "week"]) {
+    assert.match(page, new RegExp(`onClick=\\{\\(\\) => setSelectorOpen\\(selectorOpen === "${selector}" \\? null : "${selector}"\\)\\}`));
+  }
+});
+
 test("hodnota zkušeností má věkové skupiny a v TVL jen číslici", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   for (const text of ["20–39 let", "40–59 let", "60–89 let", "V tiskopisu se zobrazí pouze zvolená číslice 1–3"]) assert.match(page, new RegExp(text));
