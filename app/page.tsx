@@ -68,7 +68,10 @@ const PURPOSE_STORAGE_KEY = "coto-purpose-text-2026-09-29";
 const SCREEN_COPY_STORAGE_KEY = "coto-screen-copy-2026-09-30-v2";
 const EDITABLE_COPY_STORAGE_KEY = "coto-editable-copy-2026-09-30";
 const TVL_LAYOUT_STORAGE_KEY = "coto-tvl-layout-2026-09-30";
-const TVL_LAYOUT_VERSION = 2;
+const TVL_LAYOUT_VERSION = 3;
+
+const publicLabel = (value: string) =>
+  value.replace(/\s*\([^)]*\)\s*/g, " ").replace(/\s+/g, " ").trim();
 
 const defaultScreenCopy: Record<number, string> = {
   1: "Klikni na ikonu a otevři COTO.",
@@ -147,8 +150,8 @@ type TvlLayout = {
 };
 
 const defaultTvlLayout: TvlLayout = {
-  voucher: 34,
-  investment: 31,
+  voucher: 38.5,
+  investment: 27,
   cRow: 26,
   windowD: 35,
   identityRow: 17,
@@ -467,6 +470,7 @@ function TvlSection({
   timestampPurpose,
   printedIdentityHelp,
   voucherHelp,
+  sheetNumber,
   showWindowGuides = false,
   codeVisible = true,
   showControls,
@@ -495,6 +499,7 @@ function TvlSection({
   timestampPurpose: string;
   printedIdentityHelp: string;
   voucherHelp?: string;
+  sheetNumber?: number;
   showWindowGuides?: boolean;
   codeVisible?: boolean;
   showControls?: boolean;
@@ -516,7 +521,7 @@ function TvlSection({
     <section className={"tvl-section " + kind} aria-label={labels[kind]}>
       <div className="tvl-topline">
         <span>
-          <b>Kód varianty COTO</b>
+          <b>{sheetNumber ? `Kód TVL č. ${String(sheetNumber).padStart(3, "0")}` : "Kód varianty COTO"}</b>
           <i>{codeVisible ? `${variant}001` : "—"}</i>
         </span>
         <h2><em>{numbers[kind]}</em> {labels[kind]}</h2>
@@ -743,7 +748,7 @@ export default function Home() {
   const [activationStamp, setActivationStamp] = useState("");
   const [currentTime, setCurrentTime] = useState("");
   const [currentDate, setCurrentDate] = useState("");
-  const [printCount] = useState(1);
+  const [printCount, setPrintCount] = useState(1);
   const [formError, setFormError] = useState("");
   const [purposeText, setPurposeText] = useState(defaultPurposeText);
   const [screenCopy, setScreenCopy] = useState<Record<number, string>>(defaultScreenCopy);
@@ -1482,6 +1487,18 @@ export default function Home() {
           <button onClick={() => { setCopyPanelOpen((open) => !open); setCopyFeedback(""); }}>
             VYBRAT TÉMATA KE KOPÍROVÁNÍ
           </button>
+          {role === "manager" && (
+            <label className="print-count-control">
+              Počet číslovaných TVL
+              <input
+                type="number"
+                min="1"
+                max="999"
+                value={printCount}
+                onChange={(event) => setPrintCount(Math.max(1, Math.min(999, Number(event.target.value) || 1)))}
+              />
+            </label>
+          )}
           <button onClick={() => window.print()}>TISKNOUT CELÝ TVL NA JEDNU A4</button>
           {role === "manager" ? (
             <button
@@ -1526,11 +1543,11 @@ export default function Home() {
           </section>
         )}
         <div className="tvl-paper original-a4" style={tvlLayoutStyle}>
-          <TvlSection kind="voucher" {...sharedTvl} participantScores={receipt ? scores : undefined} onInspect={setSelected} />
+          <TvlSection kind="voucher" {...sharedTvl} sheetNumber={role === "manager" ? 1 : undefined} participantScores={receipt ? scores : undefined} onInspect={setSelected} />
           <CutLine label="oddělit POUKÁZKU" />
-          <TvlSection kind="investment" {...sharedTvl} participantScores={receipt ? scores : undefined} onInspect={setSelected} />
+          <TvlSection kind="investment" {...sharedTvl} sheetNumber={role === "manager" ? 1 : undefined} participantScores={receipt ? scores : undefined} onInspect={setSelected} />
           <CutLine label="oddělit INVESTICI" />
-          <TvlSection kind="receipt" {...sharedTvl} participantScores={receipt ? scores : undefined} onInspect={setSelected} />
+          <TvlSection kind="receipt" {...sharedTvl} sheetNumber={role === "manager" ? 1 : undefined} participantScores={receipt ? scores : undefined} onInspect={setSelected} />
         </div>
         {receipt && (
           <PromotionAccountResults
@@ -1545,14 +1562,26 @@ export default function Home() {
           linkedTvlCount={copiedSurveyCount + 1}
         />
         <div className="print-batch" aria-hidden="true">
-          <div className="tvl-paper printed-sheet original-a4" style={tvlLayoutStyle}>
-            <div className="printed-number">TVL {variant}1 · celý třídílný list</div>
-            <TvlSection kind="voucher" {...sharedTvl} participantScores={receipt ? scores : undefined} onInspect={() => {}} />
-            <CutLine label="oddělit POUKÁZKU" />
-            <TvlSection kind="investment" {...sharedTvl} participantScores={receipt ? scores : undefined} onInspect={() => {}} />
-            <CutLine label="oddělit INVESTICI" />
-            <TvlSection kind="receipt" {...sharedTvl} participantScores={receipt ? scores : undefined} onInspect={() => {}} />
-          </div>
+          {(role === "manager"
+            ? Array.from({ length: Math.min(999, printCount) }, (_, index) => index)
+            : [0]
+          ).map((copyIndex) => {
+            const printCode = code.slice(0, 14) + String(copyIndex + 1).padStart(3, "0");
+            const readonlyPrintShared = {
+              ...sharedTvl,
+              code: printCode,
+              sheetNumber: role === "manager" ? copyIndex + 1 : undefined,
+            };
+            return (
+              <div className="tvl-paper printed-sheet original-a4" style={tvlLayoutStyle} key={printCode}>
+                <TvlSection kind="voucher" {...readonlyPrintShared} participantScores={receipt ? scores : undefined} onInspect={() => {}} />
+                <CutLine label="oddělit POUKÁZKU" />
+                <TvlSection kind="investment" {...readonlyPrintShared} participantScores={receipt ? scores : undefined} onInspect={() => {}} />
+                <CutLine label="oddělit INVESTICI" />
+                <TvlSection kind="receipt" {...readonlyPrintShared} participantScores={receipt ? scores : undefined} onInspect={() => {}} />
+              </div>
+            );
+          })}
         </div>
       </main>
     );
@@ -1750,10 +1779,8 @@ export default function Home() {
             <img className="screen7-logo" src="/COTO-testovac/coto-logo-original.png" alt="Logo aplikace COTO" />
             <div className="live-selector-row">
               <div className="field-selector">
-                <small aria-live="polite">{editableCopy.surveyChoiceLabel}</small>
+                <small aria-live="polite">{publicLabel(editableCopy.surveyChoiceLabel)}</small>
                 <button
-                  className="manager-help"
-                  data-help={editableCopy.surveyChoiceHelp}
                   disabled={locked || copySurveyMode}
                   onClick={() => setSelectorOpen(selectorOpen === "variant" ? null : "variant")}
                   aria-expanded={selectorOpen === "variant"}
@@ -1779,10 +1806,8 @@ export default function Home() {
               </div>
 
               <div className="field-selector value-selector">
-                <small aria-live="polite">{editableCopy.managerExperienceLabel}</small>
+                <small aria-live="polite">{publicLabel(editableCopy.managerExperienceLabel)}</small>
                 <button
-                  className="manager-help"
-                  data-help={editableCopy.managerExperienceHelp}
                   disabled={locked || !screen7CodeChosen}
                   onClick={() => setSelectorOpen(selectorOpen === "value" ? null : "value")}
                   aria-expanded={selectorOpen === "value"}
@@ -1813,10 +1838,8 @@ export default function Home() {
               </div>
 
               <div className="field-selector week-selector">
-                <small aria-live="polite">{editableCopy.surveyWeekLabel}</small>
+                <small aria-live="polite">{publicLabel(editableCopy.surveyWeekLabel)}</small>
                 <button
-                  className="manager-help"
-                  data-help={editableCopy.surveyWeekHelp}
                   disabled={locked || !screen7CodeChosen || !experienceChosen}
                   onClick={() => setSelectorOpen(selectorOpen === "week" ? null : "week")}
                   aria-expanded={selectorOpen === "week"}
@@ -1831,10 +1854,14 @@ export default function Home() {
                 </button>
                 {selectorOpen === "week" && (
                   <div className="selector-menu week-menu" role="listbox">
-                    {weeks.map((week) => (
+                    {weeks.slice(0, 4).map((week) => (
                       <button
                         key={week.start}
-                        className={weekChosen && start === week.start ? "chosen" : ""}
+                        className={
+                          "manager-help week-option-help " +
+                          (weekChosen && start === week.start ? "chosen" : "")
+                        }
+                        data-help={editableCopy.surveyWeekHelp}
                         onClick={() => chooseWeek(week.start)}
                       >
                         {week.label}
@@ -1972,6 +1999,16 @@ export default function Home() {
               </span>
             </div>
             <div>
+              <label className="print-count-control">
+                Počet číslovaných TVL
+                <input
+                  type="number"
+                  min="1"
+                  max="999"
+                  value={printCount}
+                  onChange={(event) => setPrintCount(Math.max(1, Math.min(999, Number(event.target.value) || 1)))}
+                />
+              </label>
               <button
                 className="manager-help"
                 data-help="Zruší právě vytvořené časové razítko a vrátí správce do živé šablony."
@@ -1997,11 +2034,11 @@ export default function Home() {
           </div>
           <div className="preview-scroll">
             <div className="tvl-paper original-a4" style={tvlLayoutStyle}>
-              <TvlSection kind="voucher" {...sharedTvl} onInspect={setSelected} />
+              <TvlSection kind="voucher" {...sharedTvl} sheetNumber={1} onInspect={setSelected} />
               <CutLine label="oddělit POUKÁZKU" />
-              <TvlSection kind="investment" {...sharedTvl} onInspect={setSelected} />
+              <TvlSection kind="investment" {...sharedTvl} sheetNumber={1} onInspect={setSelected} />
               <CutLine label="oddělit INVESTICI" />
-              <TvlSection kind="receipt" {...sharedTvl} onInspect={setSelected} />
+              <TvlSection kind="receipt" {...sharedTvl} sheetNumber={1} onInspect={setSelected} />
             </div>
           </div>
         </div>
@@ -2016,12 +2053,12 @@ export default function Home() {
           const printShared = {
             ...sharedTvl,
             code: printCode,
+            sheetNumber: role === "manager" ? copyIndex + 1 : undefined,
             participantScores: role === "participant" ? scores : undefined,
             participantSymbols: role === "participant" ? participantSymbols : ["", "", "", ""],
           };
           return (
             <div className="tvl-paper printed-sheet original-a4" style={tvlLayoutStyle} key={printCode}>
-              <div className="printed-number">TVL {variant}1 · pořadové číslo {copyIndex + 1}</div>
               <TvlSection kind="voucher" {...printShared} onInspect={() => {}} />
               <CutLine label="oddělit POUKÁZKU" />
               <TvlSection kind="investment" {...printShared} onInspect={() => {}} />

@@ -128,9 +128,10 @@ test("poukázka obsahuje okno D, text a střihovou linku v pevné A4", async () 
   assert.match(css, /\.tvl-section\.voucher \.tvl-topline h2 \{ color: #168a45; \}/);
   assert.match(css, /\.tvl-section\.investment \.tvl-topline h2 \{ color: #d62f36; \}/);
   assert.match(css, /\.tvl-section\.receipt \.tvl-topline h2 \{ color: #2769b2; \}/);
-  assert.match(printCss, /var\(--voucher-share, 34%\)/);
-  assert.match(printCss, /var\(--investment-share, 31%\)/);
-  assert.match(printCss, /var\(--receipt-share, 31%\)/);
+  assert.match(printCss, /var\(--voucher-share, 38\.5%\)/);
+  assert.match(printCss, /var\(--investment-share, 27%\)/);
+  assert.match(printCss, /var\(--receipt-share, 30\.5%\)/);
+  assert.match(printCss, /\.original-a4 \.voucher \.tvl-columns \{[\s\S]*?flex: 0 0 62% !important/);
   assert.doesNotMatch(printCss, /grid-template-rows:\s*4mm\s+106mm\s+6mm\s+78mm\s+6mm\s+87mm/);
 });
 
@@ -207,6 +208,27 @@ test("horní nabídky živé šablony zůstávají po kliknutí otevřené", asy
   for (const selector of ["variant", "value", "week"]) {
     assert.match(page, new RegExp(`onClick=\\{\\(\\) => setSelectorOpen\\(selectorOpen === "${selector}" \\? null : "${selector}"\\)\\}`));
   }
+});
+
+test("horní nabídky nepřekrývá duplicitní nápověda a týdnů jsou čtyři", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const printCss = await readFile(new URL("../app/print-a4-2026-10-04.css", import.meta.url), "utf8");
+  assert.match(page, /weeks\.slice\(0, 4\)\.map/);
+  assert.match(page, /week-option-help/);
+  assert.match(page, /data-help=\{editableCopy\.surveyWeekHelp\}/);
+  assert.match(page, /publicLabel\(editableCopy\.managerExperienceLabel\)/);
+  assert.match(printCss, /grid-template-columns: repeat\(3, minmax\(0, 1fr\)\) !important/);
+  assert.match(printCss, /grid-template-rows: 17px 60px/);
+});
+
+test("tisk správce čísluje každý TVL a zvýrazňuje časové razítko", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const printCss = await readFile(new URL("../app/print-a4-2026-10-04.css", import.meta.url), "utf8");
+  assert.match(page, /Počet číslovaných TVL/);
+  assert.match(page, /setPrintCount/);
+  assert.match(page, /sheetNumber: role === "manager" \? copyIndex \+ 1 : undefined/);
+  assert.match(page, /Kód TVL č\./);
+  assert.match(printCss, /\.original-a4 \.timestamp-box b \{[\s\S]*?font-size: 9px/);
 });
 
 test("hodnota zkušeností má věkové skupiny a v TVL jen číslici", async () => {
