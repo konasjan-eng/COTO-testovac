@@ -1749,18 +1749,12 @@ export default function Home() {
           <section className="live-workbench">
             <img className="screen7-logo" src="/COTO-testovac/coto-logo-original.png" alt="Logo aplikace COTO" />
             <div className="live-selector-row">
-              <div
-                className="field-selector"
-                onMouseEnter={() => { if (!locked && !copySurveyMode) setSelectorOpen("variant"); }}
-              >
+              <div className="field-selector">
                 <small aria-live="polite">{editableCopy.surveyChoiceLabel}</small>
                 <button
                   className="manager-help"
                   data-help={editableCopy.surveyChoiceHelp}
                   disabled={locked || copySurveyMode}
-                  onFocus={() => {
-                    if (!copySurveyMode) setSelectorOpen("variant");
-                  }}
                   onClick={() => setSelectorOpen(selectorOpen === "variant" ? null : "variant")}
                   aria-expanded={selectorOpen === "variant"}
                 >
@@ -1784,18 +1778,12 @@ export default function Home() {
                 )}
               </div>
 
-              <div
-                className="field-selector value-selector"
-                onMouseEnter={() => { if (!locked && screen7CodeChosen) setSelectorOpen("value"); }}
-              >
+              <div className="field-selector value-selector">
                 <small aria-live="polite">{editableCopy.managerExperienceLabel}</small>
                 <button
                   className="manager-help"
                   data-help={editableCopy.managerExperienceHelp}
                   disabled={locked || !screen7CodeChosen}
-                  onFocus={() => {
-                    if (screen7CodeChosen) setSelectorOpen("value");
-                  }}
                   onClick={() => setSelectorOpen(selectorOpen === "value" ? null : "value")}
                   aria-expanded={selectorOpen === "value"}
                 >
@@ -1824,18 +1812,12 @@ export default function Home() {
                 )}
               </div>
 
-              <div
-                className="field-selector week-selector"
-                onMouseEnter={() => { if (!locked && screen7CodeChosen && experienceChosen) setSelectorOpen("week"); }}
-              >
+              <div className="field-selector week-selector">
                 <small aria-live="polite">{editableCopy.surveyWeekLabel}</small>
                 <button
                   className="manager-help"
                   data-help={editableCopy.surveyWeekHelp}
                   disabled={locked || !screen7CodeChosen || !experienceChosen}
-                  onFocus={() => {
-                    if (screen7CodeChosen && experienceChosen) setSelectorOpen("week");
-                  }}
                   onClick={() => setSelectorOpen(selectorOpen === "week" ? null : "week")}
                   aria-expanded={selectorOpen === "week"}
                 >
