@@ -287,7 +287,9 @@
 
   html,
   body {
-    width: 210mm;
+    width: auto !important;
+    min-width: 0 !important;
+    height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
     background: #fff !important;
@@ -300,6 +302,7 @@
   body > main > .print-batch {
     display: block !important;
     width: 200mm;
+    max-width: 200mm;
     margin: 0 !important;
     padding: 0 !important;
   }
@@ -307,10 +310,10 @@
   .printed-sheet.original-a4 {
     box-sizing: border-box;
     width: 200mm !important;
-    height: 287mm !important;
-    min-height: 287mm !important;
-    max-height: 287mm !important;
-    margin: 0 !important;
+    height: 277mm !important;
+    min-height: 277mm !important;
+    max-height: 277mm !important;
+    margin: 5mm auto !important;
     padding: 0 !important;
     border: 0 !important;
     box-shadow: none !important;
@@ -318,11 +321,15 @@
     overflow: hidden !important;
     display: grid !important;
     grid-template-rows:
-      var(--voucher-share, 38.5%)
+      32%
       2%
-      var(--investment-share, 27%)
+      32%
       2%
-      var(--receipt-share, 30.5%) !important;
+      32% !important;
+    break-inside: avoid-page !important;
+    page-break-inside: avoid !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
     page-break-after: always;
     break-after: page;
   }
