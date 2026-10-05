@@ -87,6 +87,22 @@ test("pokyny používají přímé tykání", async () => {
   assert.doesNotMatch(page, /zadejte|doplňte|vyberte|otevřete|najeďte|klikněte|přidělte|můžete|zkontrolujte|vaše hodnocení/i);
 });
 
+test("správce se ověřuje v živém ARES a chybná data vždy dostanou hlášku", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  for (const text of [
+    "ARES_SUBJECT_URL",
+    "hasValidIcoChecksum",
+    "hasValidCzechAccount",
+    "OVĚŘUJI IČO V ARES",
+    "nebylo v systému ARES nalezeno",
+    "Spojení se systémem ARES se nezdařilo",
+    "platný český formát a kontrolní součet",
+    "Majitele účtu potvrdí bankovní prostředí",
+  ]) assert.match(page, new RegExp(text));
+  assert.match(page, /fetch\(`\$\{ARES_SUBJECT_URL\}\/\$\{normalizedIco\}`/);
+  assert.doesNotMatch(page, /setOrganiser\("Jan Koňas · správce COTO · IČO " \+ ico\)/);
+});
+
 test("originální logo a obrazovka cíle se nesmí znovu nahradit maketou", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   const logo = await readFile(new URL("../public/coto-logo-original.png", import.meta.url));
