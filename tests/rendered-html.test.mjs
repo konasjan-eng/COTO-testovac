@@ -148,11 +148,20 @@ test("poukázka obsahuje okno D, text a střihovou linku v pevné A4", async () 
   assert.match(printCss, /var\(--investment-share, 27%\)/);
   assert.match(printCss, /var\(--receipt-share, 30\.5%\)/);
   assert.match(printCss, /\.original-a4 \.voucher \.tvl-columns \{[\s\S]*?flex: 0 0 62% !important/);
-  assert.match(printCss, /height: 277mm !important/);
-  assert.match(printCss, /margin: 5mm auto !important/);
-  assert.match(printCss, /grid-template-rows:\s*32%\s*2%\s*32%\s*2%\s*32% !important/);
+  assert.match(printCss, /@page \{[\s\S]*?size: A4 portrait;[\s\S]*?margin: 0;/);
+  assert.match(printCss, /width: 210mm !important;[\s\S]*?height: 297mm !important/);
+  assert.match(printCss, /padding: 5mm !important/);
+  assert.match(printCss, /grid-template-rows:\s*minmax\(0, 1fr\)\s*5mm\s*minmax\(0, 1fr\)\s*5mm\s*minmax\(0, 1fr\) !important/);
   assert.match(printCss, /break-inside: avoid-page !important/);
   assert.doesNotMatch(printCss, /grid-template-rows:\s*4mm\s+106mm\s+6mm\s+78mm\s+6mm\s+87mm/);
+});
+
+test("živá INVESTICE drží zkušenost a týden ve stejné výšce bez překryvu", async () => {
+  const printCss = await readFile(new URL("../app/print-a4-2026-10-04.css", import.meta.url), "utf8");
+  assert.match(printCss, /\.working-investment \.tvl-topline \{[\s\S]*?height: 36px;[\s\S]*?align-items: end;[\s\S]*?grid-template-columns: 1\.05fr 1\.45fr 1\.2fr 2\.1fr/);
+  assert.match(printCss, /\.working-investment \.tvl-topline > span \{[\s\S]*?grid-template-rows: 12px 23px/);
+  assert.match(printCss, /\.working-investment \.tvl-topline > span > i \{[\s\S]*?width: 100%;[\s\S]*?margin: 0/);
+  assert.match(printCss, /\.working-investment \.tvl-topline \.validity \{[\s\S]*?grid-template-columns: 1fr 1fr;[\s\S]*?grid-template-rows: 12px 23px/);
 });
 
 test("další správce může zkopírovat jeden nebo více vybraných námětů", async () => {
