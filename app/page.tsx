@@ -1945,8 +1945,8 @@ export default function Home() {
                   onClick={() => setSelectorOpen(selectorOpen === "variant" ? null : "variant")}
                   aria-expanded={selectorOpen === "variant"}
                 >
-                  <b>{screen7CodeChosen ? `${variant}001` : "VYBER"}</b>
-                  <span>{screen7CodeChosen ? chosenVariant.name : "kód z nabídky"}</span>
+                  <b>{screen7CodeChosen ? `${variant}001` : "\u00a0"}</b>
+                  <span>{screen7CodeChosen ? chosenVariant.name : "\u00a0"}</span>
                   <em>▾</em>
                 </button>
                 {selectorOpen === "variant" && (
@@ -1968,14 +1968,14 @@ export default function Home() {
               <div className="field-selector value-selector">
                 <small aria-live="polite">{publicLabel(editableCopy.managerExperienceLabel)}</small>
                 <button
-                  disabled={locked || !screen7CodeChosen}
+                  disabled={locked}
                   onClick={() => setSelectorOpen(selectorOpen === "value" ? null : "value")}
                   aria-expanded={selectorOpen === "value"}
                 >
-                  <b>{experienceChosen ? surveyValue : "1–3"}</b>
+                  <b>{experienceChosen ? surveyValue : "\u00a0"}</b>
                   <span>{experienceChosen
                     ? surveyValue === 1 ? "20–39 let" : surveyValue === 2 ? "40–59 let" : "60–89 let"
-                    : "nejdřív vyber kód"}</span>
+                    : "\u00a0"}</span>
                   <em>▾</em>
                 </button>
                 {selectorOpen === "value" && (
@@ -2000,17 +2000,11 @@ export default function Home() {
               <div className="field-selector week-selector">
                 <small aria-live="polite">{publicLabel(editableCopy.surveyWeekLabel)}</small>
                 <button
-                  disabled={locked || !screen7CodeChosen || !experienceChosen}
+                  disabled={locked}
                   onClick={() => setSelectorOpen(selectorOpen === "week" ? null : "week")}
                   aria-expanded={selectorOpen === "week"}
                 >
-                  <b>{!screen7CodeChosen
-                    ? "Nejdřív vyber kód"
-                    : !experienceChosen
-                      ? "Potom vyber zkušenost"
-                      : weekChosen
-                        ? validity.period
-                        : "Vyber týden Po–Ne"}</b><em>▾</em>
+                  <b>{weekChosen ? validity.period : "\u00a0"}</b><em>▾</em>
                 </button>
                 {selectorOpen === "week" && (
                   <div className="selector-menu week-menu" role="listbox">
