@@ -463,7 +463,33 @@ function LiveScreenEditor({
         </>
       )}
       <p>Text se při psaní ihned mění na svém místě vlevo. Enter potvrdí; Shift+Enter vloží nový řádek.</p>
+      <CommunicationPanel current={current} />
     </aside>
+  );
+}
+
+function CommunicationPanel({ current }: { current: number }) {
+  const [message, setMessage] = useState("");
+  const [copied, setCopied] = useState(false);
+  const request = `COTO / TVL — obrazovka ${String(current).padStart(2, "0")}\\n\\n${message.trim()}`;
+  return (
+    <section className="coto-communication" aria-label="Komunikace Honza a Karel">
+      <h3>HONZA ↔ KAREL · POŽADAVKY A ZMĚNY</h3>
+      <p>Popiš požadovanou změnu této obrazovky. Tlačítkem ji zkopíruješ a vložíš do našeho chatu ChatGPT. Toto okno zatím samo neposílá zprávy AI.</p>
+      <label htmlFor="coto-message">Tvůj požadavek k obrazovce {String(current).padStart(2, "0")}</label>
+      <textarea id="coto-message" rows={4} value={message} onChange={(event) => { setMessage(event.target.value); setCopied(false); }} placeholder="Co chceš změnit?" />
+      <button type="button" disabled={!message.trim()} onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(request);
+          setCopied(true);
+        } catch {
+          const selection = document.getElementById("coto-message") as HTMLTextAreaElement | null;
+          selection?.select();
+          setCopied(false);
+        }
+      }}>{copied ? "ZKOPÍROVÁNO · VLOŽ DO CHATU" : "ZKOPÍROVAT PRO KARLA"}</button>
+      <small>Bez automatického odesílání, bez ukládání osobních údajů na server.</small>
+    </section>
   );
 }
 
