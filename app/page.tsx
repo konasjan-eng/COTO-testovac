@@ -1320,9 +1320,7 @@ export default function Home() {
           >
             ×
           </button>
-          <p className="eyebrow">PROJEKT COTO · OBRAZOVKA 03</p>
-          <p className="screen-inline-copy" aria-live="polite">{screenCopy[3]}</p>
-          <h1>Cíl a filosofie internetové aplikace COTO</h1>
+          <img className="entry-mini-logo" src="/COTO-testovac/coto-logo-original.png" alt="Logo COTO" />
           <div className="purpose-workspace">
             <div className="purpose-copy" aria-label="Výsledný text cíle a filosofie">
               {purposeText.split(/\n\s*\n/).map((paragraph, index) => (
