@@ -413,3 +413,12 @@
     display: block !important;
   }
 }
+
+
+/* 20. 11. 2026 – popisky oken A–E: posun o 1 mm nahoru, bez posunu samotnych okének. */
+.working-investment .window-letter,
+.preview-scroll .original-a4 .window-letter,
+.printed-sheet.original-a4 .window-letter,
+.readonly-screen .original-a4 .window-letter {
+  transform: translateY(-1mm);
+}

@@ -2035,7 +2035,6 @@ export default function Home() {
               </p>
             )}
 
-            <p className="screen7-guide" aria-live="polite">{editableCopy.screen7Guide}</p>
 
             <div className="working-paper-wrap">
               <div
