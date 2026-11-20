@@ -114,7 +114,7 @@ const publicLabel = (value: string) =>
 
 const defaultScreenCopy: Record<number, string> = {
   1: "Klikni na ikonu a otevři COTO.",
-  2: "Klikni na originální logo a přečti si cíl a filosofii projektu.",
+  2: 'Název pro řízení "zdola" začíná "hezky, česky" - pochopením /lomítka v názvu.\nNepochopený vtip odradí pitomce a lenochy, PRŮZKUM VLASTNÍCH I CIZÍCH NÁZORŮ můžeme sdílet kopírováním - a zvětšovat tlak na řešení.\nÚČASTNÍCI asi jen vyplní hodnocení nápadů, které považují za potřebné.\nSPRÁVCI jsou ti, kdo už s řízením (sebe, rodiny, firmy, obce či kraje) zkušenost - a tím i nápady mají.\nStruktura COTO umožňuje anonymní kontrolu, kam tvá podpora opravdu došla.\nVyzkoušej - a uvidíš',
   3: "Text cíle a filosofie můžeš upravit vpravo; změna se ihned ukáže vlevo.",
   4: "COTO vrací výsledky do nejmenších správních a společenských celků, kde téma vzniklo.",
   5: "Zadej IČO a samostatný účet na propagaci.",
@@ -1289,10 +1289,12 @@ export default function Home() {
 
   if (entryStage === "logo") {
     return (
-      <main className="entry-screen with-live-editor">
+      <main className="entry-screen with-live-editor logo-entry-screen">
         <ScreenBadge current={2} />
         {renderEditor(2)}
+        <section className="logo-entry-content" aria-label="Představení COTO">
         <p className="screen-inline-copy entry-copy" aria-live="polite">{screenCopy[2]}</p>
+        <p className="logo-entry-prompt">Klikni na logo a přečti si cíl a filosofii COTO.</p>
         <button
           className="coto-entry-logo coto-entry-logo-image"
           onClick={() => setEntryStage("purpose")}
@@ -1303,6 +1305,7 @@ export default function Home() {
             alt="COTO – Co/dáš a To/máš, aplikace pro spravedlivou výměnu informací"
           />
         </button>
+        </section>
       </main>
     );
   }
