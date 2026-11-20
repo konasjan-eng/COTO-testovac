@@ -1230,3 +1230,37 @@ button.survey-copy-count:focus-visible {
 
   .copy-topics-panel { grid-template-columns: 1fr; }
 }
+
+/* Obrazovka 03: celý zlatý rám a původní barevné členění textu. */
+.entry-screen:has(> .purpose-panel) {
+  display: block;
+  padding-top: 24px;
+}
+.entry-screen .purpose-panel {
+  width: min(100%, 68rem) !important;
+  max-width: 100% !important;
+  max-height: none !important;
+  overflow: visible !important;
+  height: auto !important;
+  margin: 0 auto 40px;
+  border: 4px solid var(--video-gold, #d2ad36) !important;
+  box-sizing: border-box;
+}
+.purpose-panel .purpose-copy p {
+  font: 19px/1.5 Georgia, "Times New Roman", serif;
+  color: #1d2530;
+}
+.purpose-panel .purpose-workspace {
+  grid-template-columns: minmax(0, 1fr);
+}
+.purpose-panel .purpose-copy strong {
+  font-weight: 800;
+  font-size: 1.09em;
+}
+.purpose-panel .purpose-copy strong.purpose-red { color: #b52531 !important; }
+.purpose-panel .purpose-copy strong.purpose-green { color: #167a42 !important; }
+.purpose-panel .purpose-copy strong.purpose-blue { color: #245eaa !important; }
+@media (max-width: 900px) {
+  .purpose-panel { width: min(94vw, 680px) !important; padding: 24px 20px !important; }
+  .purpose-panel .purpose-copy p { font-size: 17px; }
+}
