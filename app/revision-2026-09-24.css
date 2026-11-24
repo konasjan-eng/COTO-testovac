@@ -1288,3 +1288,42 @@ button.survey-copy-count:focus-visible {
 .variant-panel .variant-choice {
   width: 100%;
 }
+
+.variant-instructions {
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.original-a4 .personal-address .qr {
+  align-self: center;
+  justify-self: center;
+  width: 58px;
+  aspect-ratio: 1;
+  height: auto;
+  padding: 3px;
+  justify-content: center;
+  border: 1px dashed #666;
+  background: transparent;
+  font-size: 8px;
+  box-sizing: border-box;
+}
+
+.original-a4 .personal-address .qr b {
+  font-size: 10px;
+}
+
+@media screen {
+  .original-a4 > .cut {
+    margin-block: 5px;
+  }
+}
+
+@media print {
+  .original-a4 > .cut {
+    padding-block: 0.5mm;
+  }
+
+  .original-a4 > .cut .cut-scissors {
+    font-size: 12px !important;
+  }
+}
