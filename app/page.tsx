@@ -163,10 +163,10 @@ const defaultEditableCopy: EditableCopy = {
   aresInstructions: "Zadej IČO a samostatný účet na propagaci.\n\n1. IČO se automaticky zkontroluje ve veřejném systému ARES.\n2. Účet na propagaci se zkontroluje podle českého formátu a bankovního kontrolního součtu. Jeho majitele potvrdí bankovní prostředí při připojení účtu.\n3. Na chybné nebo neexistující IČO či neplatné číslo účtu upozorní hláška.\n4. Ověřená identita správce se ihned přenese do okna A. Správce může pod ni doplnit logo své firmy; obec vloží lvíčka.",
   verifiedManager: "Ověřený správce",
   copySurveyLabel: "Vlož kód jiného průzkumu stejné varianty",
-  variantPN: "Průzkum názorů: náměty, otázky a jejich podpora.",
-  variantVL: "Vyber lepší: porovnání dvou nebo více možností.",
-  variantPP: "Podpora projektu: podpora konkrétního projektu.",
-  variantVT: "Volební tombola: výběr lidí spojených s řešením.",
+  variantPN: "Zapiš název problému nebo potřebu obce či společnosti. Pokud můžeš, přidej stručný návrh řešení. Můžeš nabídnout i odložený projekt a požádat o jeho finanční podporu. Účastník může podle kódu dohledat správce a podporovaný projekt. Pokud se rozhodne přispět, může místo rodného čísla zapsat do POUKÁZKY číslo bankovní transakce. Po připojení bankovních zdrojů se doložené datum a čas odepsání a připsání mají zobrazit v okně C DOKLADU.",
+  variantVL: "Vyber lepší ze dvou nebo tří možností. Každé možnosti přiděl hodnocení od 1 do 9.",
+  variantPP: "V seznamu správců vyber projekt, který chceš podpořit. S vlastním IČO a účtem na propagaci můžeš jako správce nabídnout svůj projekt. Pro zkoušku bankovní kontroly vyber organizaci s transparentním účtem. Do POUKÁZKY zapiš číslo transakce místo rodného čísla. Po připojení bankovních zdrojů má DOKLAD v okně C uvést název organizace a banky a doložené datum a minutu odepsání a připsání. Časové razítko a osobní kód mají umožnit dohledání odeslaného TVL. Bankovní ověření a dohledání na účtu správce se připravují.",
+  variantVT: "Připravovaný předvolební průzkum má nabídnout dva abecední seznamy. První obsahuje volební subjekty a druhý všechny kandidáty. Účastník uvede číslo jednoho volebního subjektu, číslo kandidáta na premiéra a čísla tří kandidátů, kterým důvěřuje. Součty mají poskytnout podklad pro návrh pravidel sestavování vlády.",
   managerListLabel: "Seznam správců pro účastníka",
   surveyChoiceLabel: "Průzkum názorů a řešení",
   surveyChoiceHelp: "Nejdřív otevři nabídku a vyber PN, VL, PP nebo VT. Označení kódu se zobrazí až po výběru.",
@@ -174,7 +174,7 @@ const defaultEditableCopy: EditableCopy = {
   managerExperienceHelp: "1 = 20–39 let, 2 = 40–59 let, 3 = 60–89 let. V tiskopisu se zobrazí pouze zvolená číslice 1–3.",
   surveyWeekLabel: "Týden průzkumu pro kódy VL a VT",
   surveyWeekHelp: "VL = Vyber lepší = referendum pod jiným názvem. VT = Volební tombola = průzkum emocí před volbami. Průzkum trvá od pondělí do neděle do 24:00. Nejdřív vyber kód, potom týden.",
-  copyCountHelp: "Jde jen o orientační počet, který upozorňuje na zájem o průzkum. Jinému správci kliknutí otevře seznam variant. Stejná varianta se zvýrazní a po výběru zapíše do čisté pracovní šablony Variaci: původní kód a časové razítko kopie.",
+  copyCountHelp: "Jde jen o orientační počet, který upozorňuje na zájem o průzkum. Jinému správci kliknutí otevře seznam variant. Stejná varianta se zvýrazní a po výběru převezme návrhy do pracovní šablony. U variace se zobrazí původní kód a časové razítko kopie.",
   screen7Guide: "1. Nejdřív vyber průzkum; označení kódu se ukáže až potom.\n2. Vyber hodnotu zkušeností správce 1–3 a následně týden průzkumu.\n3. Vyplň jeden až tři návrhy potřeb nebo řešení otázek; nepoužité řádky označ křížkem.",
   timestampPurpose: "Zamkne editaci a uloží průzkum do seznamů s výsledky v prostředí účtu na propagaci. Pomáhá také rychleji vyhledat aktivity účastníků.",
   printedIdentityHelp: "U variant VL a VT vyplňují účastníci tištěné listy osobně po ztotožnění. První díl si ponechají, druhé dva vhodí do urny.",
@@ -579,7 +579,7 @@ function TvlSection({
   };
   const numbers = { voucher: "1.", investment: "2.", receipt: "3." };
   const personalIdentifierLabel =
-    variant === "PP" ? "Číslo bankovní transakce" : "Rodné číslo";
+    variant === "PP" ? "Číslo bankovní transakce" : variant === "PN" ? "RČ – anebo číslo bankovní transakce" : "Rodné číslo";
   const identifierCode = (codeVisible ? code : "").padEnd(17, " ").slice(0, 17);
 
   return (
@@ -772,7 +772,6 @@ export default function Home() {
   const [role, setRole] = useState<"manager" | "participant">("manager");
   const [variant, setVariant] = useState<VariantCode>("PN");
   const [hoveredVariant, setHoveredVariant] = useState<VariantCode>("PN");
-  const [touchPreviewVariant, setTouchPreviewVariant] = useState<VariantCode | null>(null);
   const [projects, setProjects] = useState<Project[]>(initialProjects);
   const [organiser, setOrganiser] = useState("Jan Koňas · správce COTO · IČO 12226491");
   const [managerLogo, setManagerLogo] = useState("");
@@ -797,7 +796,7 @@ export default function Home() {
   const [preview, setPreview] = useState(false);
   const [locked, setLocked] = useState(false);
   const [live, setLive] = useState<
-    { title: string; period: string; code: string; variant: VariantCode }[]
+    { title: string; period: string; code: string; variant: VariantCode; projects: Project[] }[]
   >([]);
   const [participantOpen, setParticipantOpen] = useState(false);
   const [scores, setScores] = useState<number[]>([0, 0, 0]);
@@ -1092,7 +1091,13 @@ export default function Home() {
       return;
     }
     if (copySurveyMode) {
+      const source = live.find((survey) => survey.code.toUpperCase() === sourceCode && survey.variant === nextVariant);
+      if (!source) {
+        setFormError("Průzkum s tímto kódem není v aktuálním seznamu. Zkontroluj kód potvrzeného průzkumu.");
+        return;
+      }
       const now = new Date();
+      setProjects(source.projects.map((project) => ({ ...project })));
       setCopiedSurveyCode(sourceCode);
       setVariationSourceCode(sourceCode);
       setVariationCopyStamp(now.toLocaleString("cs-CZ", {
@@ -1151,21 +1156,26 @@ export default function Home() {
     const activeProjects = projects.filter((project) => !project.unused);
     const missingProjects = projects
       .map((project, index) =>
-        project.unused || (project.title.trim() && project.detail.trim()) ? "" : String(index + 1),
+        project.unused || (project.title.trim() && (variant === "PN" || project.detail.trim())) ? "" : String(index + 1),
       )
       .filter(Boolean);
-    if (!screen7CodeChosen || !experienceChosen || !weekChosen || !activeProjects.length || missingProjects.length) {
-      setFormError(
-        !screen7CodeChosen
-          ? "Nejdřív vyber průzkum. Teprve potom se zobrazí jeho kód."
-          : !experienceChosen
-            ? "Vyber hodnotu zkušeností správce 1, 2 nebo 3."
-            : !weekChosen
-              ? "Vyber týden průzkumu od pondělí do neděle."
-              : !activeProjects.length
-                ? "Vyplň aspoň jeden návrh. Nepoužité řádky označ křížkem."
-                : `Doplň název i stručný popis aktivních návrhů${missingProjects.length ? `; zkontroluj řádek ${missingProjects.join(", ")}` : ""}.`,
-      );
+    const minimumProjects = variant === "VL" ? 2 : 1;
+    const projectError = activeProjects.length < minimumProjects
+      ? variant === "VL"
+        ? "Pro variantu Vyber lepší vyplň dvě nebo tři možnosti."
+        : "Vyplň aspoň jeden návrh. Nepoužité řádky označ křížkem."
+      : missingProjects.length
+        ? `Doplň ${variant === "PN" ? "název" : "název i stručný popis"} v řádcích ${missingProjects.join(", ")}.`
+        : "";
+    const error = !screen7CodeChosen
+      ? "Nejdřív vyber průzkum. Teprve potom se zobrazí jeho kód."
+      : !experienceChosen
+        ? "Vyber hodnotu zkušeností správce 1, 2 nebo 3."
+        : !weekChosen
+          ? "Vyber týden průzkumu od pondělí do neděle."
+          : projectError;
+    if (error) {
+      setFormError(error);
       return;
     }
     if (!activationStamp) {
@@ -1198,7 +1208,7 @@ export default function Home() {
     setLocked(true);
     setLive((current) => [
       ...current.filter((item) => item.code !== code),
-      { title, period: validity.period, code, variant },
+      { title, period: validity.period, code, variant, projects },
     ]);
     if (copySurveyMode && copiedSurveyCode.trim()) {
       const sourceCode = copiedSurveyCode.trim().toUpperCase();
@@ -1509,26 +1519,28 @@ export default function Home() {
               </p>
             </div>
           )}
+          <details className="variant-instructions">
+            <summary>Kopírování návrhu a uložení TVL</summary>
+            <p>V předchozím kroku zvol kopírování průzkumu. Vlož jeho kód a vyber stejnou variantu. COTO načte dostupné návrhy do tvé pracovní šablony a k odkazu na původní průzkum přidá čas kopie.</p>
+            <p>Pro vlastní záznam si můžeš místo tisku pořídit snímek obrazovky telefonu a uložit ho do Fotek nebo na USB disk. Pro účetnictví si uschovej také potvrzení o platbě.</p>
+          </details>
           {variantOptions.map((option) => (
-            <button
-              key={option.code}
-              className={"variant-choice manager-help help-right " + (hoveredVariant === option.code ? "active" : "")}
-              data-help={editableCopy[variantHelpKeys[option.code]]}
-              onMouseEnter={() => setHoveredVariant(option.code)}
-              onFocus={() => setHoveredVariant(option.code)}
-              onTouchStart={(event) => {
-                if (touchPreviewVariant !== option.code) {
-                  event.preventDefault();
-                  setTouchPreviewVariant(option.code);
-                  setHoveredVariant(option.code);
-                }
-              }}
-              onClick={() => openWorkingVariant(option.code)}
-            >
-              <b>{option.code}</b>
-              <span>{option.name}<small>{option.description}</small></span>
-              <em aria-label="Potvrdit výběr">➜</em>
-            </button>
+            <div key={option.code}>
+              <button
+                className={"variant-choice " + (hoveredVariant === option.code ? "active" : "")}
+                onMouseEnter={() => setHoveredVariant(option.code)}
+                onFocus={() => setHoveredVariant(option.code)}
+                onClick={() => openWorkingVariant(option.code)}
+              >
+                <b>{option.code}</b>
+                <span>{option.name}<small>{option.description}</small></span>
+                <em aria-label="Potvrdit výběr">➜</em>
+              </button>
+              <details className="variant-instructions">
+                <summary>Nápověda k variantě {option.code}</summary>
+                <p>{editableCopy[variantHelpKeys[option.code]]}</p>
+              </details>
+            </div>
           ))}
           {formError && <p className="form-error">{formError}</p>}
           <button className="muted" onClick={() => setEntryStage("ares")}>ZPĚT</button>
@@ -1837,7 +1849,7 @@ export default function Home() {
                       <input value={personal.nationality} onChange={(event) => setPersonal({ ...personal, nationality: event.target.value })} />
                     </label>
                     <label>
-                      Rodné číslo / osobní identifikátor
+                      {variant === "PP" ? "Číslo bankovní transakce" : variant === "PN" ? "RČ – anebo číslo bankovní transakce" : "Rodné číslo / osobní identifikátor"}
                       <input value={personal.identity} onChange={(event) => setPersonal({ ...personal, identity: event.target.value })} />
                     </label>
                   </fieldset>
@@ -1906,7 +1918,7 @@ export default function Home() {
                         výsledkem, aniž by se do něj přeneslo okno D.
                       </p>
                       <button onClick={() => window.print()}>TISK / ULOŽIT CELÝ TVL NA JEDNU A4</button>
-                      <small className="mobile-print-help">V telefonu vyber u tisku „Uložit jako PDF“ a soubor potom přilož ke zprávě SMS nebo MMS.</small>
+                      <small className="mobile-print-help">V telefonu můžeš zvolit „Uložit jako PDF“ a přiložit soubor ke zprávě SMS nebo MMS. Pro vlastní potřebu si můžeš uložit snímek obrazovky do Fotek.</small>
                       <button onClick={() => setEntryStage("readonly")}>ZOBRAZIT VÝSLEDEK VRÁCENÝ DO TVL</button>
                       <button onClick={() => setShowAccountResults((shown) => !shown)}>
                         {showAccountResults ? "SKRÝT ŘÁDKY ÚČTU NA PROPAGACI" : "ZKONTROLOVAT ŘÁDKY ÚČTU NA PROPAGACI"}

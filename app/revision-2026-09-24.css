@@ -1264,3 +1264,27 @@ button.survey-copy-count:focus-visible {
   .purpose-panel { width: min(94vw, 680px) !important; padding: 24px 20px !important; }
   .purpose-panel .purpose-copy p { font-size: 17px; }
 }
+
+.variant-panel .variant-instructions {
+  margin: 8px 0 12px;
+  padding: 8px 12px;
+  border: 1px solid #ded7c6;
+  border-radius: 6px;
+  background: #fff8d9;
+  color: #27312c;
+  text-align: left;
+}
+
+.variant-instructions summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.variant-instructions p {
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.variant-panel .variant-choice {
+  width: 100%;
+}
