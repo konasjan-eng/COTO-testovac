@@ -13,8 +13,19 @@ type EntryStage =
   | "variants"
   | "app"
   | "dashboard"
-  | "readonly";
+  | "readonly"
+  | "copy-source";
 type VariantCode = "PN" | "VL" | "PP" | "VT";
+type ConfirmedSurvey = {
+  title: string;
+  period: string;
+  code: string;
+  variant: VariantCode;
+  projects: Project[];
+  validFrom: string;
+  validTo: string;
+  activationStamp: string;
+};
 type PersonalData = {
   name: string;
   street: string;
@@ -163,10 +174,10 @@ const defaultEditableCopy: EditableCopy = {
   aresInstructions: "Zadej IČO a samostatný účet na propagaci.\n\n1. IČO se automaticky zkontroluje ve veřejném systému ARES.\n2. Účet na propagaci se zkontroluje podle českého formátu a bankovního kontrolního součtu. Jeho majitele potvrdí bankovní prostředí při připojení účtu.\n3. Na chybné nebo neexistující IČO či neplatné číslo účtu upozorní hláška.\n4. Ověřená identita správce se ihned přenese do okna A. Správce může pod ni doplnit logo své firmy; obec vloží lvíčka.",
   verifiedManager: "Ověřený správce",
   copySurveyLabel: "Vlož kód jiného průzkumu stejné varianty",
-  variantPN: "Průzkum názorů: náměty, otázky a jejich podpora.",
-  variantVL: "Vyber lepší: porovnání dvou nebo více možností.",
-  variantPP: "Podpora projektu: podpora konkrétního projektu.",
-  variantVT: "Volební tombola: výběr lidí spojených s řešením.",
+  variantPN: "Zapiš název problému nebo potřebu obce či společnosti. Pokud můžeš, přidej stručný návrh řešení. Můžeš nabídnout i odložený projekt a požádat o jeho finanční podporu. Finanční podpora s číslem bankovní transakce patří do varianty PP.",
+  variantVL: "Vyber lepší ze dvou nebo tří možností. Každé možnosti přiděl hodnocení od 1 do 9.",
+  variantPP: "V seznamu správců vyber projekt, který chceš podpořit. S vlastním IČO a účtem na propagaci můžeš jako správce nabídnout svůj projekt. Pro zkoušku bankovní kontroly vyber organizaci s transparentním účtem. Do POUKÁZKY zapiš číslo transakce místo rodného čísla. Po připojení bankovních zdrojů má DOKLAD v okně C uvést název organizace a banky a doložené datum a minutu odepsání a připsání. Časové razítko a osobní kód mají umožnit dohledání odeslaného TVL. Bankovní ověření a dohledání na účtu správce se připravují.",
+  variantVT: "Připravovaný předvolební průzkum má nabídnout dva abecední seznamy. První obsahuje volební subjekty a druhý všechny kandidáty. Účastník uvede číslo jednoho volebního subjektu, číslo kandidáta na premiéra a čísla tří kandidátů, kterým důvěřuje. Součty mají poskytnout podklad pro návrh pravidel sestavování vlády.",
   managerListLabel: "Seznam správců pro účastníka",
   surveyChoiceLabel: "Průzkum názorů a řešení",
   surveyChoiceHelp: "Nejdřív otevři nabídku a vyber PN, VL, PP nebo VT. Označení kódu se zobrazí až po výběru.",
@@ -174,7 +185,7 @@ const defaultEditableCopy: EditableCopy = {
   managerExperienceHelp: "1 = 20–39 let, 2 = 40–59 let, 3 = 60–89 let. V tiskopisu se zobrazí pouze zvolená číslice 1–3.",
   surveyWeekLabel: "Týden průzkumu pro kódy VL a VT",
   surveyWeekHelp: "VL = Vyber lepší = referendum pod jiným názvem. VT = Volební tombola = průzkum emocí před volbami. Průzkum trvá od pondělí do neděle do 24:00. Nejdřív vyber kód, potom týden.",
-  copyCountHelp: "Jde jen o orientační počet, který upozorňuje na zájem o průzkum. Jinému správci kliknutí otevře seznam variant. Stejná varianta se zvýrazní a po výběru zapíše do čisté pracovní šablony Variaci: původní kód a časové razítko kopie.",
+  copyCountHelp: "Jde jen o orientační počet, který upozorňuje na zájem o průzkum. Jinému správci kliknutí otevře seznam variant. Stejná varianta se zvýrazní a otevře původní TVL ke čtení. Vybraný návrh se přenese do nové šablony. U variace se zobrazí původní kód a časové razítko kopie.",
   screen7Guide: "1. Nejdřív vyber průzkum; označení kódu se ukáže až potom.\n2. Vyber hodnotu zkušeností správce 1–3 a následně týden průzkumu.\n3. Vyplň jeden až tři návrhy potřeb nebo řešení otázek; nepoužité řádky označ křížkem.",
   timestampPurpose: "Zamkne editaci a uloží průzkum do seznamů s výsledky v prostředí účtu na propagaci. Pomáhá také rychleji vyhledat aktivity účastníků.",
   printedIdentityHelp: "U variant VL a VT vyplňují účastníci tištěné listy osobně po ztotožnění. První díl si ponechají, druhé dva vhodí do urny.",
@@ -579,7 +590,7 @@ function TvlSection({
   };
   const numbers = { voucher: "1.", investment: "2.", receipt: "3." };
   const personalIdentifierLabel =
-    variant === "PP" ? "Číslo bankovní transakce" : "Rodné číslo";
+    variant === "PP" ? "Číslo bankovní transakce" : "RČ";
   const identifierCode = (codeVisible ? code : "").padEnd(17, " ").slice(0, 17);
 
   return (
@@ -711,14 +722,13 @@ function TvlSection({
                   <span>národnost {personal?.nationality || "............................................"}</span>
                 </div>
                 <div className="qr">
-                  <span>OSOBNÍ</span>
-                  <b>QR</b>
-                  <span>účastníka</span>
+                  <span>Místo pro</span>
+                  <b>osobní QR</b>
                 </div>
               </div>
               <div className="personal-identifier-row">
                 <b>{personalIdentifierLabel}</b>
-                <span>{personal?.identity || "□ □ □ □ □ □ / □ □ □ □"}</span>
+                <span>{personal?.identity || (variant === "PP" ? "........................................" : "□ □ □ □ □ □ / □ □ □ □")}</span>
               </div>
             </div>
           )}
@@ -772,7 +782,6 @@ export default function Home() {
   const [role, setRole] = useState<"manager" | "participant">("manager");
   const [variant, setVariant] = useState<VariantCode>("PN");
   const [hoveredVariant, setHoveredVariant] = useState<VariantCode>("PN");
-  const [touchPreviewVariant, setTouchPreviewVariant] = useState<VariantCode | null>(null);
   const [projects, setProjects] = useState<Project[]>(initialProjects);
   const [organiser, setOrganiser] = useState("Jan Koňas · správce COTO · IČO 12226491");
   const [managerLogo, setManagerLogo] = useState("");
@@ -796,9 +805,9 @@ export default function Home() {
   >(null);
   const [preview, setPreview] = useState(false);
   const [locked, setLocked] = useState(false);
-  const [live, setLive] = useState<
-    { title: string; period: string; code: string; variant: VariantCode }[]
-  >([]);
+  const [live, setLive] = useState<ConfirmedSurvey[]>([]);
+  const [copySource, setCopySource] = useState<ConfirmedSurvey | null>(null);
+  const [participantTvlCode, setParticipantTvlCode] = useState("");
   const [participantOpen, setParticipantOpen] = useState(false);
   const [scores, setScores] = useState<number[]>([0, 0, 0]);
   const [participantSymbols, setParticipantSymbols] = useState<string[]>(["", "", "", ""]);
@@ -1092,22 +1101,18 @@ export default function Home() {
       return;
     }
     if (copySurveyMode) {
-      const now = new Date();
-      setCopiedSurveyCode(sourceCode);
-      setVariationSourceCode(sourceCode);
-      setVariationCopyStamp(now.toLocaleString("cs-CZ", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        fractionalSecondDigits: 3,
-      }));
-    } else {
-      setVariationSourceCode("");
-      setVariationCopyStamp("");
+      const source = live.find((survey) => survey.code.toUpperCase() === sourceCode && survey.variant === nextVariant);
+      if (!source) {
+        setFormError("Průzkum s tímto kódem není v aktuálním seznamu. Zkontroluj kód potvrzeného průzkumu.");
+        return;
+      }
+      setCopySource(source);
+      setFormError("");
+      setEntryStage("copy-source");
+      return;
     }
+    setVariationSourceCode("");
+    setVariationCopyStamp("");
     setVariant(nextVariant);
     setHoveredVariant(nextVariant);
     setScreen7CodeChosen(copySurveyMode);
@@ -1115,6 +1120,37 @@ export default function Home() {
     setWeekChosen(false);
     setSelectorOpen(null);
     setFormError("");
+    setEntryStage("app");
+  };
+
+  const copyOneProject = (source: ConfirmedSurvey, index: number) => {
+    const project = source.projects[index];
+    if (!project || project.unused || !project.title.trim()) return;
+    const now = new Date();
+    setProjects([{ ...project }, ...initialProjects.slice(1).map((row) => ({ ...row, unused: true }))]);
+    setVariant(source.variant);
+    setCopiedSurveyCode(source.code);
+    setVariationSourceCode(source.code);
+    setVariationCopyStamp(now.toLocaleString("cs-CZ", { fractionalSecondDigits: 3 }));
+    setScores([0, 0, 0]);
+    setParticipantSymbols(["", "", "", ""]);
+    setPersonal(emptyPersonal);
+    setReceipt("");
+    setShowAccountResults(false);
+    setSelected(null);
+    setLocked(false);
+    setPreview(false);
+    setActivationStamp("");
+    setScreen7CodeChosen(true);
+    setExperienceChosen(false);
+    setWeekChosen(false);
+    setFormError("");
+    if (role === "participant") {
+      const suffix = crypto.randomUUID().replaceAll("-", "").slice(0, 7).toUpperCase();
+      setParticipantTvlCode(source.code.slice(0, 10) + suffix);
+      setParticipantOpen(true);
+    }
+    setCopySource(null);
     setEntryStage("app");
   };
 
@@ -1151,21 +1187,26 @@ export default function Home() {
     const activeProjects = projects.filter((project) => !project.unused);
     const missingProjects = projects
       .map((project, index) =>
-        project.unused || (project.title.trim() && project.detail.trim()) ? "" : String(index + 1),
+        project.unused || (project.title.trim() && (variant === "PN" || project.detail.trim())) ? "" : String(index + 1),
       )
       .filter(Boolean);
-    if (!screen7CodeChosen || !experienceChosen || !weekChosen || !activeProjects.length || missingProjects.length) {
-      setFormError(
-        !screen7CodeChosen
-          ? "Nejdřív vyber průzkum. Teprve potom se zobrazí jeho kód."
-          : !experienceChosen
-            ? "Vyber hodnotu zkušeností správce 1, 2 nebo 3."
-            : !weekChosen
-              ? "Vyber týden průzkumu od pondělí do neděle."
-              : !activeProjects.length
-                ? "Vyplň aspoň jeden návrh. Nepoužité řádky označ křížkem."
-                : `Doplň název i stručný popis aktivních návrhů${missingProjects.length ? `; zkontroluj řádek ${missingProjects.join(", ")}` : ""}.`,
-      );
+    const minimumProjects = variant === "VL" ? 2 : 1;
+    const projectError = activeProjects.length < minimumProjects
+      ? variant === "VL"
+        ? "Pro variantu Vyber lepší vyplň dvě nebo tři možnosti."
+        : "Vyplň aspoň jeden návrh. Nepoužité řádky označ křížkem."
+      : missingProjects.length
+        ? `Doplň ${variant === "PN" ? "název" : "název i stručný popis"} v řádcích ${missingProjects.join(", ")}.`
+        : "";
+    const error = !screen7CodeChosen
+      ? "Nejdřív vyber průzkum. Teprve potom se zobrazí jeho kód."
+      : !experienceChosen
+        ? "Vyber hodnotu zkušeností správce 1, 2 nebo 3."
+        : !weekChosen
+          ? "Vyber týden průzkumu od pondělí do neděle."
+          : projectError;
+    if (error) {
+      setFormError(error);
       return;
     }
     if (!activationStamp) {
@@ -1198,7 +1239,7 @@ export default function Home() {
     setLocked(true);
     setLive((current) => [
       ...current.filter((item) => item.code !== code),
-      { title, period: validity.period, code, variant },
+      { title, period: validity.period, code, variant, projects, validFrom: validity.from, validTo: validity.to, activationStamp },
     ]);
     if (copySurveyMode && copiedSurveyCode.trim()) {
       const sourceCode = copiedSurveyCode.trim().toUpperCase();
@@ -1223,7 +1264,7 @@ export default function Home() {
     }
     const stamp = new Date();
     setReceipt(
-      code + participantSymbols.join("") + "-" + stamp.getTime().toString(36).toUpperCase() + " · " +
+      participantCode + participantSymbols.join("") + "-" + stamp.getTime().toString(36).toUpperCase() + " · " +
       stamp.toLocaleString("cs-CZ", { fractionalSecondDigits: 3 }),
     );
     setShowAccountResults(true);
@@ -1247,8 +1288,9 @@ export default function Home() {
     );
   };
 
+  const participantCode = role === "participant" && participantTvlCode ? participantTvlCode : code;
   const sharedTvl = {
-    code,
+    code: participantCode,
     organiser,
     managerLogo,
     variant,
@@ -1509,26 +1551,28 @@ export default function Home() {
               </p>
             </div>
           )}
+          <details className="variant-instructions">
+            <summary>Kopírování návrhu a uložení TVL</summary>
+            <p>V seznamu správců otevři celý TVL ke čtení, nebo v režimu kopírování vlož kód průzkumu a zvol stejnou variantu. Klikni na jeden návrh. Do nového TVL se přenese jeho název, popis a kód původního průzkumu. Hodnocení vyplníš znovu.</p>
+            <p>Pro vlastní záznam si můžeš místo tisku pořídit snímek obrazovky telefonu a uložit ho do Fotek nebo na USB disk. Pro účetnictví si uschovej také potvrzení o platbě.</p>
+          </details>
           {variantOptions.map((option) => (
-            <button
-              key={option.code}
-              className={"variant-choice manager-help help-right " + (hoveredVariant === option.code ? "active" : "")}
-              data-help={editableCopy[variantHelpKeys[option.code]]}
-              onMouseEnter={() => setHoveredVariant(option.code)}
-              onFocus={() => setHoveredVariant(option.code)}
-              onTouchStart={(event) => {
-                if (touchPreviewVariant !== option.code) {
-                  event.preventDefault();
-                  setTouchPreviewVariant(option.code);
-                  setHoveredVariant(option.code);
-                }
-              }}
-              onClick={() => openWorkingVariant(option.code)}
-            >
-              <b>{option.code}</b>
-              <span>{option.name}<small>{option.description}</small></span>
-              <em aria-label="Potvrdit výběr">➜</em>
-            </button>
+            <div key={option.code}>
+              <button
+                className={"variant-choice " + (hoveredVariant === option.code ? "active" : "")}
+                onMouseEnter={() => setHoveredVariant(option.code)}
+                onFocus={() => setHoveredVariant(option.code)}
+                onClick={() => openWorkingVariant(option.code)}
+              >
+                <b>{option.code}</b>
+                <span>{option.name}<small>{option.description}</small></span>
+                <em aria-label="Potvrdit výběr">➜</em>
+              </button>
+              <details className="variant-instructions">
+                <summary>Nápověda k variantě {option.code}</summary>
+                <p>{editableCopy[variantHelpKeys[option.code]]}</p>
+              </details>
+            </div>
           ))}
           {formError && <p className="form-error">{formError}</p>}
           <button className="muted" onClick={() => setEntryStage("ares")}>ZPĚT</button>
@@ -1581,7 +1625,7 @@ export default function Home() {
                   </span>
                   <small>Pořadí použité varianty: {item.variant}1</small>
                   <button onClick={() => setEntryStage("readonly")}>OTEVŘÍT JEN KE ČTENÍ A KOPÍROVÁNÍ</button>
-                  <button onClick={() => { setRole("participant"); setParticipantOpen(true); setEntryStage("app"); }}>
+                  <button onClick={() => { setRole("participant"); setCopySource(item); setEntryStage("copy-source"); }}>
                     OTEVŘÍT JAKO ÚČASTNÍK
                   </button>
                   <button
@@ -1632,6 +1676,48 @@ export default function Home() {
           scoreTotal={receipt ? scores.reduce((sum, score) => sum + score, 0) : undefined}
           linkedTvlCount={copiedSurveyCount + 1}
         />
+      </main>
+    );
+  }
+
+  if (entryStage === "copy-source" && copySource) {
+    const sourceTvl = {
+      ...sharedTvl,
+      ...copySource,
+      personal: undefined,
+      participantSymbols: ["", "", "", ""],
+      variationSourceCode: undefined,
+      variationCopyStamp: undefined,
+      codeVisible: true,
+    };
+    const copyProject = (index: number) => copyOneProject(copySource, index);
+    return (
+      <main className="readonly-screen">
+        <ScreenBadge current={8} />
+        <div className="readonly-toolbar">
+          <strong>CELÝ TVL KE ČTENÍ</strong>
+          <button onClick={() => { setCopySource(null); setEntryStage(role === "participant" ? "app" : "variants"); }}>ZPĚT</button>
+        </div>
+        <section className="copy-topics-panel">
+          <h2>Převzít jeden návrh do nového TVL</h2>
+          <p>Vyber jeden návrh přímo v listu nebo po přečtení jeho popisu níže.</p>
+        </section>
+        <div className="tvl-paper original-a4" style={tvlLayoutStyle}>
+          <TvlSection kind="voucher" {...sourceTvl} onInspect={copyProject} />
+          <CutLine label="oddělit POUKÁZKU" />
+          <TvlSection kind="investment" {...sourceTvl} onInspect={copyProject} />
+          <CutLine label="oddělit INVESTICI" />
+          <TvlSection kind="receipt" {...sourceTvl} onInspect={copyProject} />
+        </div>
+        <section className="copy-topics-panel">
+          {copySource.projects.map((project, index) => project.unused ? null : (
+            <article key={index}>
+              <h3>{project.title}</h3>
+              <p>{project.detail}</p>
+              <button onClick={() => copyProject(index)}>PŘEVZÍT DO NOVÉHO TVL</button>
+            </article>
+          ))}
+        </section>
       </main>
     );
   }
@@ -1727,7 +1813,7 @@ export default function Home() {
             ? Array.from({ length: Math.min(999, printCount) }, (_, index) => index)
             : [0]
           ).map((copyIndex) => {
-            const printCode = code.slice(0, 14) + String(copyIndex + 1).padStart(3, "0");
+            const printCode = role === "participant" ? participantCode : code.slice(0, 14) + String(copyIndex + 1).padStart(3, "0");
             const readonlyPrintShared = {
               ...sharedTvl,
               code: printCode,
@@ -1786,20 +1872,26 @@ export default function Home() {
           <section className="participant-shell">
             <div className="organiser-column">
               <p className="eyebrow">SEZNAM SPRÁVCŮ</p>
-              <button className="organiser-choice active" onClick={() => live.length && setParticipantOpen(true)}>
+              <div className="organiser-choice active">
                 <span>01</span>
                 <div>
                   <b>{organiser}</b>
-                  <small>{live.length ? "1 živá aktivita" : "0 živých aktivit"}</small>
+                  <small>Živých průzkumů: {live.length}</small>
                 </div>
-                <em>→</em>
-              </button>
+              </div>
+              {live.map((survey) => (
+                <p key={survey.code}>
+                  <button onClick={() => { setCopySource(survey); setEntryStage("copy-source"); }}>
+                    Otevřít TVL ke čtení · {survey.title} · {survey.code}
+                  </button>
+                </p>
+              ))}
             </div>
 
             <div className="activity-column">
               {!participantOpen ? (
                 <div className="empty-state">
-                  <b>{live.length ? "Klikni na správce vlevo" : "Správce zatím nemá potvrzenou živou aktivitu"}</b>
+                  <b>{live.length ? "Vyber průzkum správce" : "Správce zatím nemá potvrzenou živou aktivitu"}</b>
                   <span>{live.length ? "Potom se zobrazí jeho živý TVL." : "Nejdřív v roli správce vyplň a potvrď pracovní šablonu."}</span>
                 </div>
               ) : (
@@ -1809,8 +1901,9 @@ export default function Home() {
                       <span className="variant">{variant}</span>
                       <div><small>ŽIVÁ AKTIVITA</small><h2>{title}</h2></div>
                     </div>
-                    <code>{code}</code>
+                    <code>{participantCode}</code>
                   </div>
+                  {participantTvlCode && <p>Původní průzkum: {variationSourceCode}</p>}
                   <div className="participant-period-row">
                     <p className="participant-period">Živý týden: {validity.period}</p>
                     <strong className="survey-copy-count manager-help" data-help={editableCopy.copyCountHelp}>
@@ -1837,7 +1930,7 @@ export default function Home() {
                       <input value={personal.nationality} onChange={(event) => setPersonal({ ...personal, nationality: event.target.value })} />
                     </label>
                     <label>
-                      Rodné číslo / osobní identifikátor
+                      {variant === "PP" ? "Číslo bankovní transakce" : "RČ"}
                       <input value={personal.identity} onChange={(event) => setPersonal({ ...personal, identity: event.target.value })} />
                     </label>
                   </fieldset>
@@ -1906,7 +1999,7 @@ export default function Home() {
                         výsledkem, aniž by se do něj přeneslo okno D.
                       </p>
                       <button onClick={() => window.print()}>TISK / ULOŽIT CELÝ TVL NA JEDNU A4</button>
-                      <small className="mobile-print-help">V telefonu vyber u tisku „Uložit jako PDF“ a soubor potom přilož ke zprávě SMS nebo MMS.</small>
+                      <small className="mobile-print-help">V telefonu můžeš zvolit „Uložit jako PDF“ a přiložit soubor ke zprávě SMS nebo MMS. Pro vlastní potřebu si můžeš uložit snímek obrazovky do Fotek.</small>
                       <button onClick={() => setEntryStage("readonly")}>ZOBRAZIT VÝSLEDEK VRÁCENÝ DO TVL</button>
                       <button onClick={() => setShowAccountResults((shown) => !shown)}>
                         {showAccountResults ? "SKRÝT ŘÁDKY ÚČTU NA PROPAGACI" : "ZKONTROLOVAT ŘÁDKY ÚČTU NA PROPAGACI"}
@@ -2204,7 +2297,7 @@ export default function Home() {
           ? Array.from({ length: Math.min(999, printCount) }, (_, index) => index)
           : receipt ? [0] : []
         ).map((copyIndex) => {
-          const printCode = code.slice(0, 14) + String(copyIndex + 1).padStart(3, "0");
+          const printCode = role === "participant" ? participantCode : code.slice(0, 14) + String(copyIndex + 1).padStart(3, "0");
           const printShared = {
             ...sharedTvl,
             code: printCode,
